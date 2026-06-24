@@ -625,6 +625,61 @@ export default function VideoPage() {
               <div className="vp-loading-bar"><div className="vp-loading-bar-inner" /></div>
               <p>Generating video on fal's queue. This usually takes 60–120 seconds.</p>
             </div>
+          ) : sub === "motion" ? (
+            <div className="vp-motion-main">
+              {/* Top tabs: History / Motion library — cosmetic for v1 */}
+              <div className="vp-main-tabs">
+                <button className="vp-main-tab">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18v12H3zM3 10h18"/></svg>
+                  History
+                </button>
+                <button className="vp-main-tab is-active">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM8 3v18"/></svg>
+                  Motion library
+                </button>
+              </div>
+
+              <div className="vp-motion-hero">
+                <div className="vp-motion-hero-text">
+                  <h1 className="vp-motion-h1">
+                    Recreate any <span className="vp-bracket">[<span className="vp-motion-h1-grad">MOTION</span>]</span>
+                    <br />with your image
+                  </h1>
+                  <p className="vp-motion-hero-sub">Copy motion from any video and place your character into the same movement.</p>
+                </div>
+                <div className="vp-motion-hero-tiles">
+                  {[
+                    "linear-gradient(135deg,#ec4899,#a855f7)",
+                    "linear-gradient(135deg,#3b82f6,#a855f7)",
+                    "linear-gradient(135deg,#10b981,#ec4899)",
+                  ].map((bg, i) => (
+                    <div key={i} className="vp-motion-tile" style={{ background: bg, transform: `rotate(${(i - 1) * 6}deg) translateY(${i % 2 ? 8 : -8}px)` }} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="vp-motion-library">
+                <h2 className="vp-motion-library-title">Start by copying motion from library</h2>
+                <div className="vp-motion-library-grid">
+                  {[
+                    "linear-gradient(135deg,#7c3aed,#ec4899)",
+                    "linear-gradient(135deg,#06b6d4,#3b82f6)",
+                    "linear-gradient(135deg,#f59e0b,#ef4444)",
+                    "linear-gradient(135deg,#10b981,#84cc16)",
+                    "linear-gradient(135deg,#a855f7,#ec4899)",
+                  ].map((bg, i) => (
+                    <button
+                      key={i}
+                      className="vp-motion-library-card"
+                      style={{ background: bg }}
+                      title="Use this motion (coming soon)"
+                    >
+                      <svg className="vp-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="vp-hero">
               <h1 className="vp-hero-title">Make videos in one click</h1>
@@ -632,8 +687,8 @@ export default function VideoPage() {
               <div className="vp-steps">
                 <div className="vp-step">
                   <div className="vp-step-num">1</div>
-                  <div className="vp-step-title">{sub === "motion" ? "Add image + ref video" : sub === "edit" ? "Upload a 3–10s video" : "Add image"}</div>
-                  <div className="vp-step-sub">{sub === "motion" ? "A character image and a motion reference clip." : sub === "edit" ? "Optional: add up to 4 reference images for elements." : "Optional — start from an image or generate from text."}</div>
+                  <div className="vp-step-title">{sub === "edit" ? "Upload a 3–10s video" : "Add image"}</div>
+                  <div className="vp-step-sub">{sub === "edit" ? "Optional: add up to 4 reference images for elements." : "Optional — start from an image or generate from text."}</div>
                 </div>
                 <div className="vp-step">
                   <div className="vp-step-num">2</div>
