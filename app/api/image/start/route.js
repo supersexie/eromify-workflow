@@ -11,11 +11,13 @@ const KEY = process.env.OPENAI_API_KEY;
 
 // Map the UI label → OpenAI image-API model name. If the user picked one of
 // these, we always route to OpenAI directly, regardless of whether FAL_KEY is set.
-// GPT Image 2 is intentionally NOT here — it's routed through fal's async queue
-// (see FAL_IMAGE_MAP) because the direct OpenAI sync call regularly exceeds
-// Vercel Hobby's 60s function cap. GPT Image 1 and DALL·E 3 are fast enough
-// (<30s typical) to stay on the direct, synchronous OpenAI path.
+// Map the UI label → OpenAI image-API model name. Selecting any of these
+// routes directly to OpenAI's /v1/images/generations (or /edits when a source
+// image is attached). All three fit within Vercel's 60s maxDuration most of the
+// time; if gpt-image-2 ever exceeds it, the surfaced error tells the user to
+// retry or pick a faster model.
 const OPENAI_IMAGE_MODELS = {
+  "GPT Image 2": "gpt-image-2",
   "GPT Image 1": "gpt-image-1",
   "DALL·E 3": "dall-e-3",
   "DALL-E 3": "dall-e-3",
