@@ -58,9 +58,11 @@ function Dropdown({ open, options, onPick, onClose }) {
 export default function PromptBar({ node, sources = [], onChange, onRun, running }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [voices, setVoices] = useState(_voicesCache || []);
+  const [enhancing, setEnhancing] = useState(false);
 
   const kind = node?.data?.kind;
   const isAudio = kind === "audio";
+  const canEnhance = kind === "image" || kind === "video";
 
   // Fetch voices once the first time an audio node is selected.
   useEffect(() => {
@@ -78,6 +80,25 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
 
   const set = (patch) => onChange(node.id, { ...data, ...patch });
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
+
+  const enhance = async () => {
+    const cur = (data.prompt || "").trim();
+    if (!cur || enhancing) return;
+    setEnhancing(true);
+    try {
+      const res = await fetch("/api/prompt/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: cur, kind }),
+      });
+      const j = await res.json();
+      if (res.ok && j.prompt) set({ prompt: j.prompt });
+    } catch {
+      // Keep original prompt on failure; the user can retry.
+    } finally {
+      setEnhancing(false);
+    }
+  };
 
   const modelList = MODELS[kind] || [];
   const aspectList = ASPECTS[kind] || null;
@@ -117,6 +138,25 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
           }}
         />
+        {canEnhance && (
+          <button
+            className="pb-enhance"
+            onClick={enhance}
+            disabled={enhancing || !((data.prompt || "").trim())}
+            title="Enhance prompt with Eromify style"
+          >
+            {enhancing ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14zM5 15l.7 1.5L7.2 17.2 5.7 17.9 5 19.4 4.3 17.9 2.8 17.2 4.3 16.5 5 15z" />
+              </svg>
+            )}
+            <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
+          </button>
+        )}
         <span className="pb-tab">Tab</span>
         <button className="pb-window" title="Detach">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
