@@ -13,11 +13,48 @@ const MODELS = {
 // Cached so we don't refetch on every selection change.
 let _voicesCache = null;
 
-const ASPECTS = {
-  image: ["1:1 · 1080p", "16:9 · 1080p", "9:16 · 1080p", "4:3 · 1024p"],
-  video: ["16:9 · 720p", "16:9 · 1080p", "9:16 · 720p"],
-  motion: ["16:9 · 1080p", "1:1 · 1080p"],
+// Full aspect-ratio list with shape proxies for the picker thumbnail. Same
+// data shape the Image page uses; reused here for consistency.
+const ASPECTS_RICH = [
+  { id: "auto", label: "Auto", w: 18, h: 18 },
+  { id: "1:1",  label: "1:1",  w: 18, h: 18 },
+  { id: "3:4",  label: "3:4",  w: 14, h: 18 },
+  { id: "4:3",  label: "4:3",  w: 18, h: 14 },
+  { id: "2:3",  label: "2:3",  w: 12, h: 18 },
+  { id: "3:2",  label: "3:2",  w: 18, h: 12 },
+  { id: "9:16", label: "9:16", w: 10, h: 18 },
+  { id: "16:9", label: "16:9", w: 18, h: 10 },
+  { id: "5:4",  label: "5:4",  w: 18, h: 15 },
+  { id: "4:5",  label: "4:5",  w: 15, h: 18 },
+  { id: "21:9", label: "21:9", w: 22, h: 10 },
+];
+// Kinds that get an aspect/quality chip pair. (text/audio don't.)
+const HAS_ASPECT = new Set(["image", "video", "motion"]);
+// Quality options vary by kind. Image → resolution buckets; video → encode res.
+const QUALITIES = {
+  image: [
+    { id: "1K", label: "1K" },
+    { id: "2K", label: "2K" },
+    { id: "4K", label: "4K", premium: true },
+  ],
+  video: [
+    { id: "720p", label: "720p" },
+    { id: "1080p", label: "1080p" },
+  ],
+  motion: [
+    { id: "720p", label: "720p" },
+    { id: "1080p", label: "1080p" },
+  ],
 };
+
+function AspectIcon({ w, h }) {
+  const max = 22;
+  const scale = max / Math.max(w, h);
+  const W = w * scale, H = h * scale;
+  return (
+    <span className="ip-asp-ic"><span style={{ width: W, height: H }} /></span>
+  );
+}
 
 const DURATIONS = ["4s", "6s", "8s", "10s", "30s", "45s", "60s"];
 
@@ -173,8 +210,19 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
   };
 
   const modelList = MODELS[kind] || [];
-  const aspectList = ASPECTS[kind] || null;
+  const hasAspect = HAS_ASPECT.has(kind);
+  const qualityList = QUALITIES[kind] || null;
   const isVideo = kind === "video";
+
+  // Legacy node data may still have aspect like "16:9 · 720p". Split for display.
+  const rawAspect = data.aspect || "";
+  const [aspectRatio, legacyRes] = rawAspect.includes("·")
+    ? rawAspect.split("·").map((s) => s.trim())
+    : [rawAspect || (kind === "image" ? "1:1" : "16:9"), null];
+  const currentAspect = ASPECTS_RICH.find((a) => a.id === aspectRatio) || ASPECTS_RICH[1];
+  const currentQuality =
+    data.quality || legacyRes ||
+    (kind === "image" ? "1K" : "720p");
   const hasSources = sources.length > 0;
   const currentVoiceLabel = voices.find((v) => v.value === data.voice)?.label
     || voices[0]?.label
@@ -185,10 +233,9 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       ? "Describe your next edit..."
       : "Describe what you want…";
 
-  // Batch count for image/video runs — clamped to 1-4. Picker opens via the
-  // chevron next to the play count.
+  // Batch count for image/video runs — clamped to 1-4. Stepper lives in the
+  // chip row (last chip); the play button just shows ×N when N > 1.
   const runCount = Math.max(1, Math.min(4, parseInt(data.runCount) || 1));
-  const openBatchMenu = (e) => { e.stopPropagation(); toggle("batch"); };
 
   return (
     <div className="prompt-bar">
@@ -371,14 +418,64 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
               <Dropdown open={openMenu === "model"} options={modelList} onPick={(v) => set({ model: v })} onClose={() => setOpenMenu(null)} />
             </div>
           )}
-          {aspectList && (
+          {hasAspect && (
             <div className="chip-wrap">
               <Chip
-                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>}
-                label={data.aspect || aspectList[0]}
+                icon={<AspectIcon w={currentAspect.w} h={currentAspect.h} />}
+                label={currentAspect.label}
                 onClick={() => toggle("aspect")}
               />
-              <Dropdown open={openMenu === "aspect"} options={aspectList} onPick={(v) => set({ aspect: v })} onClose={() => setOpenMenu(null)} />
+              {openMenu === "aspect" && (
+                <>
+                  <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
+                  <div className="ip-pop">
+                    <div className="ip-pop-title">Aspect ratio</div>
+                    {ASPECTS_RICH.map((a) => (
+                      <button
+                        key={a.id}
+                        className={`ip-aspect-row ${a.id === aspectRatio ? "is-active" : ""}`}
+                        onClick={() => { set({ aspect: a.id }); setOpenMenu(null); }}
+                      >
+                        <AspectIcon w={a.w} h={a.h} />
+                        <span>{a.label}</span>
+                        {a.id === aspectRatio && (
+                          <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          {qualityList && (
+            <div className="chip-wrap">
+              <Chip
+                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 3L3 21M18 3l3 18M3 9h18M3 15h18"/></svg>}
+                label={currentQuality}
+                onClick={() => toggle("quality")}
+              />
+              {openMenu === "quality" && (
+                <>
+                  <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
+                  <div className="ip-pop">
+                    <div className="ip-pop-title">Select quality</div>
+                    {qualityList.map((q) => (
+                      <button
+                        key={q.id}
+                        className={`ip-aspect-row ${q.id === currentQuality ? "is-active" : ""}`}
+                        onClick={() => { set({ quality: q.id }); setOpenMenu(null); }}
+                      >
+                        <span style={{ fontSize: 13, fontWeight: 600, flex: 1, textAlign: "left" }}>{q.label}</span>
+                        {q.premium && <span className="ip-badge ip-badge-premium">Premium</span>}
+                        {q.id === currentQuality && (
+                          <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
           {isVideo && (
@@ -412,39 +509,30 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
               />
             </div>
           )}
-          {kind !== "text" && (
-            <Chip
-              icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>}
-              label={data.ep || "No EP"}
-            />
+          {(kind === "image" || kind === "video") && (
+            <div className="chip-wrap">
+              <button className="chip-btn ip-stepper" onClick={(e) => e.stopPropagation()}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <button
+                  className="ip-step-btn"
+                  disabled={runCount <= 1}
+                  onClick={(e) => { e.stopPropagation(); set({ runCount: Math.max(1, runCount - 1) }); }}
+                >−</button>
+                <span className="ip-step-num">{runCount}/4</span>
+                <button
+                  className="ip-step-btn"
+                  disabled={runCount >= 4}
+                  onClick={(e) => { e.stopPropagation(); set({ runCount: Math.min(4, runCount + 1) }); }}
+                >+</button>
+              </button>
+            </div>
           )}
         </div>
 
-        <div className="chip-wrap pb-play-wrap">
-          <button className="pb-play" onClick={onRun} disabled={running}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>{runCount}</span>
-            <span
-              onClick={openBatchMenu}
-              className="pb-play-inc"
-              title="Batch size"
-              role="button"
-            >
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
-            </span>
-          </button>
-          <Dropdown
-            open={openMenu === "batch"}
-            options={[
-              { value: "1", label: "1 — single" },
-              { value: "2", label: "2 — variations" },
-              { value: "3", label: "3 — variations" },
-              { value: "4", label: "4 — variations" },
-            ]}
-            onPick={(v) => set({ runCount: parseInt(v) })}
-            onClose={() => setOpenMenu(null)}
-          />
-        </div>
+        <button className="pb-play" onClick={onRun} disabled={running}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          {runCount > 1 && <span style={{ fontSize: 11, fontWeight: 700 }}>×{runCount}</span>}
+        </button>
       </div>
     </div>
   );

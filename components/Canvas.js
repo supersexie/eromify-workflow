@@ -280,7 +280,14 @@ function CanvasInner({ workflowId }) {
       const typed = (node.data.prompt || "").trim();
       const prompt = typed || textPrompt || "";
       if (node.data.kind === "video") {
-        const [aspectRatio, resolution] = (node.data.aspect || "16:9 · 720p").split("·").map((s) => s.trim());
+        // Aspect + quality are stored as separate fields now. Fall back to the
+        // legacy "16:9 · 720p" combined string for older nodes.
+        const rawAspect = node.data.aspect || "";
+        const [legacyRatio, legacyRes] = rawAspect.includes("·")
+          ? rawAspect.split("·").map((s) => s.trim())
+          : [rawAspect, null];
+        const aspectRatio = legacyRatio || "16:9";
+        const resolution = node.data.quality || legacyRes || "720p";
         const dur = parseInt(node.data.duration) || 8;
         output = await generateVideo({
           prompt,
