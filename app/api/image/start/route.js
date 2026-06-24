@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { pickImageEndpoint } from "@/lib/falImage";
 
 export const runtime = "nodejs";
-export const maxDuration = 30;
+// 60s = Vercel Hobby max. GPT Image 2 / DALL·E 3 can take 30-50s synchronously.
+// fal.ai calls remain fast (they just queue and return a request_id).
+export const maxDuration = 60;
 
 const FAL = process.env.FAL_KEY;
 const KEY = process.env.OPENAI_API_KEY;
