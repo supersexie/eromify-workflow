@@ -40,13 +40,51 @@ const FAL_MOTION_MODELS = {
   "Kling Motion Control Std": "fal-ai/kling-video/v2.6/standard/motion-control",
 };
 
+// Video Edit endpoints — source video + prompt → edited video.
+const FAL_EDIT_MODELS = {
+  "Kling O1 Video Edit": "fal-ai/kling-video/o1/video-to-video/edit",
+  "Kling O3 Omni Edit": "fal-ai/kling-video/o1/video-to-video/edit",
+  "Kling Motion Control": "fal-ai/kling-video/v2.6/pro/motion-control",
+};
+
 function parseDataUrl(d) {
   const m = /^data:([^;]+);base64,(.+)$/.exec(d || "");
   return m ? { mimeType: m[1], data: m[2] } : null;
 }
 
 export async function POST(req) {
-  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind } = await req.json();
+  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs } = await req.json();
+
+  // ---- Video Edit (Kling) — source video + prompt → edited video ----
+  if (kind === "edit") {
+    const endpoint = FAL_EDIT_MODELS[model] || FAL_EDIT_MODELS["Kling O1 Video Edit"];
+    if (!FAL) return NextResponse.json({ mock: true, output: "Video edit output (mock — set FAL_KEY)" });
+    if (!editVideo) {
+      return NextResponse.json({ error: "Video edit needs a source video." }, { status: 400 });
+    }
+    if (!prompt || !prompt.trim()) {
+      return NextResponse.json({ error: "Video edit needs a prompt describing the change." }, { status: 400 });
+    }
+    const input = { video_url: editVideo, prompt: prompt.trim() };
+    if (Array.isArray(editRefs) && editRefs.length) input.image_urls = editRefs.slice(0, 4);
+    try {
+      const res = await fetch(`https://queue.fal.run/${endpoint}`, {
+        method: "POST",
+        headers: { Authorization: `Key ${FAL}`, "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`fal ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const data = await res.json();
+      if (!data.request_id) throw new Error("fal did not return a request_id");
+      return NextResponse.json({
+        provider: "fal",
+        statusUrl: data.status_url,
+        responseUrl: data.response_url,
+      });
+    } catch (e) {
+      return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+  }
 
   // ---- Motion Control (Kling) — image + reference video → animated video ----
   if (kind === "motion" || motionVideo) {

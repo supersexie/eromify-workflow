@@ -2,7 +2,32 @@
 import { useRef, useState } from "react";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
-import { generateVideo, generateMotion } from "@/lib/run";
+import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
+
+// Edit-mode model catalog — top showcase + grouped picker on the sidebar.
+const EDIT_MODELS = [
+  {
+    id: "Kling O1 Video Edit",
+    desc: "Modify, restyle, change angles, transform",
+    long: "Generate with elements and references",
+    ic: "K",
+  },
+  {
+    id: "Kling O3 Omni Edit",
+    desc: "Edit videos with text prompts",
+    long: "Edit videos with text prompts",
+    badge: "EXCLUSIVE",
+    ic: "K",
+  },
+  {
+    id: "Kling Motion Control",
+    desc: "Control motion with video references",
+    long: "Control motion with video references",
+    ic: "K",
+  },
+];
+
+const EDIT_QUALITIES = ["720p", "1080p"];
 
 const VIDEO_MODELS = [
   "Kling v2",
@@ -98,6 +123,15 @@ export default function VideoPage() {
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [error, setError] = useState(null);
+  // Edit-mode state
+  const [editVideo, setEditVideo] = useState(null);
+  const [editRefs, setEditRefs] = useState([]); // up to 4 image data URIs
+  const [editModel, setEditModel] = useState(EDIT_MODELS[0].id);
+  const [editQuality, setEditQuality] = useState("720p");
+  const [editAuto, setEditAuto] = useState(true);
+  const [editSearch, setEditSearch] = useState("");
+  const editVideoRef = useRef(null);
+  const editRefsRef = useRef(null);
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
 
@@ -105,9 +139,26 @@ export default function VideoPage() {
     if (running) return false;
     if (sub === "create") return !!prompt.trim();
     if (sub === "motion") return !!image && !!refVideo;
-    if (sub === "edit") return false; // disabled until backed
+    if (sub === "edit") return !!editVideo && !!prompt.trim();
     return false;
   })();
+
+  const currentEditModel = EDIT_MODELS.find((m) => m.id === editModel) || EDIT_MODELS[0];
+
+  const onEditVideoPick = async (file) => {
+    if (!file) return;
+    const url = await fileToDataUrl(file);
+    setEditVideo(url);
+  };
+  const onEditRefsPick = async (files) => {
+    if (!files?.length) return;
+    const arr = [...editRefs];
+    for (const f of files) {
+      if (arr.length >= 4) break;
+      arr.push(await fileToDataUrl(f));
+    }
+    setEditRefs(arr);
+  };
 
   const run = async () => {
     if (!canRun) return;
@@ -131,6 +182,14 @@ export default function VideoPage() {
           model: motionModel,
           image,
           video: refVideo,
+        });
+      } else if (sub === "edit") {
+        url = await generateVideoEdit({
+          prompt: prompt.trim(),
+          model: editModel,
+          video: editVideo,
+          refs: editRefs,
+          quality: editQuality,
         });
       }
       setOutput(url);
@@ -175,15 +234,94 @@ export default function VideoPage() {
             />
           )}
           {sub === "edit" && (
-            <MediaPick
-              value={refVideo}
-              kind="video"
-              accept="video/*"
-              label="Upload a video to edit"
-              onPick={(u) => setRefVideo(u)}
-              onClear={() => setRefVideo(null)}
-              disabled={running}
-            />
+            <>
+              {/* Model showcase card at the top — gradient background, big brand label */}
+              <div className="vp-edit-hero">
+                <div className="vp-edit-hero-bg" />
+                <button className="vp-edit-hero-howto" type="button">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h6"/></svg>
+                  How it works
+                </button>
+                <div className="vp-edit-hero-name">{editModel.toUpperCase()}</div>
+                <div className="vp-edit-hero-sub">{currentEditModel.desc}</div>
+              </div>
+
+              {/* Source video */}
+              <div
+                className={`vp-media vp-edit-vid ${editVideo ? "is-filled" : ""}`}
+                onClick={() => !editVideo && !running && editVideoRef.current?.click()}
+              >
+                <input
+                  ref={editVideoRef}
+                  type="file"
+                  accept="video/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => { onEditVideoPick(e.target.files?.[0]); e.target.value = ""; }}
+                />
+                {editVideo ? (
+                  <>
+                    <video src={editVideo} muted playsInline controls />
+                    <button className="vp-media-x" onClick={(e) => { e.stopPropagation(); setEditVideo(null); }} disabled={running}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                  </>
+                ) : (
+                  <div className="vp-media-empty">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polygon points="10 9 16 12 10 15 10 9" fill="currentColor" stroke="none"/></svg>
+                    <div className="vp-media-label">Upload a video to edit</div>
+                    <div className="vp-media-sub">Duration required: 3–10 secs</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Optional references */}
+              <div className="vp-edit-refs-block">
+                <div className="vp-edit-refs-badge">Optional</div>
+                <input
+                  ref={editRefsRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={(e) => { onEditRefsPick(e.target.files); e.target.value = ""; }}
+                />
+                {editRefs.length === 0 ? (
+                  <div className="vp-media vp-edit-refs-empty" onClick={() => !running && editRefsRef.current?.click()}>
+                    <div className="vp-media-empty">
+                      <div className="vp-edit-plus">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                      </div>
+                      <div className="vp-media-label">Upload images &amp; elements</div>
+                      <div className="vp-media-sub">Up to 4 images or elements</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="vp-edit-refs-grid">
+                    {editRefs.map((r, i) => (
+                      <div key={i} className="vp-edit-ref">
+                        <img src={r} alt={`ref ${i + 1}`} />
+                        <button
+                          className="vp-edit-ref-x"
+                          onClick={() => setEditRefs(editRefs.filter((_, j) => j !== i))}
+                          disabled={running}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </button>
+                      </div>
+                    ))}
+                    {editRefs.length < 4 && (
+                      <button
+                        className="vp-edit-ref vp-edit-ref-add"
+                        onClick={() => editRefsRef.current?.click()}
+                        disabled={running}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
           )}
           {sub === "motion" && (
             <div className="vp-motion-pair">
@@ -214,7 +352,7 @@ export default function VideoPage() {
               className="vp-prompt"
               placeholder={
                 sub === "edit"
-                  ? "Describe the edit (coming soon)…"
+                  ? 'Describe the change you want, like "Make it snow". Add elements using @'
                   : sub === "motion"
                     ? "(Optional) refine the motion — e.g. 'exaggerated arm swing'"
                     : "Describe your scene in detail."
@@ -222,7 +360,7 @@ export default function VideoPage() {
               rows={4}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              disabled={running || sub === "edit"}
+              disabled={running}
             />
           </div>
 
@@ -263,6 +401,80 @@ export default function VideoPage() {
               </div>
             </div>
           )}
+          {sub === "edit" && (
+            <div className="vp-controls">
+              {/* Auto settings toggle */}
+              <div className="vp-control-row vp-toggle-row">
+                <div className="vp-control-label">Auto settings</div>
+                <button
+                  className={`vp-toggle ${editAuto ? "is-on" : ""}`}
+                  onClick={() => setEditAuto((v) => !v)}
+                  type="button"
+                >
+                  <span className="vp-toggle-knob" />
+                </button>
+              </div>
+
+              {/* Rich model picker */}
+              <div className="chip-wrap vp-control-row vp-edit-model-row" style={{ position: "relative" }}>
+                <div className="vp-edit-model-info">
+                  <div className="vp-control-label">Model</div>
+                  <div className="vp-edit-model-name">
+                    {editModel}
+                    <span className="vp-edit-model-mark"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+                  </div>
+                </div>
+                <button className="vp-edit-model-open" onClick={() => toggle("editModel")}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+                {openMenu === "editModel" && (
+                  <>
+                    <div className="dd-backdrop" onClick={() => { setOpenMenu(null); setEditSearch(""); }} />
+                    <div className="ip-pop vp-edit-pop">
+                      <div className="ip-pop-search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input autoFocus placeholder="Search…" value={editSearch} onChange={(e) => setEditSearch(e.target.value)} />
+                      </div>
+                      <div className="ip-pop-header">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        All models
+                      </div>
+                      {EDIT_MODELS
+                        .filter((m) => !editSearch || m.id.toLowerCase().includes(editSearch.toLowerCase()) || m.long.toLowerCase().includes(editSearch.toLowerCase()))
+                        .map((m) => (
+                          <button
+                            key={m.id}
+                            className={`ip-model-row ${m.id === editModel ? "is-active" : ""}`}
+                            onClick={() => { setEditModel(m.id); setOpenMenu(null); setEditSearch(""); }}
+                          >
+                            <span className="ip-model-ic">{m.ic}</span>
+                            <span className="ip-model-text">
+                              <span className="ip-model-name">
+                                {m.id}
+                                {m.badge && <span className={`ip-badge ip-badge-${m.badge.toLowerCase()}`}>{m.badge}</span>}
+                              </span>
+                              <span className="ip-model-desc">{m.long}</span>
+                            </span>
+                            {m.id === editModel && (
+                              <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                            )}
+                          </button>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Quality chip */}
+              <div className="chip-wrap">
+                <button className="ip-chip vp-quality-chip" onClick={() => toggle("editQuality")}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 2 22 22 22 12 2"/></svg>
+                  <span>{editQuality}</span>
+                </button>
+                <Dropdown open={openMenu === "editQuality"} options={EDIT_QUALITIES} onPick={setEditQuality} onClose={() => setOpenMenu(null)} />
+              </div>
+            </div>
+          )}
 
           <button className="vp-generate" onClick={run} disabled={!canRun}>
             {running ? (
@@ -276,9 +488,6 @@ export default function VideoPage() {
               <>Generate</>
             )}
           </button>
-          {sub === "edit" && (
-            <div className="vp-soon">Edit Video — coming soon</div>
-          )}
         </aside>
 
         <main className="vp-main">
@@ -298,8 +507,8 @@ export default function VideoPage() {
               <div className="vp-steps">
                 <div className="vp-step">
                   <div className="vp-step-num">1</div>
-                  <div className="vp-step-title">{sub === "motion" ? "Add image + ref video" : "Add image"}</div>
-                  <div className="vp-step-sub">{sub === "motion" ? "A character image and a motion reference clip." : "Optional — start from an image or generate from text."}</div>
+                  <div className="vp-step-title">{sub === "motion" ? "Add image + ref video" : sub === "edit" ? "Upload a 3–10s video" : "Add image"}</div>
+                  <div className="vp-step-sub">{sub === "motion" ? "A character image and a motion reference clip." : sub === "edit" ? "Optional: add up to 4 reference images for elements." : "Optional — start from an image or generate from text."}</div>
                 </div>
                 <div className="vp-step">
                   <div className="vp-step-num">2</div>

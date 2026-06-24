@@ -1347,3 +1347,108 @@ body {
   animation: mc-pulse 1.6s ease-in-out infinite;
 }
 .vp-error { margin: 20px auto; max-width: 720px; }
+
+/* ---- Video → Edit sub-tab: showcase card + extras ---- */
+.vp-edit-hero {
+  position: relative; overflow: hidden;
+  border-radius: 14px; padding: 18px 16px;
+  min-height: 130px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.vp-edit-hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(236,72,153,0.35), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(168,85,247,0.4), transparent 55%),
+    linear-gradient(135deg, #1a1820, #0f0e16);
+}
+.vp-edit-hero > *:not(.vp-edit-hero-bg) { position: relative; z-index: 1; }
+.vp-edit-hero-howto {
+  position: absolute; top: 10px; right: 10px;
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.12);
+  color: #fff; font-size: 10px; font-weight: 600;
+  padding: 4px 8px; border-radius: 6px; cursor: pointer;
+  font-family: inherit; backdrop-filter: blur(6px); z-index: 2;
+}
+.vp-edit-hero-name {
+  font-size: 18px; font-weight: 900; letter-spacing: -0.02em;
+  background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.vp-edit-hero-sub { font-size: 12px; color: var(--text); opacity: 0.85; margin-top: 2px; }
+
+.vp-edit-vid.is-filled { min-height: 0; max-height: 220px; }
+.vp-media-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.vp-edit-refs-block { position: relative; }
+.vp-edit-refs-badge {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  font-size: 10px; font-weight: 600; color: var(--muted);
+  background: rgba(0,0,0,.5); border: 1px solid var(--line);
+  padding: 2px 8px; border-radius: 5px;
+  backdrop-filter: blur(6px);
+}
+.vp-edit-refs-empty { min-height: 120px; }
+.vp-edit-plus {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--line-2);
+  display: grid; place-items: center; color: var(--muted);
+}
+.vp-edit-refs-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+}
+.vp-edit-ref {
+  position: relative; aspect-ratio: 1;
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--line); background: var(--surface-2);
+}
+.vp-edit-ref img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vp-edit-ref-x {
+  position: absolute; top: 4px; right: 4px;
+  width: 18px; height: 18px; border-radius: 4px;
+  background: rgba(0,0,0,.6); border: none; color: #fff;
+  display: grid; place-items: center; cursor: pointer;
+}
+.vp-edit-ref-add {
+  display: grid; place-items: center;
+  color: var(--muted); cursor: pointer;
+  background: var(--surface-2);
+}
+.vp-edit-ref-add:hover { border-color: var(--blue); color: var(--ink); }
+
+/* Auto settings toggle */
+.vp-toggle-row { cursor: default; }
+.vp-toggle {
+  width: 36px; height: 20px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line);
+  position: relative; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.vp-toggle.is-on { background: var(--grad); border-color: transparent; }
+.vp-toggle-knob {
+  position: absolute; top: 1px; left: 1px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; transition: transform .2s ease;
+}
+.vp-toggle.is-on .vp-toggle-knob { transform: translateX(16px); }
+
+/* Edit model row + quality chip */
+.vp-edit-model-row { align-items: center; }
+.vp-edit-model-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.vp-edit-model-name {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: var(--ink);
+}
+.vp-edit-model-mark { color: var(--muted-2); display: inline-flex; }
+.vp-edit-model-open {
+  background: transparent; border: none; color: var(--muted);
+  cursor: pointer; padding: 4px;
+}
+.vp-edit-model-open:hover { color: var(--ink); }
+.vp-edit-pop { left: 0; min-width: 280px; max-width: 320px; }
+
+.vp-quality-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+}
