@@ -1,10 +1,8 @@
-import MotionControl from "@/components/MotionControl";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Motion Control — Eromify",
-  description: "Animate a character image with the motion from any reference video.",
-};
-
+// Motion Control was merged into the Video page as a sub-tab. Any leftover
+// links to /motion redirect to the equivalent /video sub-route so bookmarks
+// and shared URLs from earlier still work.
 export default function Page() {
-  return <MotionControl />;
+  redirect("/video?sub=motion");
 }

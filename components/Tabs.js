@@ -1,12 +1,15 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
+// Motion Control now lives as a sub-tab inside Video — the dedicated /motion
+// route is gone. The Motion Control tab routes to /video?sub=motion which the
+// Video page reads on mount to select that sub-tab.
 const TABS = [
   { id: "canvas", label: "Canvas", path: "/app", match: (p) => p === "/app" || p.startsWith("/w/") },
-  { id: "image", label: "Image", path: "/image", match: (p) => p.startsWith("/image") },
-  { id: "video", label: "Video", path: "/video", match: (p) => p.startsWith("/video") },
-  { id: "motion", label: "Motion Control", path: "/motion", match: (p) => p.startsWith("/motion") },
-  { id: "mcp", label: "MCP & CLI", path: "/mcp", match: (p) => p.startsWith("/mcp") },
+  { id: "image",  label: "Image",  path: "/image", match: (p) => p.startsWith("/image") },
+  { id: "video",  label: "Video",  path: "/video", match: (p, s) => p.startsWith("/video") && s.get("sub") !== "motion" },
+  { id: "motion", label: "Motion Control", path: "/video?sub=motion", match: (p, s) => (p.startsWith("/video") && s.get("sub") === "motion") || p.startsWith("/motion") },
+  { id: "mcp",    label: "MCP & CLI", path: "/mcp", match: (p) => p.startsWith("/mcp") },
 ];
 
 // Shared topbar tab strip — used by every product page so the brand pill,
@@ -14,6 +17,7 @@ const TABS = [
 export default function Tabs() {
   const router = useRouter();
   const pathname = usePathname() || "";
+  const search = useSearchParams();
   return (
     <div className="mc-tabs">
       <div className="title-pill">
@@ -21,7 +25,7 @@ export default function Tabs() {
         <span>Eromify</span>
       </div>
       {TABS.map((t) => {
-        const active = t.match(pathname);
+        const active = t.match(pathname, search);
         return (
           <button
             key={t.id}

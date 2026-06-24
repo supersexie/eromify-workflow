@@ -1,5 +1,6 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
@@ -118,7 +119,21 @@ function Dropdown({ open, options, onPick, onClose }) {
 }
 
 export default function VideoPage() {
-  const [sub, setSub] = useState("create");
+  // Allow deep-linking to a sub-tab via ?sub=motion|edit|create. The top-nav
+  // 'Motion Control' tab uses this to land users directly on the motion mode.
+  const searchParams = useSearchParams();
+  const initialSub = (() => {
+    const v = searchParams.get("sub");
+    return v === "motion" || v === "edit" || v === "create" ? v : "create";
+  })();
+  const [sub, setSub] = useState(initialSub);
+
+  // If the user navigates between tabs (e.g. Video → Motion Control via the
+  // top nav) the sub query changes but the page doesn't remount — sync it.
+  useEffect(() => {
+    const v = searchParams.get("sub");
+    if (v === "motion" || v === "edit" || v === "create") setSub(v);
+  }, [searchParams]);
   const [prompt, setPrompt] = useState("");
   const [image, setImage] = useState(null); // data URI
   const [refVideo, setRefVideo] = useState(null); // motion-control reference
