@@ -1,7 +1,43 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
+
+// localStorage key for the persistent gallery on /image. Stores an array of
+// {url, prompt, model, aspect, quality, ts}. Cap to MAX_HISTORY to keep the
+// JSON small (fal-hosted URLs are short).
+const HISTORY_KEY = "eromify:imageHistory:v1";
+const MAX_HISTORY = 200;
+function loadHistory() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveHistory(arr) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, MAX_HISTORY))); } catch {}
+}
+
+// Force-download an image as a file (works across origins via blob fetch).
+async function downloadImage(url, filename) {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename || `eromify-${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch {
+    // Fallback: open in a new tab so the user can save manually.
+    window.open(url, "_blank", "noopener");
+  }
+}
 
 // ---- Model catalog (Featured + All) — mirrors Higgsfield's grouped picker ----
 const MODELS = {
@@ -107,6 +143,16 @@ export default function ImagePage() {
   const [search, setSearch] = useState("");
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  // Load saved history on mount so generations survive refresh/navigation.
+  useEffect(() => {
+    setResults(loadHistory());
+    setLoaded(true);
+  }, []);
+  // Persist to localStorage only AFTER the initial load. Without this guard
+  // the save effect fires once with the initial [] and wipes the saved data
+  // before the load effect's state update lands.
+  useEffect(() => { if (loaded) saveHistory(results); }, [results, loaded]);
   const [error, setError] = useState(null);
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
@@ -145,7 +191,7 @@ export default function ImagePage() {
     const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
     if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
     if (start.output) {
-      setResults((r) => [{ url: start.output, prompt: prompt.trim(), model }, ...r]);
+      setResults((r) => [{ url: start.output, prompt: prompt.trim(), model, aspect, quality, ts: Date.now() }, ...r]);
       return;
     }
     const handle = { statusUrl: start.statusUrl, responseUrl: start.responseUrl };
@@ -160,7 +206,7 @@ export default function ImagePage() {
       const s = await sRes.json().catch(() => ({ error: `HTTP ${sRes.status}` }));
       if (!sRes.ok) throw new Error(s.error || `HTTP ${sRes.status}`);
       if (s.done) {
-        setResults((r) => [{ url: s.output, prompt: prompt.trim(), model }, ...r]);
+        setResults((r) => [{ url: s.output, prompt: prompt.trim(), model, aspect, quality, ts: Date.now() }, ...r]);
         return;
       }
     }
@@ -205,8 +251,22 @@ export default function ImagePage() {
               </div>
             ))}
             {results.map((r, i) => (
-              <div key={i} className="ip-card">
+              <div key={(r.ts || 0) + "-" + i} className="ip-card">
                 <img src={r.url} alt={r.prompt} />
+                <button
+                  className="ip-card-dl"
+                  onClick={() => downloadImage(r.url, `eromify-${(r.prompt || "image").slice(0, 32).replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`)}
+                  title="Download"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                </button>
+                <button
+                  className="ip-card-del"
+                  onClick={() => setResults((rs) => rs.filter((_, j) => j !== i))}
+                  title="Remove from library"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
                 <div className="ip-card-meta" title={r.prompt}>{r.prompt}</div>
               </div>
             ))}

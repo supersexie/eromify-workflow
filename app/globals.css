@@ -1211,9 +1211,29 @@ body {
 .ip-hero-sub { color: var(--muted); font-size: 14px; margin: 0; max-width: 520px; }
 
 .ip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
-.ip-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.ip-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; position: relative; }
 .ip-card img { width: 100%; height: 100%; display: block; object-fit: cover; aspect-ratio: 1 / 1; }
 .ip-card-meta { padding: 10px 12px; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Hover overlay buttons on each library card: download (right) + remove (left).
+   Both fade in on card hover; they sit above the image and below the meta. */
+.ip-card-dl, .ip-card-del {
+  position: absolute; top: 8px;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff; cursor: pointer;
+  display: grid; place-items: center;
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity .15s ease, transform .15s ease, background .15s ease;
+  backdrop-filter: blur(8px);
+}
+.ip-card-dl { right: 8px; }
+.ip-card-del { left: 8px; }
+.ip-card:hover .ip-card-dl,
+.ip-card:hover .ip-card-del { opacity: 1; transform: translateY(0); }
+.ip-card-dl:hover { background: var(--grad); border-color: transparent; }
+.ip-card-del:hover { background: rgba(248, 113, 113, 0.85); border-color: transparent; }
 .ip-card-loading { position: relative; aspect-ratio: 1 / 1; }
 .ip-loading-shimmer {
   position: absolute; inset: 0; background: var(--surface-2);
