@@ -67,7 +67,7 @@ function CanvasInner({ workflowId }) {
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [name, setName] = useState("Untitled Workflow");
+  const [name, setName] = useState("Untitled Canvas");
   const [loaded, setLoaded] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
@@ -124,7 +124,7 @@ function CanvasInner({ workflowId }) {
     if (!wf) { router.replace("/app"); return; }
     setNodes(wf.nodes || []);
     setEdges(wf.edges || []);
-    setName(wf.name || "Untitled Workflow");
+    setName(wf.name || "Untitled Canvas");
     setLoaded(true);
   }, [workflowId, router]);
 
@@ -517,7 +517,7 @@ function CanvasInner({ workflowId }) {
       {nodes.length === 0 && (
         <div className="empty">
           <h1>Add your first node to the canvas</h1>
-          <p>Each node is a creative step in your workflow.</p>
+          <p>Each node is a creative step in your canvas.</p>
           <div className="node-cards">
             {NODE_TYPES_META.map((t) => (
               <div key={t.kind} className="node-card" onClick={() => addNode(t.kind)}>

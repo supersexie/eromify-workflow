@@ -33,13 +33,13 @@ export default function Dashboard() {
   };
 
   const onCreateConfirm = () => {
-    const wf = createWorkflow(newName.trim() || "Untitled Workflow");
+    const wf = createWorkflow(newName.trim() || "Untitled Canvas");
     router.push(`/w/${wf.id}`);
   };
 
   const onDelete = (id, e) => {
     e.stopPropagation();
-    if (!confirm("Delete this workflow?")) return;
+    if (!confirm("Delete this canvas?")) return;
     deleteWorkflow(id);
     refresh();
   };
@@ -51,7 +51,7 @@ export default function Dashboard() {
   };
 
   const onRenameCommit = (id) => {
-    const name = draft.trim() || "Untitled Workflow";
+    const name = draft.trim() || "Untitled Canvas";
     renameWorkflow(id, name);
     setEditingId(null);
     refresh();
@@ -64,14 +64,14 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <button className="primary-btn" onClick={onCreate}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-            New Workflow
+            New Canvas
           </button>
           <UserMenu />
         </div>
       </div>
 
       <div className="dash-body">
-        <h1 className="dash-h1">Your workflows</h1>
+        <h1 className="dash-h1">Your canvases</h1>
         <p className="dash-sub">Build node-based creative pipelines. Saved automatically in this browser.</p>
 
         {items.length === 0 ? (
@@ -84,15 +84,15 @@ export default function Dashboard() {
                 <rect x="14" y="14" width="7" height="7" rx="1" />
               </svg>
             </div>
-            <h2>No workflows yet</h2>
-            <p>Create your first workflow to get started.</p>
-            <button className="primary-btn" onClick={onCreate}>Create workflow</button>
+            <h2>No canvases yet</h2>
+            <p>Create your first canvas to get started.</p>
+            <button className="primary-btn" onClick={onCreate}>Create canvas</button>
           </div>
         ) : (
           <div className="wf-grid">
             <div className="wf-tile wf-tile-new" onClick={onCreate}>
               <div className="wf-tile-new-plus">+</div>
-              <div>New workflow</div>
+              <div>New canvas</div>
             </div>
             {items.map((wf) => (
               <div key={wf.id} className="wf-tile" onClick={() => router.push(`/w/${wf.id}`)}>
@@ -135,12 +135,12 @@ export default function Dashboard() {
       {creating && (
         <div className="nw-backdrop" onClick={() => setCreating(false)}>
           <div className="nw-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="nw-title">Name your workflow</h3>
+            <h3 className="nw-title">Name your canvas</h3>
             <p className="nw-sub">Give it a name to get started. You can rename it later.</p>
             <input
               className="nw-input"
               autoFocus
-              placeholder="Untitled Workflow"
+              placeholder="Untitled Canvas"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => {
@@ -150,7 +150,7 @@ export default function Dashboard() {
             />
             <div className="nw-actions">
               <button className="nw-cancel" onClick={() => setCreating(false)}>Cancel</button>
-              <button className="primary-btn" onClick={onCreateConfirm}>Create workflow</button>
+              <button className="primary-btn" onClick={onCreateConfirm}>Create canvas</button>
             </div>
           </div>
         </div>

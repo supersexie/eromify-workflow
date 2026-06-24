@@ -2,7 +2,7 @@
 import { useRouter, usePathname } from "next/navigation";
 
 const TABS = [
-  { id: "workflows", label: "Workflows", path: "/app", match: (p) => p === "/app" || p.startsWith("/w/") },
+  { id: "canvas", label: "Canvas", path: "/app", match: (p) => p === "/app" || p.startsWith("/w/") },
   { id: "image", label: "Image", path: "/image", match: (p) => p.startsWith("/image") },
   { id: "video", label: "Video", path: "/video", match: (p) => p.startsWith("/video") },
   { id: "motion", label: "Motion Control", path: "/motion", match: (p) => p.startsWith("/motion") },
