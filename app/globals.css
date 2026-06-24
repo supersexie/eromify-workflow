@@ -502,24 +502,22 @@ body {
   box-shadow: var(--shadow);
 }
 
-/* Dark-themed scrollbar for all in-app popovers (dd-menu + ip-pop). The default
-   white WebKit scrollbar on a dark popover looks broken. */
-.dd-menu,
-.ip-pop {
+/* Dark-themed scrollbar applied to every scrollable surface in the app.
+   The OS-default WebKit scrollbar (light/white) looked broken on dark panels. */
+*, html, body {
   scrollbar-width: thin;
   scrollbar-color: var(--line-2) transparent;
 }
-.dd-menu::-webkit-scrollbar,
-.ip-pop::-webkit-scrollbar { width: 8px; }
-.dd-menu::-webkit-scrollbar-track,
-.ip-pop::-webkit-scrollbar-track { background: transparent; }
-.dd-menu::-webkit-scrollbar-thumb,
-.ip-pop::-webkit-scrollbar-thumb {
-  background: var(--line-2); border-radius: 4px;
-  border: 2px solid var(--surface);
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
-.dd-menu::-webkit-scrollbar-thumb:hover,
-.ip-pop::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+*::-webkit-scrollbar-thumb:hover { background: var(--muted-2); background-clip: padding-box; }
+*::-webkit-scrollbar-corner { background: transparent; }
 
 /* ---- Hover tooltips (CSS-only, opt-in via data-tooltip attribute) ----
    Apply [data-tooltip="..."] to any element you want to label. A small dark
@@ -1544,13 +1542,15 @@ body {
 }
 .vp-edit-hero > *:not(.vp-edit-hero-bg) { position: relative; z-index: 1; }
 .vp-edit-hero-howto {
-  position: absolute; top: 10px; right: 10px;
+  position: absolute; top: 8px; left: 8px;
   display: inline-flex; align-items: center; gap: 4px;
   background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.12);
-  color: #fff; font-size: 10px; font-weight: 600;
-  padding: 4px 8px; border-radius: 6px; cursor: pointer;
+  color: #fff; font-size: 9px; font-weight: 600;
+  padding: 3px 7px; border-radius: 5px; cursor: pointer;
   font-family: inherit; backdrop-filter: blur(6px); z-index: 2;
+  line-height: 1;
 }
+.vp-edit-hero-howto svg { width: 9px; height: 9px; }
 .vp-edit-hero-name {
   font-size: 18px; font-weight: 900; letter-spacing: -0.02em;
   background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent;
