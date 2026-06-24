@@ -154,10 +154,14 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
     if (!cur || enhancing) return;
     setEnhancing(true);
     try {
+      // When a source image is wired into this node, the subject is already
+      // defined by that image — the API switches to a 'describe only the
+      // change/motion' system prompt and skips the Eromify house-style block.
+      const hasSourceImage = sources.some((s) => s.kind === "image" && s.url);
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: cur, kind, model: enhanceModel }),
+        body: JSON.stringify({ prompt: cur, kind, model: enhanceModel, hasSourceImage }),
       });
       const j = await res.json();
       if (res.ok && j.prompt) set({ prompt: j.prompt });

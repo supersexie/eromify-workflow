@@ -37,6 +37,41 @@ Rules:
 - Aim for 80-140 words.
 - Stay tasteful.`;
 
+// When a source image is already connected, the subject + setting are LOCKED
+// by that image. The user's prompt describes what should CHANGE — they should
+// not get our house-style template injected on top, since the source might be
+// a man in a hoodie, a product shot, anything. The rewrite stays focused on
+// the transformation only.
+const SYS_IMAGE_FROM_SOURCE = `You are a prompt engineer for an AI image-edit model. A SOURCE IMAGE is already provided as the starting point — its subject, outfit, location, and overall style are LOCKED. The user's text describes an EDIT.
+
+Rewrite the user's short prompt into ONE detailed edit instruction. Do NOT invent or describe the subject from scratch. Do NOT add lighting/outfit/setting/style descriptors that aren't part of the requested change — those come from the source image.
+
+Focus only on:
+- Exactly what to change (expression, pose, outfit swap if they ask, background swap if they ask, color/light change if they ask)
+- Concrete visual specifics for that change ("a soft, genuine smile with slight eye crinkle" rather than "smile")
+- Preserve everything else with a phrase like "keep everything else identical to the source image"
+
+Output rules:
+- One single line of plain text. No quotes. No labels. No prefix. No explanation.
+- 40-100 words.
+- Stay tasteful.`;
+
+const SYS_VIDEO_FROM_SOURCE = `You are a prompt engineer for an AI image-to-video model. A SOURCE IMAGE is already provided as the FIRST FRAME — the subject's identity, outfit, location, lighting, and overall look are LOCKED. The user's text describes the MOTION they want.
+
+Rewrite the user's short prompt into ONE detailed video direction. Do NOT redescribe the subject or setting. Do NOT inject a generic style template — the source image dictates style.
+
+Focus only on:
+- The primary motion/action the user asked for (the gesture, expression change, head turn, walk, etc.) described with concrete micro-movements
+- Supporting motion that makes it natural (subtle breathing, blink, hair shift, garment ripple)
+- Camera behavior (static, slow push-in, gentle pan, slight handheld) — choose what fits the mood
+- Timing and pacing words (slow and candid, smooth, dreamy)
+- A short tail noting subject identity and background remain consistent with the source image
+
+Output rules:
+- One single line of plain text. No quotes. No labels. No prefix. No explanation.
+- 50-120 words.
+- Stay tasteful.`;
+
 export async function POST(req) {
   let body;
   try {
@@ -44,14 +79,15 @@ export async function POST(req) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const { prompt = "", kind = "image", model } = body;
+  const { prompt = "", kind = "image", model, hasSourceImage = false } = body;
   const input = String(prompt || "").trim();
   if (!input) return NextResponse.json({ error: "Empty prompt" }, { status: 400 });
   if (!KEY) {
-    // No OpenAI key — return the prompt with a static house-style suffix so the
-    // feature still does *something* visible in dev. Real enrichment needs the key.
+    // No OpenAI key — without an LLM we can't intelligently enrich. With a
+    // source image we just return the user prompt unchanged (don't pollute
+    // the edit with our house-style template). Otherwise append the template.
     return NextResponse.json({
-      prompt: `${input}, ${HOUSE_STYLE}`,
+      prompt: hasSourceImage ? input : `${input}, ${HOUSE_STYLE}`,
       fallback: true,
     });
   }
@@ -67,7 +103,9 @@ export async function POST(req) {
     "gpt-5.5-pro",
   ]);
   const chosenModel = ALLOWED.has(model) ? model : "gpt-4.1-mini";
-  const sys = kind === "video" ? SYS_VIDEO : SYS_IMAGE;
+  const sys = hasSourceImage
+    ? (kind === "video" ? SYS_VIDEO_FROM_SOURCE : SYS_IMAGE_FROM_SOURCE)
+    : (kind === "video" ? SYS_VIDEO : SYS_IMAGE);
 
   try {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
