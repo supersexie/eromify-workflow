@@ -79,9 +79,9 @@ const MODEL_ICON = {
   motion: <svg width="12" height="12" viewBox="0 0 24 24" fill="#a855f7"><polygon points="6 3 20 12 6 21 6 3" /></svg>,
 };
 
-function Chip({ icon, label, accent, onClick }) {
+function Chip({ icon, label, accent, onClick, tooltip }) {
   return (
-    <button className="chip-btn" onClick={onClick}>
+    <button className="chip-btn" onClick={onClick} data-tooltip={tooltip || undefined}>
       {icon && <span style={{ display: "inline-flex" }}>{icon}</span>}
       <span style={accent ? { color: accent } : null}>{label}</span>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"><path d="M6 9l6 6 6-6" /></svg>
@@ -414,7 +414,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           )}
           {!isAudio && modelList.length > 0 && (
             <div className="chip-wrap">
-              <Chip icon={MODEL_ICON[kind]} label={data.model || modelList[0]} onClick={() => toggle("model")} />
+              <Chip icon={MODEL_ICON[kind]} label={data.model || modelList[0]} onClick={() => toggle("model")} tooltip="Model" />
               <Dropdown open={openMenu === "model"} options={modelList} onPick={(v) => set({ model: v })} onClose={() => setOpenMenu(null)} />
             </div>
           )}
@@ -424,6 +424,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 icon={<AspectIcon w={currentAspect.w} h={currentAspect.h} />}
                 label={currentAspect.label}
                 onClick={() => toggle("aspect")}
+                tooltip="Aspect ratio"
               />
               {openMenu === "aspect" && (
                 <>
@@ -454,6 +455,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 3L3 21M18 3l3 18M3 9h18M3 15h18"/></svg>}
                 label={currentQuality}
                 onClick={() => toggle("quality")}
+                tooltip="Quality"
               />
               {openMenu === "quality" && (
                 <>
@@ -484,6 +486,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>}
                 label={data.duration || DURATIONS[0]}
                 onClick={() => toggle("duration")}
+                tooltip="Duration"
               />
               <Dropdown open={openMenu === "duration"} options={DURATIONS} onPick={(v) => set({ duration: v })} onClose={() => setOpenMenu(null)} />
             </div>
@@ -492,6 +495,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             <Chip
               icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M22 9 18 13M18 9l4 4"/></svg>}
               label={data.audio || "No Audio"}
+              tooltip="Audio"
             />
           )}
           {isAudio && (
@@ -500,6 +504,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="2"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 12a7 7 0 0 0 14 0M12 19v3"/></svg>}
                 label={currentVoiceLabel}
                 onClick={() => toggle("voice")}
+                tooltip="Voice"
               />
               <Dropdown
                 open={openMenu === "voice"}
@@ -511,7 +516,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           )}
           {(kind === "image" || kind === "video") && (
             <div className="chip-wrap">
-              <button className="chip-btn ip-stepper" onClick={(e) => e.stopPropagation()}>
+              <button className="chip-btn ip-stepper" onClick={(e) => e.stopPropagation()} data-tooltip="Batch Size">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 <button
                   className="ip-step-btn"

@@ -46,9 +46,9 @@ const SAMPLE_TILES = [
   { hue: "linear-gradient(135deg,#10b981,#a855f7)", label: "Surreal" },
 ];
 
-function Chip({ children, onClick, icon }) {
+function Chip({ children, onClick, icon, tooltip }) {
   return (
-    <button className="ip-chip" onClick={onClick}>
+    <button className="ip-chip" onClick={onClick} data-tooltip={tooltip || undefined}>
       {icon}
       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{children}</span>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -251,6 +251,7 @@ export default function ImagePage() {
               <Chip
                 icon={<span className="ip-chip-ic">{currentModel?.ic || "M"}</span>}
                 onClick={() => toggle("model")}
+                tooltip="Model"
               >
                 {model}
               </Chip>
@@ -294,6 +295,7 @@ export default function ImagePage() {
               <Chip
                 icon={<AspectIcon w={aspectMeta.w} h={aspectMeta.h} />}
                 onClick={() => toggle("aspect")}
+                tooltip="Aspect ratio"
               >
                 {aspectMeta.label}
               </Chip>
@@ -320,6 +322,7 @@ export default function ImagePage() {
               <Chip
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 3L3 21M18 3l3 18M3 9h18M3 15h18"/></svg>}
                 onClick={() => toggle("quality")}
+                tooltip="Quality"
               >
                 {quality}
               </Chip>
@@ -343,7 +346,7 @@ export default function ImagePage() {
 
             {/* Batch size stepper */}
             <div className="chip-wrap">
-              <button className="ip-chip ip-stepper" onClick={() => toggle("batch")}>
+              <button className="ip-chip ip-stepper" onClick={() => toggle("batch")} data-tooltip="Batch Size">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 <button
                   className="ip-step-btn"

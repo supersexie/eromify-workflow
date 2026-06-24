@@ -520,6 +520,35 @@ body {
 }
 .dd-menu::-webkit-scrollbar-thumb:hover,
 .ip-pop::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+
+/* ---- Hover tooltips (CSS-only, opt-in via data-tooltip attribute) ----
+   Apply [data-tooltip="..."] to any element you want to label. A small dark
+   pill fades in after a 400ms hover delay so it doesn't flicker on flyovers. */
+[data-tooltip] { position: relative; }
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a20;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  animation: tt-fade-in 0.14s ease 0.35s both;
+}
+@keyframes tt-fade-in {
+  from { opacity: 0; transform: translate(-50%, 4px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
 .dd-menu button {
   display: block; width: 100%; text-align: left;
   background: transparent; border: none; color: var(--text);
