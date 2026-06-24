@@ -3,19 +3,42 @@ import { useState } from "react";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
 
-const MODELS = [
-  "Flux 2 Pro",
-  "Flux 2 Max",
-  "Nano Banana Pro",
-  "Seedream 4.5",
-  "GPT Image 2",
-  "GPT Image 1",
+// ---- Model catalog (Featured + All) — mirrors Higgsfield's grouped picker ----
+const MODELS = {
+  featured: [
+    { id: "Flux 2 Pro",       desc: "Top-tier realism, our flagship",          badge: "PREMIUM", ic: "F" },
+    { id: "Seedream 4.5",     desc: "ByteDance's next-gen 4K image model",     badge: "PREMIUM", ic: "S" },
+    { id: "GPT Image 2",      desc: "4K images with near-perfect text",        badge: "NEW",     ic: "G" },
+    { id: "Nano Banana Pro",  desc: "Google's flagship generation model",      ic: "N" },
+    { id: "Flux 2 Max",       desc: "Maximum detail, slower",                  badge: "PREMIUM", ic: "F" },
+  ],
+  all: [
+    { id: "GPT Image 1",      desc: "OpenAI's standard image model",           ic: "G" },
+  ],
+};
+const ALL_MODELS = [...MODELS.featured, ...MODELS.all];
+
+// ---- Aspect ratios with shape proxies for the dropdown thumbnail ----
+const ASPECTS = [
+  { id: "auto", label: "Auto", w: 18, h: 18 },
+  { id: "1:1",  label: "1:1",  w: 18, h: 18 },
+  { id: "3:4",  label: "3:4",  w: 14, h: 18 },
+  { id: "4:3",  label: "4:3",  w: 18, h: 14 },
+  { id: "2:3",  label: "2:3",  w: 12, h: 18 },
+  { id: "3:2",  label: "3:2",  w: 18, h: 12 },
+  { id: "9:16", label: "9:16", w: 10, h: 18 },
+  { id: "16:9", label: "16:9", w: 18, h: 10 },
+  { id: "5:4",  label: "5:4",  w: 18, h: 15 },
+  { id: "4:5",  label: "4:5",  w: 15, h: 18 },
+  { id: "21:9", label: "21:9", w: 22, h: 10 },
 ];
 
-const ASPECTS = ["1:1", "3:4", "4:3", "16:9", "9:16"];
+const QUALITIES = [
+  { id: "1K", label: "1K" },
+  { id: "2K", label: "2K" },
+  { id: "4K", label: "4K", premium: true },
+];
 
-// Sample tiles shown in the empty-state hero. Replaced with real generations
-// once the user clicks Generate.
 const SAMPLE_TILES = [
   { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Portrait" },
   { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Concept" },
@@ -23,27 +46,54 @@ const SAMPLE_TILES = [
   { hue: "linear-gradient(135deg,#10b981,#a855f7)", label: "Surreal" },
 ];
 
-function Chip({ label, icon, onClick, accent }) {
+function Chip({ children, onClick, icon }) {
   return (
-    <button className="ip-chip" onClick={onClick} style={accent ? { color: accent } : null}>
+    <button className="ip-chip" onClick={onClick}>
       {icon}
-      <span>{label}</span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>{children}</span>
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.5"><path d="M6 9l6 6 6-6"/></svg>
     </button>
   );
 }
 
-function Dropdown({ open, options, onPick, onClose }) {
+// Generic popover with a backdrop that closes on outside-click.
+function Popover({ open, onClose, children, align = "left" }) {
   if (!open) return null;
   return (
     <>
       <div className="dd-backdrop" onClick={onClose} />
-      <div className="dd-menu">
-        {options.map((o) => (
-          <button key={o} onClick={() => { onPick(o); onClose(); }}>{o}</button>
-        ))}
-      </div>
+      <div className={`ip-pop ip-pop-${align}`}>{children}</div>
     </>
+  );
+}
+
+function ModelRow({ m, selected, onPick }) {
+  return (
+    <button className={`ip-model-row ${selected ? "is-active" : ""}`} onClick={() => onPick(m.id)}>
+      <span className="ip-model-ic">{m.ic || m.id[0]}</span>
+      <span className="ip-model-text">
+        <span className="ip-model-name">
+          {m.id}
+          {m.badge && <span className={`ip-badge ip-badge-${m.badge.toLowerCase()}`}>{m.badge}</span>}
+        </span>
+        <span className="ip-model-desc">{m.desc}</span>
+      </span>
+      {selected && (
+        <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+      )}
+    </button>
+  );
+}
+
+function AspectIcon({ w, h }) {
+  // Render a small rounded rectangle proportional to the aspect.
+  const max = 22;
+  const scale = max / Math.max(w, h);
+  const W = w * scale, H = h * scale;
+  return (
+    <span className="ip-asp-ic">
+      <span style={{ width: W, height: H }} />
+    </span>
   );
 }
 
@@ -51,23 +101,31 @@ export default function ImagePage() {
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("Flux 2 Pro");
   const [aspect, setAspect] = useState("3:4");
-  const [count, setCount] = useState(1);
+  const [quality, setQuality] = useState("1K");
+  const [batch, setBatch] = useState(1);
   const [openMenu, setOpenMenu] = useState(null);
+  const [search, setSearch] = useState("");
   const [running, setRunning] = useState(false);
-  const [results, setResults] = useState([]); // [{ url, prompt, model }]
+  const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
   const canRun = !!prompt.trim() && !running;
+  const currentModel = ALL_MODELS.find((m) => m.id === model);
+
+  const filteredFeatured = MODELS.featured.filter((m) =>
+    !search || m.id.toLowerCase().includes(search.toLowerCase()) || m.desc.toLowerCase().includes(search.toLowerCase())
+  );
+  const filteredAll = MODELS.all.filter((m) =>
+    !search || m.id.toLowerCase().includes(search.toLowerCase()) || m.desc.toLowerCase().includes(search.toLowerCase())
+  );
 
   const generate = async () => {
     if (!canRun) return;
     setRunning(true);
     setError(null);
     try {
-      // Kick off N parallel generations. We track each so partial results show
-      // immediately as they land instead of waiting for the slowest.
-      const jobs = Array.from({ length: count }, () => runOne());
+      const jobs = Array.from({ length: batch }, () => runOne());
       const settled = await Promise.allSettled(jobs);
       const fails = settled.filter((s) => s.status === "rejected");
       if (fails.length && fails.length === settled.length) {
@@ -82,7 +140,7 @@ export default function ImagePage() {
     const startRes = await fetch("/api/image/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: prompt.trim(), model }),
+      body: JSON.stringify({ prompt: prompt.trim(), model, aspect, quality }),
     });
     const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
     if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
@@ -90,7 +148,6 @@ export default function ImagePage() {
       setResults((r) => [{ url: start.output, prompt: prompt.trim(), model }, ...r]);
       return;
     }
-    // Poll for fal queue completion.
     const handle = { statusUrl: start.statusUrl, responseUrl: start.responseUrl };
     const deadline = Date.now() + 3 * 60 * 1000;
     while (Date.now() < deadline) {
@@ -109,6 +166,8 @@ export default function ImagePage() {
     }
     throw new Error("Image generation timed out");
   };
+
+  const aspectMeta = ASPECTS.find((a) => a.id === aspect) || ASPECTS[0];
 
   return (
     <div className="ip-page">
@@ -139,12 +198,12 @@ export default function ImagePage() {
           </div>
         ) : (
           <div className="ip-grid">
-            {running && (
-              <div className="ip-card ip-card-loading">
+            {running && Array.from({ length: batch }).map((_, i) => (
+              <div key={"ld-" + i} className="ip-card ip-card-loading">
                 <div className="ip-loading-shimmer" />
                 <div className="ip-card-meta">Generating…</div>
               </div>
-            )}
+            ))}
             {results.map((r, i) => (
               <div key={i} className="ip-card">
                 <img src={r.url} alt={r.prompt} />
@@ -173,47 +232,135 @@ export default function ImagePage() {
             <button className="ip-bar-generate" onClick={generate} disabled={!canRun}>
               {running ? (
                 <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin">
-                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                  </svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
                   Generating
                 </>
               ) : (
                 <>
                   Generate
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z" />
-                  </svg>
-                  <span className="ip-bar-count">{count}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
+                  <span className="ip-bar-count">{batch}</span>
                 </>
               )}
             </button>
           </div>
 
           <div className="ip-bar-chips">
+            {/* Model picker */}
             <div className="chip-wrap">
               <Chip
-                label={model}
-                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 2 22 22 22 12 2"/></svg>}
+                icon={<span className="ip-chip-ic">{currentModel?.ic || "M"}</span>}
                 onClick={() => toggle("model")}
-              />
-              <Dropdown open={openMenu === "model"} options={MODELS} onPick={setModel} onClose={() => setOpenMenu(null)} />
+              >
+                {model}
+              </Chip>
+              <Popover open={openMenu === "model"} onClose={() => { setOpenMenu(null); setSearch(""); }}>
+                <div className="ip-pop-search">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input
+                    autoFocus
+                    placeholder="Search…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                {filteredFeatured.length > 0 && (
+                  <>
+                    <div className="ip-pop-header">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
+                      Featured models
+                    </div>
+                    {filteredFeatured.map((m) => (
+                      <ModelRow key={m.id} m={m} selected={m.id === model} onPick={(id) => { setModel(id); setOpenMenu(null); setSearch(""); }} />
+                    ))}
+                  </>
+                )}
+                {filteredAll.length > 0 && (
+                  <>
+                    <div className="ip-pop-header">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                      All models
+                    </div>
+                    {filteredAll.map((m) => (
+                      <ModelRow key={m.id} m={m} selected={m.id === model} onPick={(id) => { setModel(id); setOpenMenu(null); setSearch(""); }} />
+                    ))}
+                  </>
+                )}
+              </Popover>
             </div>
+
+            {/* Aspect ratio */}
             <div className="chip-wrap">
               <Chip
-                label={aspect}
-                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="4" width="14" height="16" rx="2"/></svg>}
+                icon={<AspectIcon w={aspectMeta.w} h={aspectMeta.h} />}
                 onClick={() => toggle("aspect")}
-              />
-              <Dropdown open={openMenu === "aspect"} options={ASPECTS} onPick={setAspect} onClose={() => setOpenMenu(null)} />
+              >
+                {aspectMeta.label}
+              </Chip>
+              <Popover open={openMenu === "aspect"} onClose={() => setOpenMenu(null)}>
+                <div className="ip-pop-title">Aspect ratio</div>
+                {ASPECTS.map((a) => (
+                  <button
+                    key={a.id}
+                    className={`ip-aspect-row ${a.id === aspect ? "is-active" : ""}`}
+                    onClick={() => { setAspect(a.id); setOpenMenu(null); }}
+                  >
+                    <AspectIcon w={a.w} h={a.h} />
+                    <span>{a.label}</span>
+                    {a.id === aspect && (
+                      <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    )}
+                  </button>
+                ))}
+              </Popover>
             </div>
+
+            {/* Quality */}
             <div className="chip-wrap">
               <Chip
-                label={`${count}/4`}
-                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>}
-                onClick={() => toggle("count")}
-              />
-              <Dropdown open={openMenu === "count"} options={["1", "2", "3", "4"]} onPick={(v) => setCount(parseInt(v))} onClose={() => setOpenMenu(null)} />
+                icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 3L3 21M18 3l3 18M3 9h18M3 15h18"/></svg>}
+                onClick={() => toggle("quality")}
+              >
+                {quality}
+              </Chip>
+              <Popover open={openMenu === "quality"} onClose={() => setOpenMenu(null)}>
+                <div className="ip-pop-title">Select quality</div>
+                {QUALITIES.map((q) => (
+                  <button
+                    key={q.id}
+                    className={`ip-aspect-row ${q.id === quality ? "is-active" : ""}`}
+                    onClick={() => { setQuality(q.id); setOpenMenu(null); }}
+                  >
+                    <span style={{ fontSize: 13, fontWeight: 600, flex: 1, textAlign: "left" }}>{q.label}</span>
+                    {q.premium && <span className="ip-badge ip-badge-premium">Premium</span>}
+                    {q.id === quality && (
+                      <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    )}
+                  </button>
+                ))}
+              </Popover>
+            </div>
+
+            {/* Batch size stepper */}
+            <div className="chip-wrap">
+              <button className="ip-chip ip-stepper" onClick={() => toggle("batch")}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                <button
+                  className="ip-step-btn"
+                  disabled={batch <= 1}
+                  onClick={(e) => { e.stopPropagation(); setBatch((b) => Math.max(1, b - 1)); }}
+                >−</button>
+                <span className="ip-step-num">{batch}/4</span>
+                <button
+                  className="ip-step-btn"
+                  disabled={batch >= 4}
+                  onClick={(e) => { e.stopPropagation(); setBatch((b) => Math.min(4, b + 1)); }}
+                >+</button>
+              </button>
+              <Popover open={openMenu === "batch"} onClose={() => setOpenMenu(null)}>
+                <div className="ip-pop-title">Batch Size</div>
+                <div className="ip-batch-hint">Generate up to 4 images at once. Each costs the same as a single generation.</div>
+              </Popover>
             </div>
           </div>
         </div>
