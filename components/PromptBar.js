@@ -81,6 +81,9 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
   const [voices, setVoices] = useState(_voicesCache || []);
   const [enhancing, setEnhancing] = useState(false);
   const [enhanceModel, setEnhanceModel] = useState(ENHANCE_DEFAULT);
+  const [refImage, setRefImage] = useState(null); // data URI of an uploaded reference image
+  const [readingImage, setReadingImage] = useState(false); // image→prompt in-flight
+  const fileInputRef = useRef(null);
 
   // Load saved pref on first mount so the chip reflects the user's choice.
   useEffect(() => { setEnhanceModel(readEnhancePref()); }, []);
@@ -115,6 +118,36 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
 
   const set = (patch) => onChange(node.id, { ...data, ...patch });
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
+
+  const pickRefImage = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => setRefImage(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const imageToPrompt = async () => {
+    if (!refImage || readingImage) return;
+    setReadingImage(true);
+    try {
+      const res = await fetch("/api/prompt/from-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: refImage, kind, model: enhanceModel }),
+      });
+      const j = await res.json();
+      if (res.ok && j.prompt) {
+        set({ prompt: j.prompt });
+        setRefImage(null); // image consumed → clear thumbnail so the bar stays tidy
+      }
+    } catch {
+      // Keep the reference image so the user can retry.
+    } finally {
+      setReadingImage(false);
+    }
+  };
 
   const enhance = async () => {
     const cur = (data.prompt || "").trim();
@@ -155,6 +188,43 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
     <div className="prompt-bar">
       <div className="pb-divider"><div className="pb-grip" /></div>
 
+      {canEnhance && refImage && (
+        <div className="pb-ref-row">
+          <div className="pb-ref-thumb">
+            <img src={refImage} alt="reference" />
+          </div>
+          <div className="pb-ref-meta">
+            <div className="pb-ref-title">Reference image attached</div>
+            <div className="pb-ref-sub">Generate {kind === "image" ? "an image" : "a video"} prompt that recreates this look.</div>
+          </div>
+          <button
+            className="pb-ref-go"
+            onClick={imageToPrompt}
+            disabled={readingImage}
+            title="Turn this image into a detailed prompt"
+          >
+            {readingImage ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14z" />
+              </svg>
+            )}
+            <span>{readingImage ? "Reading…" : "Turn into prompt"}</span>
+          </button>
+          <button
+            className="pb-ref-clear"
+            onClick={() => setRefImage(null)}
+            disabled={readingImage}
+            title="Remove reference image"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      )}
+
       <div className="pb-title-row">
         <textarea
           ref={promptRef}
@@ -175,6 +245,29 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
           }}
         />
+        {canEnhance && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={pickRefImage}
+            />
+            <button
+              className="pb-image-upload"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload a reference image to turn into a prompt"
+              disabled={readingImage}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="9" cy="9" r="2" />
+                <path d="m21 15-5-5L5 21" />
+              </svg>
+            </button>
+          </>
+        )}
         {canEnhance && (
           <div className="chip-wrap pb-enhance-model-wrap">
             <button
