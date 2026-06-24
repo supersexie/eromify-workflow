@@ -301,7 +301,19 @@ function CanvasInner({ workflowId }) {
         const images = node.data.kind === "image"
           ? srcs.filter((s) => s.kind === "image" && s.url).map((s) => s.url)
           : [];
-        output = await generateOutput(node.data.kind, prompt, node.data.model, images, { voice: node.data.voice });
+        // Forward aspect + quality (image kind only) so fal renders at the
+        // chip-selected ratio/resolution instead of defaulting to square.
+        // Legacy "16:9 · 720p" strings still parse — we split for back-compat.
+        const opts = { voice: node.data.voice };
+        if (node.data.kind === "image") {
+          const rawAspect = node.data.aspect || "";
+          const [legacyRatio, legacyRes] = rawAspect.includes("·")
+            ? rawAspect.split("·").map((s) => s.trim())
+            : [rawAspect, null];
+          opts.aspect = legacyRatio || "1:1";
+          opts.quality = node.data.quality || legacyRes || "1K";
+        }
+        output = await generateOutput(node.data.kind, prompt, node.data.model, images, opts);
       }
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
