@@ -21,6 +21,19 @@ const ASPECTS = {
 
 const DURATIONS = ["4s", "6s", "8s", "10s", "30s", "45s", "60s"];
 
+// Models offered for the ✨ Enhance prompt rewriter. Ordered cheap → flagship.
+// The "id" is what the API receives (must match the OpenAI model name); "label"
+// is what the user sees. Keep this list curated — adding random reasoning models
+// here is wasteful for a creative-rewrite task.
+const ENHANCE_MODELS = [
+  { id: "gpt-4.1-mini", label: "GPT-4.1 mini", note: "Fast & cheap · recommended" },
+  { id: "gpt-4.1", label: "GPT-4.1", note: "Smarter, better paragraphs" },
+  { id: "gpt-4o", label: "GPT-4o", note: "Multimodal flagship" },
+  { id: "gpt-5.5", label: "GPT-5.5", note: "Flagship · expensive" },
+  { id: "gpt-5.5-pro", label: "GPT-5.5 Pro", note: "Max quality · pricey" },
+];
+const ENHANCE_DEFAULT = "gpt-4.1-mini";
+
 const MODEL_ICON = {
   image: <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 2 22 22 22 12 2" /></svg>,
   video: <svg width="12" height="12" viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z" /></svg>,
@@ -55,14 +68,27 @@ function Dropdown({ open, options, onPick, onClose }) {
   );
 }
 
+// Global pref — user usually wants the same enhance model across all nodes.
+const ENHANCE_PREF_KEY = "eromify:enhanceModel:v1";
+function readEnhancePref() {
+  if (typeof window === "undefined") return ENHANCE_DEFAULT;
+  const v = localStorage.getItem(ENHANCE_PREF_KEY);
+  return ENHANCE_MODELS.some((m) => m.id === v) ? v : ENHANCE_DEFAULT;
+}
+
 export default function PromptBar({ node, sources = [], onChange, onRun, running }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [voices, setVoices] = useState(_voicesCache || []);
   const [enhancing, setEnhancing] = useState(false);
+  const [enhanceModel, setEnhanceModel] = useState(ENHANCE_DEFAULT);
+
+  // Load saved pref on first mount so the chip reflects the user's choice.
+  useEffect(() => { setEnhanceModel(readEnhancePref()); }, []);
 
   const kind = node?.data?.kind;
   const isAudio = kind === "audio";
   const canEnhance = kind === "image" || kind === "video";
+  const enhanceLabel = ENHANCE_MODELS.find((m) => m.id === enhanceModel)?.label || ENHANCE_DEFAULT;
 
   // Fetch voices once the first time an audio node is selected.
   useEffect(() => {
@@ -89,7 +115,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: cur, kind }),
+        body: JSON.stringify({ prompt: cur, kind, model: enhanceModel }),
       });
       const j = await res.json();
       if (res.ok && j.prompt) set({ prompt: j.prompt });
@@ -138,6 +164,41 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
           }}
         />
+        {canEnhance && (
+          <div className="chip-wrap pb-enhance-model-wrap">
+            <button
+              className="pb-enhance-model"
+              onClick={() => toggle("enhanceModel")}
+              title="Pick the model used by Enhance"
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+              <span>{enhanceLabel}</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"><path d="M6 9l6 6 6-6" /></svg>
+            </button>
+            {openMenu === "enhanceModel" && (
+              <>
+                <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
+                <div className="dd-menu pb-enhance-menu">
+                  <div className="pb-enhance-menu-header">Enhance with</div>
+                  {ENHANCE_MODELS.map((m) => (
+                    <button
+                      key={m.id}
+                      className={m.id === enhanceModel ? "is-active" : ""}
+                      onClick={() => {
+                        setEnhanceModel(m.id);
+                        try { localStorage.setItem(ENHANCE_PREF_KEY, m.id); } catch {}
+                        setOpenMenu(null);
+                      }}
+                    >
+                      <span className="pb-enhance-menu-label">{m.label}</span>
+                      <span className="pb-enhance-menu-note">{m.note}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {canEnhance && (
           <button
             className="pb-enhance"

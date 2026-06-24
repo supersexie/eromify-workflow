@@ -44,7 +44,7 @@ export async function POST(req) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const { prompt = "", kind = "image" } = body;
+  const { prompt = "", kind = "image", model } = body;
   const input = String(prompt || "").trim();
   if (!input) return NextResponse.json({ error: "Empty prompt" }, { status: 400 });
   if (!KEY) {
@@ -56,6 +56,17 @@ export async function POST(req) {
     });
   }
 
+  // Allowlist the models the UI can pick (security: don't let arbitrary model
+  // strings flow into the OpenAI call). Default to the cheap one if missing.
+  const ALLOWED = new Set([
+    "gpt-4.1-mini",
+    "gpt-4.1",
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-5.5",
+    "gpt-5.5-pro",
+  ]);
+  const chosenModel = ALLOWED.has(model) ? model : "gpt-4.1-mini";
   const sys = kind === "video" ? SYS_VIDEO : SYS_IMAGE;
 
   try {
@@ -66,7 +77,7 @@ export async function POST(req) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: chosenModel,
         messages: [
           { role: "system", content: sys },
           { role: "user", content: input },
@@ -79,7 +90,7 @@ export async function POST(req) {
     const data = await res.json();
     const out = (data.choices?.[0]?.message?.content || "").trim().replace(/^["']|["']$/g, "");
     if (!out) throw new Error("Empty response");
-    return NextResponse.json({ prompt: out });
+    return NextResponse.json({ prompt: out, model: chosenModel });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

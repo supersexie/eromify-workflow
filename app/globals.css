@@ -371,6 +371,37 @@ body {
 .pb-enhance-spin { animation: pb-spin 0.9s linear infinite; transform-origin: center; }
 @keyframes pb-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+.pb-enhance-model-wrap { position: relative; }
+.pb-enhance-model {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 8px 0 9px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 8px; color: var(--text);
+  font-size: 11px; font-weight: 500; font-family: inherit; cursor: pointer;
+  transition: border-color .15s ease, color .15s ease;
+}
+.pb-enhance-model:hover { border-color: var(--blue); color: var(--ink); }
+
+.pb-enhance-menu {
+  min-width: 220px;
+  padding: 6px;
+  right: 0; left: auto;
+}
+.pb-enhance-menu-header {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted-2); padding: 6px 10px 4px;
+}
+.pb-enhance-menu button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  width: 100%; padding: 8px 10px; border-radius: 6px;
+  background: transparent; border: none; cursor: pointer; text-align: left;
+  font-family: inherit;
+}
+.pb-enhance-menu button:hover { background: var(--surface-2); }
+.pb-enhance-menu button.is-active { background: var(--blue-soft); }
+.pb-enhance-menu-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.pb-enhance-menu-note { font-size: 11px; color: var(--muted); }
+
 .pb-chips {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
