@@ -6,6 +6,7 @@ const TABS = [
   { id: "image", label: "Image", path: "/image", match: (p) => p.startsWith("/image") },
   { id: "video", label: "Video", path: "/video", match: (p) => p.startsWith("/video") },
   { id: "motion", label: "Motion Control", path: "/motion", match: (p) => p.startsWith("/motion") },
+  { id: "mcp", label: "MCP & CLI", path: "/mcp", match: (p) => p.startsWith("/mcp") },
 ];
 
 // Shared topbar tab strip — used by every product page so the brand pill,
