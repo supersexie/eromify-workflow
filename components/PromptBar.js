@@ -7,7 +7,7 @@ const MODELS = {
   text: ["GPT-5.1", "Claude Opus 4.7", "Gemini 2.5 Pro"],
   // Audio doesn't use a model chip — the voice IS the choice. Backend
   // routes to ElevenLabs / OpenAI automatically.
-  motion: ["Motion Pro", "After Effects AI"],
+  motion: ["Kling Motion Control Pro", "Kling Motion Control Std"],
 };
 
 // Cached so we don't refetch on every selection change.

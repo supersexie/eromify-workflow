@@ -17,7 +17,7 @@ import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
-import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
+import { generateOutput, generateVideo, generateMotion, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
 
 const NODE_TYPES_META = [
@@ -25,6 +25,7 @@ const NODE_TYPES_META = [
   { kind: "video", label: "Video", sub: "Generate or upload" },
   { kind: "text", label: "Text", sub: "Write or generate" },
   { kind: "audio", label: "Audio", sub: "Generate or upload" },
+  { kind: "motion", label: "Motion Control", sub: "Image + ref video → animated" },
 ];
 
 const CARD_ICONS = {
@@ -290,6 +291,26 @@ function CanvasInner({ workflowId }) {
           aspect: aspectRatio,
           resolution,
           duration: dur,
+        });
+      } else if (node.data.kind === "motion") {
+        // Motion Control requires BOTH a character image AND a reference video
+        // wired into the node. We pick by kind from the upstream sources.
+        const imageUrl = srcs.find((s) => s.kind === "image" && s.url)?.url;
+        const videoUrl = srcs.find((s) => s.kind === "video" && s.url)?.url;
+        if (!imageUrl || !videoUrl) {
+          throw new Error(
+            !imageUrl && !videoUrl
+              ? "Connect both a character image and a reference video to the node."
+              : !imageUrl
+                ? "Connect a character image (the subject to animate)."
+                : "Connect a reference video (the motion to copy)."
+          );
+        }
+        output = await generateMotion({
+          prompt,
+          model: node.data.model || "Kling Motion Control Pro",
+          image: imageUrl,
+          video: videoUrl,
         });
       } else {
         // For image nodes, forward connected source image(s) → image-to-image edit.

@@ -34,13 +34,53 @@ const FAL_MODELS = {
   },
 };
 
+// Motion Control endpoints — character image + reference video → animated video.
+const FAL_MOTION_MODELS = {
+  "Kling Motion Control Pro": "fal-ai/kling-video/v2.6/pro/motion-control",
+  "Kling Motion Control Std": "fal-ai/kling-video/v2.6/standard/motion-control",
+};
+
 function parseDataUrl(d) {
   const m = /^data:([^;]+);base64,(.+)$/.exec(d || "");
   return m ? { mimeType: m[1], data: m[2] } : null;
 }
 
 export async function POST(req) {
-  const { prompt, model, image, aspect, resolution, duration } = await req.json();
+  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind } = await req.json();
+
+  // ---- Motion Control (Kling) — image + reference video → animated video ----
+  if (kind === "motion" || motionVideo) {
+    const endpoint = FAL_MOTION_MODELS[model] || FAL_MOTION_MODELS["Kling Motion Control Pro"];
+    if (!FAL) return NextResponse.json({ mock: true, output: "Motion control output (mock — set FAL_KEY)" });
+    if (!image || !motionVideo) {
+      return NextResponse.json(
+        { error: "Motion control needs both a character image and a reference video." },
+        { status: 400 }
+      );
+    }
+    const input = {
+      image_url: image,
+      video_url: motionVideo,
+    };
+    if (prompt && prompt.trim()) input.prompt = prompt.trim();
+    try {
+      const res = await fetch(`https://queue.fal.run/${endpoint}`, {
+        method: "POST",
+        headers: { Authorization: `Key ${FAL}`, "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`fal ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const data = await res.json();
+      if (!data.request_id) throw new Error("fal did not return a request_id");
+      return NextResponse.json({
+        provider: "fal",
+        statusUrl: data.status_url,
+        responseUrl: data.response_url,
+      });
+    } catch (e) {
+      return NextResponse.json({ error: e.message }, { status: 500 });
+    }
+  }
 
   // ---- fal.ai ----
   // Only route to Veo for an explicit Veo model; otherwise default to fal LTX
