@@ -1210,7 +1210,7 @@ body {
 }
 .ip-hero-sub { color: var(--muted); font-size: 14px; margin: 0; max-width: 520px; }
 
-.ip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+.ip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; align-items: start; }
 .ip-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; position: relative; }
 .ip-card img { width: 100%; height: auto; display: block; }
 .ip-card-meta {
