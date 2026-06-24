@@ -59,9 +59,13 @@ export default function Dashboard() {
   return (
     <div className="dash">
       <div className="dash-topbar">
-        <div className="title-pill">
-          <div className="logo">w</div>
-          <span>Workflows</span>
+        <div className="mc-tabs">
+          <div className="title-pill">
+            <div className="logo">e</div>
+            <span>Eromify</span>
+          </div>
+          <button className="mc-tab is-active" disabled>Workflows</button>
+          <button className="mc-tab" onClick={() => router.push("/motion")}>Motion Control</button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <button className="primary-btn" onClick={onCreate}>

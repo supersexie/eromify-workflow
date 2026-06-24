@@ -129,16 +129,7 @@ export default function WorkflowNode({ id, data, selected }) {
           onClick={(e) => e.stopPropagation()}
         />
       )}
-      {kind === "motion" ? (
-        <>
-          {/* Motion Control needs two distinct inputs. Position them at 30% / 70%
-              so the user can visually tell image input from video input. */}
-          <Handle type="target" position={Position.Left} id="image" style={{ top: "30%" }} />
-          <Handle type="target" position={Position.Left} id="video" style={{ top: "70%" }} />
-        </>
-      ) : (
-        <Handle type="target" position={Position.Left} />
-      )}
+      <Handle type="target" position={Position.Left} />
       <div className="wf-card-header">
         <span className="wf-card-header-ic">{HEADER_ICONS[kind]}</span>
         <span>{KIND_TITLE[kind]}</span>

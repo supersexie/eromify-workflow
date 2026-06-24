@@ -852,3 +852,154 @@ body {
   cursor: pointer; font-family: inherit;
 }
 .nw-cancel:hover { background: var(--surface-2); }
+
+/* ---- Tabs (Dashboard topbar + Motion Control topbar) ---- */
+.mc-tabs { display: flex; align-items: center; gap: 8px; }
+.mc-tab {
+  background: transparent; border: 1px solid transparent;
+  color: var(--muted); padding: 8px 14px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+.mc-tab:hover:not(:disabled) { color: var(--ink); background: var(--surface-2); }
+.mc-tab.is-active {
+  color: var(--ink);
+  background: var(--surface-2);
+  border-color: var(--line);
+  cursor: default;
+}
+
+/* ---- Motion Control page ---- */
+.mc-page { height: 100vh; overflow: auto; background: var(--bg); color: var(--ink); }
+.mc-body { max-width: 1100px; margin: 0 auto; padding: 24px 32px 64px; }
+
+.mc-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  margin-top: 28px;
+}
+@media (max-width: 760px) { .mc-grid { grid-template-columns: 1fr; } }
+
+.mc-drop {
+  position: relative;
+  background: var(--surface); border: 1.5px dashed var(--line-2);
+  border-radius: 16px; padding: 24px; min-height: 280px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  cursor: pointer; transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.mc-drop:hover { border-color: var(--blue); }
+.mc-drop.is-drag { border-color: var(--blue); background: var(--blue-soft); }
+.mc-drop.is-filled { cursor: default; padding: 16px; }
+.mc-drop-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  text-align: center; color: var(--muted);
+}
+.mc-drop-icon { color: var(--muted-2); margin-bottom: 4px; }
+.mc-drop-label { font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.mc-drop-sub { font-size: 13px; color: var(--muted); max-width: 320px; line-height: 1.4; }
+.mc-drop-cta {
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  padding: 6px 12px; background: var(--blue-soft); border-radius: 6px; margin-top: 4px;
+}
+.mc-drop-preview {
+  width: 100%; max-height: 280px; aspect-ratio: 4/3;
+  border-radius: 10px; overflow: hidden;
+  background: #000; border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+}
+.mc-drop-preview img, .mc-drop-preview video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.mc-drop-meta { width: 100%; margin-top: 10px; }
+.mc-drop-meta-name {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mc-drop-meta-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mc-drop-clear {
+  position: absolute; top: 12px; right: 12px;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(0,0,0,.6); border: 1px solid var(--line);
+  color: #fff; display: grid; place-items: center; cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.mc-drop-clear:hover:not(:disabled) { background: rgba(0,0,0,.85); }
+.mc-drop-clear:disabled { opacity: .4; cursor: not-allowed; }
+
+.mc-controls {
+  margin-top: 22px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.mc-prompt {
+  width: 100%; resize: vertical; min-height: 56px; max-height: 180px;
+  background: var(--surface-2); border: 1px solid var(--line-2);
+  border-radius: 10px; color: var(--ink); padding: 10px 12px;
+  font-family: inherit; font-size: 14px; line-height: 1.5; outline: none;
+  transition: border-color .15s;
+}
+.mc-prompt:focus { border-color: var(--blue); }
+.mc-prompt::placeholder { color: var(--muted-2); }
+.mc-controls-row {
+  display: flex; align-items: stretch; justify-content: space-between; gap: 14px;
+  flex-wrap: wrap;
+}
+.mc-model-group { display: flex; gap: 8px; }
+.mc-model {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 8px 14px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink); cursor: pointer; font-family: inherit;
+  transition: border-color .15s ease, background .15s ease;
+}
+.mc-model:hover:not(:disabled) { border-color: var(--blue); }
+.mc-model.is-active {
+  border-color: var(--blue); background: var(--blue-soft);
+}
+.mc-model:disabled { opacity: .6; cursor: not-allowed; }
+.mc-model-label { font-size: 13px; font-weight: 700; }
+.mc-model-note { font-size: 11px; color: var(--muted); }
+
+.mc-generate {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 44px; padding: 0 22px; border-radius: 12px;
+  background: var(--grad); border: none; color: #fff;
+  font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);
+  transition: filter .15s ease, transform .1s ease;
+}
+.mc-generate:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.mc-generate:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+.mc-error {
+  margin-top: 16px;
+  background: rgba(248,113,113,.12); border: 1px solid #7f1d1d;
+  color: #fca5a5; padding: 12px 14px; border-radius: 10px;
+  font-size: 13px; line-height: 1.5;
+}
+
+.mc-output { margin-top: 28px; }
+.mc-output-title { font-size: 18px; font-weight: 700; color: var(--ink); margin: 0 0 12px; }
+.mc-output-video {
+  width: 100%; max-width: 880px; border-radius: 14px;
+  border: 1px solid var(--line); background: #000;
+  display: block;
+}
+.mc-output-loading {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 24px; text-align: center;
+  color: var(--muted);
+}
+.mc-output-loading-bar {
+  width: 100%; height: 4px; background: var(--surface-2);
+  border-radius: 2px; overflow: hidden; position: relative; margin-bottom: 14px;
+}
+.mc-output-loading-bar::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 30%;
+  background: var(--grad); border-radius: 2px;
+  animation: mc-pulse 1.6s ease-in-out infinite;
+}
+@keyframes mc-pulse {
+  0% { left: -30%; }
+  100% { left: 100%; }
+}
