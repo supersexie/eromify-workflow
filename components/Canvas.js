@@ -16,7 +16,7 @@ import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
-import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
+import { getWorkflow, saveWorkflow, renameWorkflow, listWorkflows, createWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
 
@@ -76,6 +76,8 @@ function CanvasInner({ workflowId }) {
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [allCanvases, setAllCanvases] = useState([]);
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
   const saveTimer = useRef(null);
@@ -85,6 +87,31 @@ function CanvasInner({ workflowId }) {
   const lastSnapshotRef = useRef(null);
   const nodesRef = useRef(nodes);
   useEffect(() => { nodesRef.current = nodes; }, [nodes]);
+
+  // Load persisted sidebar state once on mount.
+  useEffect(() => {
+    try {
+      setSidebarOpen(localStorage.getItem("eromify:canvasSidebar") === "open");
+    } catch {}
+  }, []);
+
+  // Refresh the canvas list whenever the sidebar opens (cheap: localStorage).
+  useEffect(() => {
+    if (sidebarOpen) setAllCanvases(listWorkflows());
+  }, [sidebarOpen]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen((v) => {
+      const next = !v;
+      try { localStorage.setItem("eromify:canvasSidebar", next ? "open" : "closed"); } catch {}
+      return next;
+    });
+  };
+
+  const createAndOpen = () => {
+    const wf = createWorkflow("Untitled Canvas");
+    router.push(`/w/${wf.id}`);
+  };
 
   // Snapshot helpers
   const snapshot = useCallback(() => ({
@@ -434,6 +461,17 @@ function CanvasInner({ workflowId }) {
     <>
       <div className="topbar">
         <div className="title-pill">
+          <button
+            className="back-btn"
+            onClick={toggleSidebar}
+            title={sidebarOpen ? "Hide canvas list" : "Show canvas list"}
+            aria-label="Toggle canvas list"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="M9 4v16" />
+            </svg>
+          </button>
           <button className="back-btn" onClick={() => router.push("/app")} title="Back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
@@ -453,6 +491,36 @@ function CanvasInner({ workflowId }) {
           <UserMenu />
         </div>
       </div>
+
+      <aside className={`canvas-sidebar ${sidebarOpen ? "is-open" : ""}`}>
+        <div className="canvas-sidebar-head">
+          <div className="canvas-sidebar-title">Canvases</div>
+          <button className="canvas-sidebar-close" onClick={toggleSidebar} title="Hide canvas list">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+        <button className="canvas-sidebar-new" onClick={createAndOpen}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          New canvas
+        </button>
+        <div className="canvas-sidebar-section">Recents</div>
+        <div className="canvas-sidebar-list">
+          {allCanvases.length === 0 && (
+            <div className="canvas-sidebar-empty">No other canvases yet.</div>
+          )}
+          {allCanvases.map((wf) => (
+            <button
+              key={wf.id}
+              className={`canvas-sidebar-item ${wf.id === workflowId ? "is-current" : ""}`}
+              onClick={() => { if (wf.id !== workflowId) router.push(`/w/${wf.id}`); }}
+              title={wf.name}
+            >
+              <div className="canvas-sidebar-item-name">{wf.name}</div>
+              <div className="canvas-sidebar-item-meta">{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</div>
+            </button>
+          ))}
+        </div>
+      </aside>
 
       <div className="rail">
         <button title="Select">{RAIL_ICONS.cursor}</button>
