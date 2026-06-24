@@ -750,7 +750,7 @@ body {
 }
 
 /* ---- Dashboard ---- */
-.dash { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.dash { min-height: 100vh; overflow: auto; }
 
 /* ---- New Claude-style dashboard: left canvas list + right prompt area ---- */
 .dash-shell {
