@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listWorkflows, createWorkflow, deleteWorkflow, renameWorkflow } from "@/lib/store";
 import UserMenu from "@/components/UserMenu";
+import Tabs from "@/components/Tabs";
 
 function relTime(ts) {
   const s = Math.floor((Date.now() - ts) / 1000);
@@ -59,14 +60,7 @@ export default function Dashboard() {
   return (
     <div className="dash">
       <div className="dash-topbar">
-        <div className="mc-tabs">
-          <div className="title-pill">
-            <div className="logo">e</div>
-            <span>Eromify</span>
-          </div>
-          <button className="mc-tab is-active" disabled>Workflows</button>
-          <button className="mc-tab" onClick={() => router.push("/motion")}>Motion Control</button>
-        </div>
+        <Tabs />
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <button className="primary-btn" onClick={onCreate}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>

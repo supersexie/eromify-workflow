@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { generateMotion } from "@/lib/run";
 import UserMenu from "@/components/UserMenu";
+import Tabs from "@/components/Tabs";
 
 const MODELS = [
   { id: "Kling Motion Control Pro", label: "Kling Pro", note: "Higher quality · ~$0.49/5s" },
@@ -141,21 +142,7 @@ export default function MotionControl() {
   return (
     <div className="mc-page">
       <div className="dash-topbar">
-        <div className="mc-tabs">
-          <div className="title-pill">
-            <div className="logo">e</div>
-            <span>Eromify</span>
-          </div>
-          <button
-            className="mc-tab"
-            onClick={() => router.push("/app")}
-          >
-            Workflows
-          </button>
-          <button className="mc-tab is-active" disabled>
-            Motion Control
-          </button>
-        </div>
+        <Tabs />
         <UserMenu />
       </div>
 

@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // Gate the app + editor; the marketing site (/) and auth pages stay public.
-const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)"]);
+const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)", "/image(.*)", "/video(.*)"]);
 
 const handler = clerkMiddleware(async (auth, req) => {
   if (!isProtected(req)) return;
