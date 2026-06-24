@@ -338,15 +338,27 @@ body {
 .pb-divider { display: flex; justify-content: center; margin: -4px 0 10px; }
 .pb-grip { width: 32px; height: 3px; border-radius: 2px; background: var(--line-2); }
 .pb-title-row {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: flex-start; gap: 8px;
   padding: 0 4px 12px;
 }
 .pb-title {
   flex: 1; background: transparent; border: none; outline: none;
   color: var(--ink); font-size: 14px; font-family: inherit;
+  /* Textarea-specific: behave like a single-line input until content grows. */
+  resize: none;
+  line-height: 1.5;
+  padding: 2px 0;
+  min-height: 24px;
+  max-height: 220px;
+  overflow-y: auto;
+  word-break: break-word;
 }
 .pb-title::placeholder { color: var(--muted-2); }
 .pb-title:disabled { color: var(--muted); }
+/* Slim scrollbar inside the prompt textarea so it doesn't shout once it grows. */
+.pb-title::-webkit-scrollbar { width: 6px; }
+.pb-title::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.pb-title::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
 .pb-tab {
   font-size: 11px; color: var(--muted); background: var(--surface-2);
   padding: 2px 8px; border-radius: 4px; border: 1px solid var(--line);

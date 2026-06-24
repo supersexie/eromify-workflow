@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"],
@@ -85,6 +85,15 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
   // Load saved pref on first mount so the chip reflects the user's choice.
   useEffect(() => { setEnhanceModel(readEnhancePref()); }, []);
 
+  // Auto-grow the prompt textarea to fit its content (caps at CSS max-height).
+  const promptRef = useRef(null);
+  useEffect(() => {
+    const el = promptRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [node?.data?.prompt]);
+
   const kind = node?.data?.kind;
   const isAudio = kind === "audio";
   const canEnhance = kind === "image" || kind === "video";
@@ -147,10 +156,12 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       <div className="pb-divider"><div className="pb-grip" /></div>
 
       <div className="pb-title-row">
-        <input
+        <textarea
+          ref={promptRef}
           className="pb-title"
           placeholder={placeholder}
           value={data.prompt || ""}
+          rows={1}
           onChange={(e) => set({ prompt: e.target.value })}
           onKeyDown={(e) => e.stopPropagation()}
           onPaste={(e) => {
