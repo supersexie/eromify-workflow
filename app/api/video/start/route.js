@@ -36,6 +36,7 @@ const FAL_MODELS = {
 
 // Motion Control endpoints — character image + reference video → animated video.
 const FAL_MOTION_MODELS = {
+  "Kling 3.0 Motion Control": "fal-ai/kling-video/v3/pro/motion-control",
   "Kling Motion Control Pro": "fal-ai/kling-video/v2.6/pro/motion-control",
   "Kling Motion Control Std": "fal-ai/kling-video/v2.6/standard/motion-control",
 };

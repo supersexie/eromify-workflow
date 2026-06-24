@@ -38,7 +38,14 @@ const VIDEO_MODELS = [
   "Veo 3.1",
 ];
 
-const MOTION_MODELS = ["Kling Motion Control Pro", "Kling Motion Control Std"];
+// Rich catalog for the Motion Control model picker (mirrors the Edit picker).
+const MOTION_MODEL_CATALOG = [
+  { id: "Kling 3.0 Motion Control", long: "Transfer motion from video to image", badge: null, ic: "K" },
+  { id: "Kling Motion Control Pro", long: "Higher-quality motion-following (v2.6)", badge: null, ic: "K" },
+  { id: "Kling Motion Control Std", long: "Faster, cheaper (v2.6 Std)", badge: null, ic: "K" },
+];
+const MOTION_MODELS = MOTION_MODEL_CATALOG.map((m) => m.id);
+const MOTION_QUALITIES = ["720p", "1080p"];
 const ASPECTS = ["16:9", "9:16", "1:1"];
 const DURATIONS = ["4s", "6s", "8s", "10s"];
 
@@ -116,13 +123,18 @@ export default function VideoPage() {
   const [image, setImage] = useState(null); // data URI
   const [refVideo, setRefVideo] = useState(null); // motion-control reference
   const [model, setModel] = useState(VIDEO_MODELS[0]);
-  const [motionModel, setMotionModel] = useState(MOTION_MODELS[0]);
+  const [motionModel, setMotionModel] = useState(MOTION_MODELS[0]); // defaults to Kling 3.0 Motion Control
   const [aspect, setAspect] = useState("16:9");
   const [duration, setDuration] = useState("8s");
   const [openMenu, setOpenMenu] = useState(null);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState(null);
   const [error, setError] = useState(null);
+  // Motion-mode extras
+  const [motionQuality, setMotionQuality] = useState("720p");
+  const [sceneCtrl, setSceneCtrl] = useState(true);
+  const [sceneSource, setSceneSource] = useState("image"); // 'image' | 'video'
+  const [motionSearch, setMotionSearch] = useState("");
   // Edit-mode state
   const [editVideo, setEditVideo] = useState(null);
   const [editRefs, setEditRefs] = useState([]); // up to 4 image data URIs
@@ -324,26 +336,50 @@ export default function VideoPage() {
             </>
           )}
           {sub === "motion" && (
-            <div className="vp-motion-pair">
-              <MediaPick
-                value={image}
-                kind="image"
-                accept="image/*"
-                label="Character image"
-                onPick={(u) => setImage(u)}
-                onClear={() => setImage(null)}
-                disabled={running}
-              />
-              <MediaPick
-                value={refVideo}
-                kind="video"
-                accept="video/*"
-                label="Reference video"
-                onPick={(u) => setRefVideo(u)}
-                onClear={() => setRefVideo(null)}
-                disabled={running}
-              />
-            </div>
+            <>
+              {/* Showcase card */}
+              <div className="vp-edit-hero">
+                <div className="vp-edit-hero-bg" />
+                <button className="vp-edit-hero-howto" type="button">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h6"/></svg>
+                  How it works
+                </button>
+                <div className="vp-edit-hero-name">MOTION CONTROL</div>
+                <div className="vp-edit-hero-sub">Control motion with video references</div>
+              </div>
+
+              {/* Add motion to copy + Add your character */}
+              <div className="vp-motion-pair">
+                <MediaPick
+                  value={refVideo}
+                  kind="video"
+                  accept="video/*"
+                  label="Add motion to copy"
+                  onPick={(u) => setRefVideo(u)}
+                  onClear={() => setRefVideo(null)}
+                  disabled={running}
+                />
+                <MediaPick
+                  value={image}
+                  kind="image"
+                  accept="image/*"
+                  label="Add your character"
+                  onPick={(u) => setImage(u)}
+                  onClear={() => setImage(null)}
+                  disabled={running}
+                />
+              </div>
+              <div className="vp-motion-helper">
+                <div className="vp-motion-helper-row">
+                  <span className="vp-motion-helper-label">Motion clip:</span>
+                  <span>3–30 seconds</span>
+                </div>
+                <div className="vp-motion-helper-row">
+                  <span className="vp-motion-helper-label">Character:</span>
+                  <span>Image with visible face and body</span>
+                </div>
+              </div>
+            </>
           )}
 
           <div className="vp-prompt-block">
@@ -392,12 +428,101 @@ export default function VideoPage() {
           )}
           {sub === "motion" && (
             <div className="vp-controls">
-              <div className="vp-control-row">
-                <div className="vp-control-label">Model</div>
-                <div className="chip-wrap">
-                  <Chip label={motionModel} onClick={() => toggle("motionModel")} />
-                  <Dropdown open={openMenu === "motionModel"} options={MOTION_MODELS} onPick={setMotionModel} onClose={() => setOpenMenu(null)} />
+              {/* Rich model picker (same shape as Edit's) */}
+              <div className="chip-wrap vp-control-row vp-edit-model-row" style={{ position: "relative" }}>
+                <div className="vp-edit-model-info">
+                  <div className="vp-control-label">Model</div>
+                  <div className="vp-edit-model-name">
+                    {motionModel}
+                    <span className="vp-edit-model-mark"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+                  </div>
                 </div>
+                <button className="vp-edit-model-open" onClick={() => toggle("motionModel")}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+                {openMenu === "motionModel" && (
+                  <>
+                    <div className="dd-backdrop" onClick={() => { setOpenMenu(null); setMotionSearch(""); }} />
+                    <div className="ip-pop vp-edit-pop">
+                      <div className="ip-pop-search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input autoFocus placeholder="Search…" value={motionSearch} onChange={(e) => setMotionSearch(e.target.value)} />
+                      </div>
+                      <div className="ip-pop-header">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        All models
+                      </div>
+                      {MOTION_MODEL_CATALOG
+                        .filter((m) => !motionSearch || m.id.toLowerCase().includes(motionSearch.toLowerCase()) || m.long.toLowerCase().includes(motionSearch.toLowerCase()))
+                        .map((m) => (
+                          <button
+                            key={m.id}
+                            className={`ip-model-row ${m.id === motionModel ? "is-active" : ""}`}
+                            onClick={() => { setMotionModel(m.id); setOpenMenu(null); setMotionSearch(""); }}
+                          >
+                            <span className="ip-model-ic">{m.ic}</span>
+                            <span className="ip-model-text">
+                              <span className="ip-model-name">
+                                {m.id}
+                                {m.badge && <span className={`ip-badge ip-badge-${m.badge.toLowerCase()}`}>{m.badge}</span>}
+                              </span>
+                              <span className="ip-model-desc">{m.long}</span>
+                            </span>
+                            {m.id === motionModel && (
+                              <svg className="ip-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                            )}
+                          </button>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Quality row */}
+              <div className="chip-wrap vp-control-row" style={{ position: "relative" }}>
+                <div className="vp-control-label">Quality</div>
+                <button className="vp-edit-model-open" onClick={() => toggle("motionQuality")}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", marginRight: 6 }}>{motionQuality}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 6l6 6-6 6"/></svg>
+                </button>
+                <Dropdown open={openMenu === "motionQuality"} options={MOTION_QUALITIES} onPick={setMotionQuality} onClose={() => setOpenMenu(null)} />
+              </div>
+
+              {/* Scene control mode */}
+              <div className="vp-scene-block">
+                <div className="vp-control-row vp-toggle-row" style={{ background: "transparent", border: "none", padding: "0 2px" }}>
+                  <div className="vp-control-label" style={{ color: "var(--ink)", fontSize: 13, fontWeight: 600 }}>Scene control mode</div>
+                  <button
+                    className={`vp-toggle ${sceneCtrl ? "is-on" : ""}`}
+                    onClick={() => setSceneCtrl((v) => !v)}
+                    type="button"
+                  >
+                    <span className="vp-toggle-knob" />
+                  </button>
+                </div>
+                {sceneCtrl && (
+                  <>
+                    <div className="vp-seg">
+                      <button
+                        className={`vp-seg-btn ${sceneSource === "video" ? "is-active" : ""}`}
+                        onClick={() => setSceneSource("video")}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polygon points="10 9 16 12 10 15 10 9" fill="currentColor" stroke="none"/></svg>
+                        Video
+                      </button>
+                      <button
+                        className={`vp-seg-btn ${sceneSource === "image" ? "is-active" : ""}`}
+                        onClick={() => setSceneSource("image")}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+                        Image
+                      </button>
+                    </div>
+                    <div className="vp-scene-help">
+                      Choose where the background should come from: the character image or the motion video.
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
