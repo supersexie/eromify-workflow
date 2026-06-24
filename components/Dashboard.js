@@ -1,0 +1,162 @@
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { listWorkflows, createWorkflow, deleteWorkflow, renameWorkflow } from "@/lib/store";
+import UserMenu from "@/components/UserMenu";
+
+function relTime(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+export default function Dashboard() {
+  const router = useRouter();
+  const [items, setItems] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+
+  useEffect(() => {
+    setItems(listWorkflows());
+  }, []);
+
+  const refresh = () => setItems(listWorkflows());
+
+  const onCreate = () => {
+    setNewName("");
+    setCreating(true);
+  };
+
+  const onCreateConfirm = () => {
+    const wf = createWorkflow(newName.trim() || "Untitled Workflow");
+    router.push(`/w/${wf.id}`);
+  };
+
+  const onDelete = (id, e) => {
+    e.stopPropagation();
+    if (!confirm("Delete this workflow?")) return;
+    deleteWorkflow(id);
+    refresh();
+  };
+
+  const onRenameStart = (wf, e) => {
+    e.stopPropagation();
+    setEditingId(wf.id);
+    setDraft(wf.name);
+  };
+
+  const onRenameCommit = (id) => {
+    const name = draft.trim() || "Untitled Workflow";
+    renameWorkflow(id, name);
+    setEditingId(null);
+    refresh();
+  };
+
+  return (
+    <div className="dash">
+      <div className="dash-topbar">
+        <div className="title-pill">
+          <div className="logo">w</div>
+          <span>Workflows</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <button className="primary-btn" onClick={onCreate}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+            New Workflow
+          </button>
+          <UserMenu />
+        </div>
+      </div>
+
+      <div className="dash-body">
+        <h1 className="dash-h1">Your workflows</h1>
+        <p className="dash-sub">Build node-based creative pipelines. Saved automatically in this browser.</p>
+
+        {items.length === 0 ? (
+          <div className="dash-empty">
+            <div className="dash-empty-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
+            </div>
+            <h2>No workflows yet</h2>
+            <p>Create your first workflow to get started.</p>
+            <button className="primary-btn" onClick={onCreate}>Create workflow</button>
+          </div>
+        ) : (
+          <div className="wf-grid">
+            <div className="wf-tile wf-tile-new" onClick={onCreate}>
+              <div className="wf-tile-new-plus">+</div>
+              <div>New workflow</div>
+            </div>
+            {items.map((wf) => (
+              <div key={wf.id} className="wf-tile" onClick={() => router.push(`/w/${wf.id}`)}>
+                <div className="wf-tile-preview">
+                  <span>{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</span>
+                </div>
+                <div className="wf-tile-meta">
+                  {editingId === wf.id ? (
+                    <input
+                      className="wf-rename"
+                      autoFocus
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      onBlur={() => onRenameCommit(wf.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") onRenameCommit(wf.id);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <div className="wf-tile-name" onDoubleClick={(e) => onRenameStart(wf, e)}>{wf.name}</div>
+                  )}
+                  <div className="wf-tile-time">Updated {relTime(wf.updatedAt)}</div>
+                </div>
+                <div className="wf-tile-actions">
+                  <button onClick={(e) => onRenameStart(wf, e)} title="Rename">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                  </button>
+                  <button onClick={(e) => onDelete(wf.id, e)} title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {creating && (
+        <div className="nw-backdrop" onClick={() => setCreating(false)}>
+          <div className="nw-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="nw-title">Name your workflow</h3>
+            <p className="nw-sub">Give it a name to get started. You can rename it later.</p>
+            <input
+              className="nw-input"
+              autoFocus
+              placeholder="Untitled Workflow"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onCreateConfirm();
+                if (e.key === "Escape") setCreating(false);
+              }}
+            />
+            <div className="nw-actions">
+              <button className="nw-cancel" onClick={() => setCreating(false)}>Cancel</button>
+              <button className="primary-btn" onClick={onCreateConfirm}>Create workflow</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

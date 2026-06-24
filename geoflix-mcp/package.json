@@ -1,0 +1,12 @@
+{
+  "name": "geoflix-mcp",
+  "version": "1.0.0",
+  "description": "MCP server exposing Geoflix AI generation (image, video, audio, text) as Claude tools",
+  "type": "module",
+  "bin": { "geoflix-mcp": "index.js" },
+  "scripts": { "start": "node index.js" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  }
+}
