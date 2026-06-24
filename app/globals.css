@@ -1540,7 +1540,7 @@ body {
     radial-gradient(circle at 80% 80%, rgba(168,85,247,0.4), transparent 55%),
     linear-gradient(135deg, #1a1820, #0f0e16);
 }
-.vp-edit-hero > *:not(.vp-edit-hero-bg) { position: relative; z-index: 1; }
+.vp-edit-hero > *:not(.vp-edit-hero-bg):not(.vp-edit-hero-howto) { position: relative; z-index: 1; }
 .vp-edit-hero-howto {
   position: absolute; top: 8px; left: 8px;
   display: inline-flex; align-items: center; gap: 4px;
