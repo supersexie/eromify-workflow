@@ -185,8 +185,10 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       ? "Describe your next edit..."
       : "Describe what you want…";
 
-  const runCount = data.runCount || 1;
-  const incRun = (e) => { e.stopPropagation(); set({ runCount: ((runCount % 9) + 1) }); };
+  // Batch count for image/video runs — clamped to 1-4. Picker opens via the
+  // chevron next to the play count.
+  const runCount = Math.max(1, Math.min(4, parseInt(data.runCount) || 1));
+  const openBatchMenu = (e) => { e.stopPropagation(); toggle("batch"); };
 
   return (
     <div className="prompt-bar">
@@ -418,13 +420,31 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           )}
         </div>
 
-        <button className="pb-play" onClick={onRun} disabled={running}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span>{runCount}</span>
-          <span onClick={incRun} className="pb-play-inc">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
-          </span>
-        </button>
+        <div className="chip-wrap pb-play-wrap">
+          <button className="pb-play" onClick={onRun} disabled={running}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>{runCount}</span>
+            <span
+              onClick={openBatchMenu}
+              className="pb-play-inc"
+              title="Batch size"
+              role="button"
+            >
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M6 9l6 6 6-6"/></svg>
+            </span>
+          </button>
+          <Dropdown
+            open={openMenu === "batch"}
+            options={[
+              { value: "1", label: "1 — single" },
+              { value: "2", label: "2 — variations" },
+              { value: "3", label: "3 — variations" },
+              { value: "4", label: "4 — variations" },
+            ]}
+            onPick={(v) => set({ runCount: parseInt(v) })}
+            onClose={() => setOpenMenu(null)}
+          />
+        </div>
       </div>
     </div>
   );

@@ -71,7 +71,7 @@ function CanvasInner({ workflowId }) {
   const [loaded, setLoaded] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  const [runningId, setRunningId] = useState(null);
+  const [runningIds, setRunningIds] = useState(() => new Set());
   const [savedAt, setSavedAt] = useState(null);
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -266,16 +266,15 @@ function CanvasInner({ workflowId }) {
     if (workflowId) renameWorkflow(workflowId, v);
   };
 
-  const runNode = async (id) => {
-    if (runningId) return;
+  // Run a single node by id. Reads its sources via sourcesByNode (which the
+  // outer effect keeps in sync with `nodes`/`edges`), so this works for newly
+  // spawned batch clones too once their state lands.
+  const runSingleNode = async (id) => {
     const node = nodesRef.current.find((n) => n.id === id);
     if (!node) return;
-    setRunningId(id);
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
     try {
       let output;
-      // A connected Text node supplies the prompt when the node's own prompt
-      // is empty (typed prompt always wins).
       const srcs = sourcesByNode[id] || [];
       const textPrompt = srcs.find((s) => s.kind === "text" && s.text)?.text;
       const typed = (node.data.prompt || "").trim();
@@ -285,14 +284,13 @@ function CanvasInner({ workflowId }) {
         const dur = parseInt(node.data.duration) || 8;
         output = await generateVideo({
           prompt,
-          model: node.data.model || "LTX Video", // match the prompt bar's displayed default (else falls through to Veo)
+          model: node.data.model || "LTX Video",
           image: node.data.sourceThumb || null,
           aspect: aspectRatio,
           resolution,
           duration: dur,
         });
       } else {
-        // For image nodes, forward connected source image(s) → image-to-image edit.
         const images = node.data.kind === "image"
           ? srcs.filter((s) => s.kind === "image" && s.url).map((s) => s.url)
           : [];
@@ -301,9 +299,70 @@ function CanvasInner({ workflowId }) {
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "error", error: e.message } } : n)));
-    } finally {
-      setRunningId(null);
     }
+  };
+
+  const runNode = async (id) => {
+    if (runningIds.has(id)) return;
+    const node = nodesRef.current.find((n) => n.id === id);
+    if (!node) return;
+    const batch = Math.max(1, Math.min(4, parseInt(node.data.runCount) || 1));
+
+    // Single run — fast path, no cloning.
+    if (batch <= 1) {
+      setRunningIds((s) => new Set(s).add(id));
+      try {
+        await runSingleNode(id);
+      } finally {
+        setRunningIds((s) => { const n = new Set(s); n.delete(id); return n; });
+      }
+      return;
+    }
+
+    // Batch run — spawn N-1 clones to the right of the original, copy the
+    // incoming edges so they inherit the same source(s), then run all N
+    // generations in parallel. Each clone has runCount reset to 1 so the
+    // user doesn't get a runaway recursion if they later hit Run on a clone.
+    const W = node.width || SIZE[node.data.kind] || 304;
+    const GAP = 40;
+    const incomingEdges = edges.filter((e) => e.target === id);
+    const cloneIds = [];
+    const cloneNodes = [];
+    for (let i = 1; i < batch; i++) {
+      const cid = nextId();
+      cloneIds.push(cid);
+      cloneNodes.push({
+        ...node,
+        id: cid,
+        selected: false,
+        position: { x: node.position.x + i * (W + GAP), y: node.position.y },
+        data: { ...node.data, runCount: 1, status: undefined, output: null, error: null, sourceThumb: node.data.sourceThumb || null },
+      });
+    }
+    const newEdges = cloneIds.flatMap((cid) =>
+      incomingEdges.map((ie) => ({
+        id: `e_${ie.source}_${cid}_${Math.random().toString(36).slice(2, 6)}`,
+        source: ie.source,
+        target: cid,
+        targetHandle: ie.targetHandle,
+        animated: true,
+      }))
+    );
+    setNodes((ns) => [...ns, ...cloneNodes]);
+    setEdges((es) => [...es, ...newEdges]);
+
+    // Give React a tick so sourcesByNode picks up the new edges before we run.
+    await new Promise((r) => setTimeout(r, 60));
+
+    const allIds = [id, ...cloneIds];
+    setRunningIds((s) => { const n = new Set(s); allIds.forEach((x) => n.add(x)); return n; });
+    await Promise.all(
+      allIds.map((rid) =>
+        runSingleNode(rid).finally(() => {
+          setRunningIds((s) => { const n = new Set(s); n.delete(rid); return n; });
+        })
+      )
+    );
   };
 
   const setNodeData = (id, patch) =>
@@ -561,7 +620,7 @@ function CanvasInner({ workflowId }) {
           sources={selectedSources}
           onChange={updateNodeData}
           onRun={() => runNode(selectedNode.id)}
-          running={runningId === selectedNode.id}
+          running={runningIds.has(selectedNode.id)}
         />
       )}
 
