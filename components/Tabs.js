@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 // Motion Control now lives as a sub-tab inside Video — the dedicated /motion
@@ -14,7 +15,18 @@ const TABS = [
 
 // Shared topbar tab strip — used by every product page so the brand pill,
 // tab list, and active state stay consistent without copy/paste.
+// Wrapped in a Suspense boundary because useSearchParams() (in TabsInner)
+// triggers a Next.js build error otherwise — see
+// https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 export default function Tabs() {
+  return (
+    <Suspense fallback={<div className="mc-tabs"><div className="title-pill"><div className="logo">e</div><span>Eromify</span></div></div>}>
+      <TabsInner />
+    </Suspense>
+  );
+}
+
+function TabsInner() {
   const router = useRouter();
   const pathname = usePathname() || "";
   const search = useSearchParams();

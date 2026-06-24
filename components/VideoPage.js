@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
@@ -118,7 +118,17 @@ function Dropdown({ open, options, onPick, onClose }) {
   );
 }
 
+// Wrap inner content in a Suspense boundary so useSearchParams() (used for
+// ?sub deep-linking) doesn't blow up the Next.js production prerender.
 export default function VideoPage() {
+  return (
+    <Suspense fallback={<div className="vp-page" />}>
+      <VideoPageInner />
+    </Suspense>
+  );
+}
+
+function VideoPageInner() {
   // Allow deep-linking to a sub-tab via ?sub=motion|edit|create. The top-nav
   // 'Motion Control' tab uses this to land users directly on the motion mode.
   const searchParams = useSearchParams();
