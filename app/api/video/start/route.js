@@ -35,10 +35,18 @@ const FAL_MODELS = {
 };
 
 // Motion Control endpoints — character image + reference video → animated video.
+// Every endpoint below takes the same { image_url, video_url, prompt? } shape,
+// so they all flow through the single motion handler unchanged.
 const FAL_MOTION_MODELS = {
+  // Kling — transfer motion from a driving video onto a character image.
   "Kling 3.0 Motion Control": "fal-ai/kling-video/v3/pro/motion-control",
+  "Kling 3.0 Motion Control Std": "fal-ai/kling-video/v3/standard/motion-control",
   "Kling Motion Control Pro": "fal-ai/kling-video/v2.6/pro/motion-control",
   "Kling Motion Control Std": "fal-ai/kling-video/v2.6/standard/motion-control",
+  // Wan — pose-retargeted / expression-replicating character animation.
+  "Wan Motion": "fal-ai/wan-motion",
+  "Wan 2.2 Animate Move": "fal-ai/wan/v2.2-14b/animate/move",
+  "Wan 2.2 Animate Replace": "fal-ai/wan/v2.2-14b/animate/replace",
 };
 
 // Video Edit endpoints — source video + prompt → edited video.

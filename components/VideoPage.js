@@ -41,9 +41,13 @@ const VIDEO_MODELS = [
 
 // Rich catalog for the Motion Control model picker (mirrors the Edit picker).
 const MOTION_MODEL_CATALOG = [
-  { id: "Kling 3.0 Motion Control", long: "Transfer motion from video to image", badge: null, ic: "K" },
+  { id: "Kling 3.0 Motion Control", long: "Transfer motion from video to image", badge: "NEW", ic: "K" },
+  { id: "Kling 3.0 Motion Control Std", long: "Kling 3.0 motion transfer — faster & cheaper", badge: null, ic: "K" },
   { id: "Kling Motion Control Pro", long: "Higher-quality motion-following (v2.6)", badge: null, ic: "K" },
   { id: "Kling Motion Control Std", long: "Faster, cheaper (v2.6 Std)", badge: null, ic: "K" },
+  { id: "Wan Motion", long: "Pose-retargeted character motion (720p)", badge: null, ic: "W" },
+  { id: "Wan 2.2 Animate Move", long: "Replicate expressions & movement from a reference", badge: null, ic: "W" },
+  { id: "Wan 2.2 Animate Replace", long: "Swap your character into a reference video", badge: null, ic: "W" },
 ];
 const MOTION_MODELS = MOTION_MODEL_CATALOG.map((m) => m.id);
 const MOTION_QUALITIES = ["720p", "1080p"];
