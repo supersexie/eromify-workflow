@@ -146,6 +146,10 @@ export async function POST(req) {
       video_url: motionVideo,
     };
     if (prompt && prompt.trim()) input.prompt = prompt.trim();
+    // Kling motion-control endpoints require character_orientation; "video"
+    // matches the reference video's orientation (best for complex motion).
+    // Wan endpoints don't accept this field, so only set it for Kling.
+    if (endpoint.includes("kling-video")) input.character_orientation = "video";
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
         method: "POST",
