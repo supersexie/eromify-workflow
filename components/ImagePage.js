@@ -85,6 +85,16 @@ const SAMPLE_TILES = [
   { hue: "linear-gradient(135deg,#10b981,#a855f7)", label: "Surreal" },
 ];
 
+// Models offered for the ✨ Enhance prompt rewriter (mirrors the canvas bar).
+const ENHANCE_MODELS = [
+  { id: "gpt-4.1-mini", label: "GPT-4.1 mini", note: "Fast & cheap · recommended" },
+  { id: "gpt-4.1", label: "GPT-4.1", note: "Smarter, better paragraphs" },
+  { id: "gpt-4o", label: "GPT-4o", note: "Multimodal flagship" },
+  { id: "gpt-5.5", label: "GPT-5.5", note: "Flagship · expensive" },
+  { id: "gpt-5.5-pro", label: "GPT-5.5 Pro", note: "Max quality · pricey" },
+];
+const ENHANCE_PREF_KEY = "eromify:enhanceModel:v1";
+
 function Chip({ children, onClick, icon, tooltip }) {
   return (
     <button className="ip-chip" onClick={onClick} data-tooltip={tooltip || undefined}>
@@ -169,6 +179,11 @@ export default function ImagePage() {
   const [mode, setMode] = useState("generate");
   const [editSource, setEditSource] = useState(null); // data URI
   const [enhancing, setEnhancing] = useState(false);
+  const [enhanceModel, setEnhanceModel] = useState(ENHANCE_MODELS[0].id);
+  useEffect(() => {
+    try { const v = localStorage.getItem(ENHANCE_PREF_KEY); if (v && ENHANCE_MODELS.some((m) => m.id === v)) setEnhanceModel(v); } catch {}
+  }, []);
+  const enhanceLabel = ENHANCE_MODELS.find((m) => m.id === enhanceModel)?.label || "GPT-4.1 mini";
 
   const enhancePrompt = async () => {
     const cur = prompt.trim();
@@ -181,7 +196,7 @@ export default function ImagePage() {
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: cur, kind: "image", hasSourceImage }),
+        body: JSON.stringify({ prompt: cur, kind: "image", model: enhanceModel, hasSourceImage }),
       });
       const j = await res.json();
       if (res.ok && j.prompt) setPrompt(j.prompt);
@@ -363,6 +378,31 @@ export default function ImagePage() {
               placeholder={mode === "edit" ? "Describe the change — type @ to summon an influencer" : "Describe the scene — type @ to summon an influencer"}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
+            <div className="chip-wrap pb-enhance-model-wrap">
+              <button className="pb-enhance-model" onClick={() => toggle("enhanceModel")} title="Pick the model used by Enhance">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                <span>{enhanceLabel}</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {openMenu === "enhanceModel" && (
+                <>
+                  <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
+                  <div className="dd-menu pb-enhance-menu">
+                    <div className="pb-enhance-menu-header">Enhance with</div>
+                    {ENHANCE_MODELS.map((m) => (
+                      <button
+                        key={m.id}
+                        className={m.id === enhanceModel ? "is-active" : ""}
+                        onClick={() => { setEnhanceModel(m.id); try { localStorage.setItem(ENHANCE_PREF_KEY, m.id); } catch {} setOpenMenu(null); }}
+                      >
+                        <span className="pb-enhance-menu-label">{m.label}</span>
+                        <span className="pb-enhance-menu-note">{m.note}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <button className="pb-enhance" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Eromify style">
               {enhancing ? (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
