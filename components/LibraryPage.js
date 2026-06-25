@@ -121,7 +121,7 @@ export default function LibraryPage() {
         ) : (
           <div className="ip-grid ip-grid-uniform lib-page-grid">
             {shown.map((it, i) => (
-              <button key={(it.url || "") + i} className="ip-card lib-page-card" onClick={() => setLightbox(it)} title={it.prompt || ""}>
+              <div key={(it.url || "") + i} className="ip-card lib-page-card" role="button" tabIndex={0} onClick={() => setLightbox(it)} title={it.prompt || ""}>
                 {normKind(it.kind) === "video" ? (
                   <video
                     src={it.url}
@@ -136,7 +136,7 @@ export default function LibraryPage() {
                 <button className="lib-page-dl" title="Download" onClick={(e) => download(e, it)}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         )}

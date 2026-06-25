@@ -6,6 +6,7 @@ import {
   ReactFlowProvider,
   Background,
   BackgroundVariant,
+  ConnectionMode,
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
@@ -259,6 +260,10 @@ function CanvasInner({ workflowId }) {
     if (options.connectFrom) {
       setEdges((e) => addEdge({ source: options.connectFrom, target: id, animated: true }, e));
     }
+    // connectTo: the new node feeds INTO an existing node (left-handle drag).
+    if (options.connectTo) {
+      setEdges((e) => addEdge({ source: id, target: options.connectTo, animated: true }, e));
+    }
     setSelectedId(id);
     setAddMenuOpen(false);
     // Pan/zoom the viewport to the new card so the user lands on it instead of
@@ -506,23 +511,27 @@ function CanvasInner({ workflowId }) {
   const onConnectEnd = useCallback((event) => {
     const conn = connectingRef.current;
     connectingRef.current = null;
-    if (!conn || conn.handleType !== "source") return;
+    if (!conn) return;
     const targetIsPane = event.target.classList?.contains("react-flow__pane");
     if (!targetIsPane) return;
 
     const clientX = "touches" in event ? event.changedTouches[0].clientX : event.clientX;
     const clientY = "touches" in event ? event.changedTouches[0].clientY : event.clientY;
     const flowPos = screenToFlowPosition({ x: clientX, y: clientY });
-    setPicker({ x: clientX, y: clientY, flowPos, sourceId: conn.nodeId });
+    // handleType "source" → drag right, new node is downstream (fed BY this one).
+    // handleType "target" → drag left, new node is upstream (FEEDS this one).
+    setPicker({ x: clientX, y: clientY, flowPos, nodeId: conn.nodeId, handleType: conn.handleType });
   }, [screenToFlowPosition]);
 
   const pickType = (kind) => {
     if (!picker) return;
     const W = SIZE[kind] || 304;
     const H = HEIGHT[kind] || 340;
+    const upstream = picker.handleType === "target";
     addNode(kind, {
-      position: { x: picker.flowPos.x, y: picker.flowPos.y - H / 2 },
-      connectFrom: picker.sourceId,
+      // Place an upstream node so its right edge sits near the drop point.
+      position: { x: upstream ? picker.flowPos.x - W : picker.flowPos.x, y: picker.flowPos.y - H / 2 },
+      ...(upstream ? { connectTo: picker.nodeId } : { connectFrom: picker.nodeId }),
     });
     setPicker(null);
   };
@@ -603,6 +612,7 @@ function CanvasInner({ workflowId }) {
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          connectionMode={ConnectionMode.Loose}
           onConnect={onConnect}
           onConnectStart={onConnectStart}
           onConnectEnd={onConnectEnd}
