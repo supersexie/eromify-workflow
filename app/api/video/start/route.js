@@ -196,7 +196,15 @@ export async function POST(req) {
     if (!FAL) return NextResponse.json({ mock: true, output: "Generated video (mock — set FAL_KEY for real fal.ai)" });
     const endpoint = image ? fal.i2v : fal.t2v;
     const input = { prompt: prompt || "a cinematic scene, smooth camera motion" };
-    if (image) input.image_url = image; // fal accepts data URIs
+    if (image) {
+      // Host data-URI start images (e.g. an influencer photo) so i2v endpoints
+      // that require real URLs accept them.
+      try {
+        input.image_url = await uploadDataUrl(image, "vid-start");
+      } catch (e) {
+        return NextResponse.json({ error: `Could not host start image: ${e.message}` }, { status: 500 });
+      }
+    }
     // Some fal endpoints default aspect_ratio to "auto", deriving the output
     // size from the input image and 422-ing on unsupported sizes. Pass an
     // explicit ratio (one of 16:9 / 9:16 / 1:1) for models that need it.

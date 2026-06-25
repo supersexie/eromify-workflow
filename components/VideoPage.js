@@ -1,9 +1,10 @@
 "use client";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
+import { listInfluencers, resolveMentions, normHandle } from "@/lib/influencers";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
 const EDIT_MODELS = [
@@ -222,6 +223,16 @@ function VideoPageInner() {
   const editVideoRef = useRef(null);
   const editRefsRef = useRef(null);
 
+  // Influencers for @mention autocomplete + reference attaching.
+  const [influencers, setInfluencers] = useState([]);
+  useEffect(() => { setInfluencers(listInfluencers()); }, []);
+  const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
+  const mentionQuery = (prompt.match(/@([a-z0-9_]*)$/i) || [])[1];
+  const suggestions = mentionQuery != null
+    ? influencers.filter((inf) => inf.handle.startsWith(normHandle(mentionQuery))).slice(0, 5)
+    : [];
+  const applyMention = (inf) => setPrompt((p) => p.replace(/@[a-z0-9_]*$/i, `@${inf.handle} `));
+
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
 
   const canRun = (() => {
@@ -257,10 +268,14 @@ function VideoPageInner() {
       let url;
       let meta;
       if (sub === "create") {
+        // Resolve @handles → use the character's name in the prompt and her
+        // photo as the start image (image-to-video) for likeness consistency.
+        const { prompt: resolved, characters } = resolveMentions(prompt.trim());
+        const startImage = image || characters[0]?.image || null;
         url = await generateVideo({
-          prompt: prompt.trim(),
+          prompt: resolved.trim(),
           model,
-          image: image || null,
+          image: startImage,
           aspect,
           resolution: "720p",
           duration: parseInt(duration) || 8,
@@ -469,20 +484,43 @@ function VideoPageInner() {
 
           <div className="vp-prompt-block">
             <div className="vp-prompt-label">Prompt</div>
-            <textarea
-              className="vp-prompt"
-              placeholder={
-                sub === "edit"
-                  ? 'Describe the change you want, like "Make it snow". Add elements using @'
-                  : sub === "motion"
-                    ? "(Optional) refine the motion — e.g. 'exaggerated arm swing'"
-                    : "Describe your scene in detail."
-              }
-              rows={4}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              disabled={running}
-            />
+            {mentioned.length > 0 && (
+              <div className="mention-chips">
+                {mentioned.map((inf) => (
+                  <span key={inf.id} className="mention-chip" title={`Using @${inf.handle}'s likeness`}>
+                    <img src={inf.image} alt={inf.name} />
+                    {inf.name}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="vp-prompt-wrap">
+              <textarea
+                className="vp-prompt"
+                placeholder={
+                  sub === "edit"
+                    ? 'Describe the change you want, like "Make it snow". Add elements using @'
+                    : sub === "motion"
+                      ? "(Optional) refine the motion — e.g. 'exaggerated arm swing'"
+                      : "Describe your scene — type @ to summon an influencer."
+                }
+                rows={4}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={running}
+              />
+              {suggestions.length > 0 && (
+                <div className="mention-pop mention-pop-below">
+                  {suggestions.map((inf) => (
+                    <button key={inf.id} className="mention-row" onClick={() => applyMention(inf)}>
+                      <img src={inf.image} alt={inf.name} />
+                      <span className="mention-name">{inf.name}</span>
+                      <span className="mention-handle">@{inf.handle}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Per-mode controls */}

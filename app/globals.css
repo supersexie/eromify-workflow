@@ -1401,6 +1401,8 @@ body {
   font-size: 12px; font-weight: 600; color: var(--ink);
 }
 .mention-chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+.vp-prompt-wrap { position: relative; }
+.mention-pop-below { bottom: auto; top: calc(100% + 6px); }
 
 /* ---- Rich Image-bar pickers (model / aspect / quality / batch) ---- */
 .ip-chip-ic {
