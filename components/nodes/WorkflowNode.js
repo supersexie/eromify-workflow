@@ -104,6 +104,30 @@ export default function WorkflowNode({ id, data, selected }) {
     fileRef.current?.click();
   };
 
+  // Download this node's output (image/video) as a file. Cross-origin-safe via
+  // blob fetch, falling back to opening the file if CORS blocks it.
+  const onDownload = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = data.output;
+    if (!url) return;
+    const m = /\.(jpe?g|png|webp|gif|mp4|webm|mov)(?:[?#]|$)/i.exec(url);
+    const ext = m ? m[1].toLowerCase() : (kind === "video" ? "mp4" : "jpg");
+    const name = `eromify-${kind}-${Date.now()}.${ext}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("fetch failed");
+      const blob = await res.blob();
+      const href = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = href; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(href), 4000);
+    } catch {
+      window.open(url, "_blank", "noopener");
+    }
+  };
+
   const onFile = (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -155,12 +179,12 @@ export default function WorkflowNode({ id, data, selected }) {
             )}
             <button
               type="button"
-              className="wf-card-source-corner"
-              title="Upload a different file"
-              onClick={onPickFile}
+              className="wf-card-download-corner"
+              title="Download"
+              onClick={onDownload}
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
             </button>
           </>
         ) : data.output && kind === "audio" && data.output.startsWith("data:") ? (

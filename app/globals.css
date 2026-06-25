@@ -295,6 +295,18 @@ body {
   display: grid; place-items: center; color: white;
   border: 2px solid #fff;
 }
+/* Download button on image/video output cards — hidden until the card is
+   hovered (Higgsfield-style), so it doesn't clutter the node. */
+.wf-card-download-corner {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  display: grid; place-items: center; color: #fff;
+  background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  opacity: 0; transition: opacity 140ms ease;
+}
+.wf-card:hover .wf-card-download-corner { opacity: 1; }
+.wf-card-download-corner:hover { background: var(--blue); border-color: transparent; }
 
 /* Type picker popover (drop-to-create) */
 .type-picker {
