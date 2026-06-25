@@ -1,7 +1,11 @@
-import { redirect } from "next/navigation";
+import Landing from "@/components/Landing";
 
-// Eromify is launching workflow-first. The marketing landing will live here
-// later; for now, send every visitor straight to the workflow dashboard.
+export const metadata = {
+  title: "Eromify — AI Influencer Generator | Create AI Models, Images & Videos",
+  description:
+    "Build, customize and monetize stunning AI personas that look and sound like real influencers. Create authentic UGC ads that drive 3x higher conversion rates.",
+};
+
 export default function Home() {
-  redirect("/app");
+  return <Landing />;
 }
