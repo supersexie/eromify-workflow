@@ -54,9 +54,9 @@ body {
 
 /* ---- Top bar ---- */
 .topbar {
-  position: fixed; top: 0; left: 0; right: 0; height: 56px;
+  position: fixed; top: 0; left: 0; right: 0; height: 51px;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; z-index: 10; pointer-events: none;
+  padding: 8px 16px; z-index: 10; pointer-events: none;
 }
 .topbar > * { pointer-events: auto; }
 .title-pill {
@@ -76,7 +76,7 @@ body {
    without going back to the dashboard. Absolutely centered so the side groups
    don't shift it off-center. */
 .topbar-nav {
-  position: absolute; left: 50%; transform: translateX(-50%);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   background: var(--surface); border: 1px solid var(--line);
   border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm);
 }
@@ -952,7 +952,7 @@ body {
 .app-topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--ink); }
 .app-topbar-right { display: flex; align-items: center; gap: 14px; }
 .nav-pill {
-  position: absolute; left: 50%; transform: translateX(-50%);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   background: var(--surface); border: 1px solid var(--line);
   border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm); z-index: 5;
 }
