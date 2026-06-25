@@ -17,7 +17,7 @@ import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
 import Tabs from "./Tabs";
-import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
+import { getWorkflow, saveWorkflow, renameWorkflow, recordGeneration } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
 import { resolveMentions } from "@/lib/influencers";
@@ -323,6 +323,16 @@ function CanvasInner({ workflowId }) {
         }
         output = await generateOutput(node.data.kind, prompt, node.data.model, images, opts);
       }
+      // Record into the persistent library BEFORE updating the node, so a prior
+      // output that this regeneration replaces is kept in the Library.
+      recordGeneration({
+        url: output,
+        kind: node.data.kind,
+        prompt,
+        workflowId,
+        workflowName: name,
+        nodeId: id,
+      });
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "error", error: e.message } } : n)));
