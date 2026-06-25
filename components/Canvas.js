@@ -127,6 +127,9 @@ function CanvasInner({ workflowId }) {
     setEdges(wf.edges || []);
     setName(wf.name || "Untitled Canvas");
     setLoaded(true);
+    // Remember the open canvas so the Canvas nav tab returns here (instead of
+    // the all-canvases dashboard) when you come back from another section.
+    try { localStorage.setItem("eromify:lastCanvas", workflowId); } catch {}
   }, [workflowId, router]);
 
   // Hydrate the influencer cache from the server so @mentions resolve here too.

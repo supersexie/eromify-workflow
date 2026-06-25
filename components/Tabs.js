@@ -42,11 +42,25 @@ function TabsInner({ showBrand = true }) {
       )}
       {TABS.map((t) => {
         const active = t.match(pathname, search);
+        const go = () => {
+          // Canvas tab returns to the last-opened canvas (if any) rather than
+          // always dumping the user on the all-canvases dashboard.
+          if (t.id === "canvas") {
+            let dest = "/app";
+            try {
+              const last = localStorage.getItem("eromify:lastCanvas");
+              if (last) dest = `/w/${last}`;
+            } catch {}
+            router.push(dest);
+            return;
+          }
+          router.push(t.path);
+        };
         return (
           <button
             key={t.id}
             className={`mc-tab ${active ? "is-active" : ""}`}
-            onClick={() => !active && router.push(t.path)}
+            onClick={() => !active && go()}
             disabled={active}
           >
             {t.label}
