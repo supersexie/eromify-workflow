@@ -32,6 +32,42 @@ const FAL_MODELS = {
     t2v: "fal-ai/kling-video/v2/master/text-to-video",
     i2v: "fal-ai/kling-video/v2/master/image-to-video",
   },
+  "Kling 3.0": {
+    t2v: "fal-ai/kling-video/v3/pro/text-to-video",
+    i2v: "fal-ai/kling-video/v3/pro/image-to-video",
+  },
+  "Kling 2.6": {
+    t2v: "fal-ai/kling-video/v2.6/pro/text-to-video",
+    i2v: "fal-ai/kling-video/v2.6/pro/image-to-video",
+  },
+  "Kling 2.5 Turbo": {
+    t2v: "fal-ai/kling-video/v2.5-turbo/pro/text-to-video",
+    i2v: "fal-ai/kling-video/v2.5-turbo/pro/image-to-video",
+  },
+  "Seedance 2.0": {
+    t2v: "bytedance/seedance-2.0/text-to-video",
+    i2v: "bytedance/seedance-2.0/image-to-video",
+  },
+  "Seedance 2.0 Fast": {
+    t2v: "bytedance/seedance-2.0/fast/text-to-video",
+    i2v: "bytedance/seedance-2.0/fast/image-to-video",
+  },
+  "Wan 2.7": {
+    t2v: "fal-ai/wan/v2.7/text-to-video",
+    i2v: "fal-ai/wan/v2.7/image-to-video",
+  },
+  "MiniMax Hailuo 2.3": {
+    t2v: "fal-ai/minimax/hailuo-2.3/pro/text-to-video",
+    i2v: "fal-ai/minimax/hailuo-2.3/pro/image-to-video",
+  },
+  "PixVerse v6": {
+    t2v: "fal-ai/pixverse/v6/text-to-video",
+    i2v: "fal-ai/pixverse/v6/image-to-video",
+  },
+  "Sora 2": {
+    t2v: "fal-ai/sora-2/text-to-video",
+    i2v: "fal-ai/sora-2/image-to-video",
+  },
 };
 
 // Motion Control endpoints — character image + reference video → animated video.

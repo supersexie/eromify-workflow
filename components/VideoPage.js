@@ -31,12 +31,21 @@ const EDIT_MODELS = [
 const EDIT_QUALITIES = ["720p", "1080p"];
 
 const VIDEO_MODELS = [
+  "Kling 3.0",
+  "Kling 2.6",
+  "Kling 2.5 Turbo",
   "Kling v2",
-  "LTX Video",
+  "Seedance 2.0",
+  "Seedance 2.0 Fast",
+  "Wan 2.7",
   "Wan 2.2",
+  "MiniMax Hailuo 2.3",
   "MiniMax Hailuo",
-  "Veo 3.1 Fast",
+  "PixVerse v6",
+  "Sora 2",
+  "LTX Video",
   "Veo 3.1",
+  "Veo 3.1 Fast",
 ];
 
 // Rich catalog for the Motion Control model picker (mirrors the Edit picker).
