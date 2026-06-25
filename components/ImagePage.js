@@ -4,6 +4,7 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
 import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
+import { imageCredits } from "@/lib/credits";
 import MentionField from "@/components/MentionField";
 
 // localStorage key for the persistent gallery on /image. Stores an array of
@@ -421,7 +422,7 @@ export default function ImagePage() {
                 <>
                   Generate
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
-                  <span className="ip-bar-count">{batch}</span>
+                  <span className="ip-bar-count" title="Estimated credits">{imageCredits({ model, quality, batch, edit: mode === "edit" })}</span>
                 </>
               )}
             </button>

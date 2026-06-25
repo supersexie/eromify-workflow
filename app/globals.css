@@ -1810,6 +1810,12 @@ body {
 }
 .vp-generate:active:not(:disabled) { transform: translateY(0); }
 .vp-generate:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; filter: grayscale(0.2); }
+.vp-credit {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: rgba(0, 0, 0, 0.28); padding: 2px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; line-height: 1.6;
+}
+.vp-credit::before { content: "✦"; font-size: 10px; opacity: 0.85; }
 .vp-soon { font-size: 11px; color: var(--muted); text-align: center; margin-top: -6px; }
 
 .vp-main { overflow-y: auto; padding: 32px; display: flex; flex-direction: column; }

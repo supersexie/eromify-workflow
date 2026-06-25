@@ -6,6 +6,7 @@ import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
 import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
+import { videoCredits, motionCredits, editCredits } from "@/lib/credits";
 import MentionField from "@/components/MentionField";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
@@ -750,6 +751,13 @@ function VideoPageInner() {
               <>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14z" /></svg>
                 {sub === "motion" ? "Generate Motion" : sub === "edit" ? "Apply Edit" : "Generate Video"}
+                <span className="vp-credit" title="Estimated credits">
+                  {sub === "motion"
+                    ? motionCredits({ model: motionModel, quality: motionQuality })
+                    : sub === "edit"
+                      ? editCredits({ model: editModel, quality: editQuality })
+                      : videoCredits({ model, duration, quality: "720p" })}
+                </span>
               </>
             )}
           </button>

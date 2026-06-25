@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { upscaleMedia } from "@/lib/run";
+import { upscaleCredits } from "@/lib/credits";
 
 // Persistent upscale library (mirrors the image/video galleries). Stores
 // {url, kind, model, scale, ts, name}. fal URLs are short; cap to stay small.
@@ -216,6 +217,7 @@ export default function UpscalePage() {
                 <>
                   Upscale
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 7V3h4M17 3h4v4M21 17v4h-4M7 21H3v-4M9 9l6 6M15 9l-6 6"/></svg>
+                  <span className="ip-bar-count" title="Estimated credits">{upscaleCredits({ kind, model, scale })}</span>
                 </>
               )}
             </button>
