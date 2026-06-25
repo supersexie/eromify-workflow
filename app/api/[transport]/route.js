@@ -179,14 +179,9 @@ const handler = createMcpHandler(
   { basePath: "/api" }
 );
 
-// Shared-secret gate: if MCP_KEY is set, require ?key=<token>.
-async function gated(req) {
-  const token = process.env.MCP_KEY;
-  if (token) {
-    const key = new URL(req.url).searchParams.get("key");
-    if (key !== token) return new Response("Unauthorized", { status: 401 });
-  }
-  return handler(req);
-}
-
-export { gated as GET, gated as POST, gated as DELETE };
+// NOTE: no auth gate here on purpose. Claude.ai treats a 401 from an MCP
+// connector as "needs OAuth" and tries dynamic client registration, which we
+// don't implement — that produced the "couldn't register with sign-in service"
+// error. Keeping the endpoint open lets Claude connect with no auth flow.
+// Real auth (OAuth or per-user keys) will be added before public launch.
+export { handler as GET, handler as POST, handler as DELETE };
