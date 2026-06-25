@@ -69,11 +69,16 @@ export default function Dashboard() {
 
       <div className="cv-hero">
         <div className="cv-hero-bg" />
-        {/* decorative floating media tiles + faint connectors */}
-        <svg className="cv-hero-lines" viewBox="0 0 1200 320" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M120,150 C260,150 300,150 430,150" />
-          <path d="M770,150 C900,150 940,150 1080,150" />
-          <path d="M150,250 C280,250 320,210 430,190" />
+        {/* connector lines chaining the tiles through the center, + junction dots */}
+        <svg className="cv-hero-lines" viewBox="0 0 1200 300" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M70,150 C 180,150 200,205 295,205" />
+          <path d="M295,205 C 370,205 390,150 455,150" />
+          <path d="M745,150 C 820,150 845,205 915,205" />
+          <path d="M915,205 C 1010,205 1045,150 1135,150" />
+          <circle className="cv-dot" cx="70" cy="150" r="4" />
+          <circle className="cv-dot" cx="295" cy="205" r="4" />
+          <circle className="cv-dot" cx="915" cy="205" r="4" />
+          <circle className="cv-dot" cx="1135" cy="150" r="4" />
         </svg>
         <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }} />
         <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }} />
@@ -82,8 +87,13 @@ export default function Dashboard() {
         <div className="cv-bubble cv-bubble-1">That's cool!</div>
         <div className="cv-bubble cv-bubble-2">🔥 Love it</div>
         <div className="cv-hero-inner">
-          <div className="cv-hero-eyebrow">EROMIFY CANVAS</div>
-          <h1 className="cv-hero-title">Generate stunning<br />media with AI Canvas</h1>
+          <div className="cv-hero-frame">
+            {["tl", "tm", "tr", "ml", "mr", "bl", "bm", "br"].map((h) => (
+              <span key={h} className={`cv-handle cv-handle-${h}`} />
+            ))}
+            <div className="cv-hero-eyebrow">EROMIFY CANVAS</div>
+            <h1 className="cv-hero-title">Generate stunning<br />media with AI Canvas</h1>
+          </div>
         </div>
       </div>
 

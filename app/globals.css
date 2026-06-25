@@ -985,9 +985,23 @@ body {
   background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 26px 26px; mask-image: radial-gradient(70% 70% at 50% 50%, #000, transparent);
 }
-.cv-hero-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.cv-hero-lines path { fill: none; stroke: rgba(255,255,255,0.16); stroke-width: 1.5; stroke-dasharray: 5 6; }
+.cv-hero-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.cv-hero-lines path { fill: none; stroke: rgba(255,255,255,0.22); stroke-width: 1.5; }
+.cv-hero-lines .cv-dot { fill: rgba(255,255,255,0.55); }
 .cv-hero-inner { position: relative; text-align: center; z-index: 3; padding: 0 20px; }
+/* selection frame around the title with handle dots, like a canvas node */
+.cv-hero-frame {
+  position: relative; display: inline-block; padding: 22px 44px;
+  border: 1.5px solid var(--blue); border-radius: 4px;
+}
+.cv-handle {
+  position: absolute; width: 9px; height: 9px; border-radius: 2px;
+  background: #fff; border: 1.5px solid var(--blue);
+}
+.cv-handle-tl { top: -5px; left: -5px; } .cv-handle-tm { top: -5px; left: calc(50% - 4px); }
+.cv-handle-tr { top: -5px; right: -5px; } .cv-handle-ml { top: calc(50% - 4px); left: -5px; }
+.cv-handle-mr { top: calc(50% - 4px); right: -5px; } .cv-handle-bl { bottom: -5px; left: -5px; }
+.cv-handle-bm { bottom: -5px; left: calc(50% - 4px); } .cv-handle-br { bottom: -5px; right: -5px; }
 .cv-hero-eyebrow {
   font-size: 12px; font-weight: 700; letter-spacing: 0.22em; color: var(--muted);
   margin-bottom: 10px;
