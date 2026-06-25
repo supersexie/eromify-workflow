@@ -228,7 +228,7 @@ export default function ImagePage() {
       return;
     }
     const handle = { statusUrl: start.statusUrl, responseUrl: start.responseUrl };
-    const deadline = Date.now() + 3 * 60 * 1000;
+    const deadline = Date.now() + 5 * 60 * 1000;
     while (Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 3000));
       const sRes = await fetch("/api/image/status", {
@@ -242,6 +242,9 @@ export default function ImagePage() {
         setResults((r) => [{ url: s.output, prompt: caption, model, aspect, quality, ts: Date.now() }, ...r]);
         return;
       }
+    }
+    if (images.length && /^GPT Image/.test(model)) {
+      throw new Error(`${model} stalled — OpenAI restricts edits of real people. Use Flux 2 Pro, Nano Banana Pro, or Seedream 4.5 for influencer references.`);
     }
     throw new Error("Image generation timed out");
   };
