@@ -5,7 +5,7 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
-import { listInfluencers, syncInfluencers, resolveMentions } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
@@ -289,8 +289,9 @@ function VideoPageInner() {
         // photo as the start image (image-to-video) for likeness consistency.
         const { prompt: resolved, characters } = resolveMentions(prompt.trim());
         const startImage = image || characters[0]?.image || null;
+        const finalPrompt = characters.length ? `${resolved.trim()} ${IDENTITY_CLAUSE}` : resolved.trim();
         url = await generateVideo({
-          prompt: resolved.trim(),
+          prompt: finalPrompt,
           model,
           image: startImage,
           aspect,

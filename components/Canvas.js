@@ -20,7 +20,7 @@ import Tabs from "./Tabs";
 import { getWorkflow, saveWorkflow, renameWorkflow, recordGeneration } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
-import { resolveMentions, syncInfluencers } from "@/lib/influencers";
+import { resolveMentions, syncInfluencers, IDENTITY_CLAUSE } from "@/lib/influencers";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -286,8 +286,11 @@ function CanvasInner({ workflowId }) {
       const rawPrompt = typed || textPrompt || "";
       // Resolve @handles → swap to the character's name and surface her photo so
       // it can be attached as a likeness reference (image start image / image-to-image).
-      const { prompt, characters } = resolveMentions(rawPrompt);
+      const { prompt: resolvedPrompt, characters } = resolveMentions(rawPrompt);
       const charImage = characters[0]?.image || null;
+      // Lock identity to the reference when a character is used (Nano Banana Pro
+      // otherwise renders a stranger).
+      const prompt = charImage ? `${resolvedPrompt} ${IDENTITY_CLAUSE}` : resolvedPrompt;
       if (node.data.kind === "video") {
         // Aspect + quality are stored as separate fields now. Fall back to the
         // legacy "16:9 · 720p" combined string for older nodes.

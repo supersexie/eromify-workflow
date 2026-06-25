@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
-import { listInfluencers, syncInfluencers, resolveMentions } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
 
 // localStorage key for the persistent gallery on /image. Stores an array of
@@ -237,11 +237,14 @@ export default function ImagePage() {
       ...characters.map((c) => c.image),
     ].filter(Boolean);
     const caption = original; // keep the @handle text for the library caption
+    // When an influencer is referenced, instruct the model to preserve her
+    // exact identity (Nano Banana Pro needs this or it renders a stranger).
+    const finalPrompt = characters.length ? `${resolved.trim()} ${IDENTITY_CLAUSE}` : resolved.trim();
 
     const startRes = await fetch("/api/image/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: resolved.trim(), model, aspect, quality, images: images.length ? images : undefined }),
+      body: JSON.stringify({ prompt: finalPrompt, model, aspect, quality, images: images.length ? images : undefined }),
     });
     const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
     if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
