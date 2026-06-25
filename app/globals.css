@@ -1424,7 +1424,7 @@ body {
   color: var(--ink); font-size: 15px; font-family: inherit; padding: 8px 4px;
 }
 .ip-bar-input::placeholder { color: var(--muted-2); }
-.ip-bar-input-row .mf-wrap { flex: 1; font-size: 15px; line-height: 1.5; --mf-pad: 8px 4px; color: var(--ink); }
+.ip-bar-input-row .mf-wrap { flex: 1; font-size: 15px; line-height: 1.5; --mf-pad: 8px 4px; color: var(--ink); min-width: 0; }
 
 /* Image page: Generate | Edit mode toggle + edit source picker */
 .ip-mode-seg {

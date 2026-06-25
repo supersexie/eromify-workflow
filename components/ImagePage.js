@@ -486,7 +486,7 @@ export default function ImagePage() {
               multiline
               dropUp
               rows={1}
-              maxHeight={200}
+              maxHeight={120}
               value={prompt}
               onChange={setPrompt}
               placeholder={
