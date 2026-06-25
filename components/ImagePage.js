@@ -105,6 +105,22 @@ const ASPECTS = [
   { id: "21:9", label: "21:9", w: 22, h: 10 },
 ];
 
+// Given a pixel width/height, pick the closest selectable aspect ratio (by
+// comparing w/h). Skips "auto" since it has no real ratio.
+function closestAspect(width, height) {
+  if (!width || !height) return null;
+  const target = width / height;
+  let best = null, bestDiff = Infinity;
+  for (const a of ASPECTS) {
+    if (a.id === "auto") continue;
+    const [aw, ah] = a.id.split(":").map(Number);
+    if (!aw || !ah) continue;
+    const diff = Math.abs(aw / ah - target);
+    if (diff < bestDiff) { bestDiff = diff; best = a.id; }
+  }
+  return best;
+}
+
 const QUALITIES = [
   { id: "1K", label: "1K" },
   { id: "2K", label: "2K" },
@@ -274,7 +290,18 @@ export default function ImagePage() {
     if (!file) return;
     setError(null);
     const r = new FileReader();
-    r.onload = () => setEditSource(r.result);
+    r.onload = () => {
+      const dataUrl = r.result;
+      setEditSource(dataUrl);
+      // Snap the output aspect ratio to match the uploaded reference, so an
+      // edit/face-swap of a 9:16 photo produces a 9:16 result by default.
+      const img = new Image();
+      img.onload = () => {
+        const a = closestAspect(img.naturalWidth, img.naturalHeight);
+        if (a) setAspect(a);
+      };
+      img.src = dataUrl;
+    };
     r.readAsDataURL(file);
   };
 
