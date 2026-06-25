@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import MentionField from "@/components/MentionField";
+import { imageCredits, videoCredits, motionCredits } from "@/lib/credits";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 2", "GPT Image 1"],
@@ -235,6 +236,14 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
     data.quality || legacyRes ||
     (kind === "image" ? "1K" : "720p");
   const hasSources = sources.length > 0;
+  // Live credit estimate for this node's settings (image/video/motion).
+  const batchN = Math.max(1, Math.min(4, parseInt(data.runCount) || 1));
+  const credit = (() => {
+    if (kind === "image") return imageCredits({ model: data.model, quality: currentQuality, batch: batchN });
+    if (kind === "video") return videoCredits({ model: data.model, duration: data.duration, quality: currentQuality });
+    if (kind === "motion") return motionCredits({ model: data.model, quality: currentQuality });
+    return null;
+  })();
   const currentVoiceLabel = voices.find((v) => v.value === data.voice)?.label
     || voices[0]?.label
     || (isAudio ? "Loading voices…" : "");
@@ -541,9 +550,20 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           )}
         </div>
 
-        <button className="pb-play" onClick={onRun} disabled={running}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          {runCount > 1 && <span style={{ fontSize: 11, fontWeight: 700 }}>×{runCount}</span>}
+        <button className="ip-bar-generate ip-bar-generate-corner" onClick={onRun} disabled={running}>
+          {running ? (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+              Generating
+            </>
+          ) : (
+            <>
+              Generate
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
+              {credit != null && <span className="ip-bar-count">{credit}</span>}
+              {runCount > 1 && <span className="pb-run-x">×{runCount}</span>}
+            </>
+          )}
         </button>
       </div>
     </div>
