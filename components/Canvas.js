@@ -25,7 +25,6 @@ import { resolveMentions, syncInfluencers, IDENTITY_CLAUSE } from "@/lib/influen
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
   { kind: "video", label: "Video", sub: "Generate or upload" },
-  { kind: "text", label: "Text", sub: "Write or generate" },
   { kind: "audio", label: "Audio", sub: "Generate or upload" },
 ];
 
