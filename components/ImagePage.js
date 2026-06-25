@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
 import { listInfluencers, resolveMentions } from "@/lib/influencers";
@@ -163,8 +163,21 @@ export default function ImagePage() {
   useEffect(() => { setInfluencers(listInfluencers()); }, []);
   const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
 
+  // Generate | Edit mode. Edit takes an uploaded source image + prompt and
+  // routes through fal's edit endpoints (image_urls), supporting @mention refs.
+  const [mode, setMode] = useState("generate");
+  const [editSource, setEditSource] = useState(null); // data URI
+  const editFileRef = useRef(null);
+  const onPickEdit = async (file) => {
+    if (!file) return;
+    setError(null);
+    const r = new FileReader();
+    r.onload = () => setEditSource(r.result);
+    r.readAsDataURL(file);
+  };
+
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
-  const canRun = !!prompt.trim() && !running;
+  const canRun = !running && !!prompt.trim() && (mode === "generate" || !!editSource);
   const currentModel = ALL_MODELS.find((m) => m.id === model);
 
   const filteredFeatured = MODELS.featured.filter((m) =>
@@ -195,7 +208,12 @@ export default function ImagePage() {
     // likeness reference (image-to-image keeps her consistent).
     const original = prompt.trim();
     const { prompt: resolved, characters } = resolveMentions(original);
-    const images = characters.map((c) => c.image).filter(Boolean);
+    // In edit mode the uploaded source goes first; @mentioned characters add
+    // extra references. Both paths use fal's edit endpoints when images exist.
+    const images = [
+      ...(mode === "edit" && editSource ? [editSource] : []),
+      ...characters.map((c) => c.image),
+    ].filter(Boolean);
     const caption = original; // keep the @handle text for the library caption
 
     const startRes = await fetch("/api/image/start", {
@@ -238,6 +256,10 @@ export default function ImagePage() {
       </div>
 
       <div className="ip-body">
+        <div className="ip-mode-seg">
+          <button className={mode === "generate" ? "is-active" : ""} onClick={() => setMode("generate")}>Generate</button>
+          <button className={mode === "edit" ? "is-active" : ""} onClick={() => setMode("edit")}>Edit</button>
+        </div>
         {results.length === 0 ? (
           <div className="ip-hero">
             <div className="ip-hero-tiles">
@@ -304,6 +326,21 @@ export default function ImagePage() {
               ))}
             </div>
           )}
+          {/* Edit mode: the source image being edited */}
+          {mode === "edit" && (
+            <div className="ip-edit-src-row">
+              <input ref={editFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickEdit(e.target.files?.[0]); e.target.value = ""; }} />
+              <button className="ip-edit-src" onClick={() => editFileRef.current?.click()} title="Upload image to edit">
+                {editSource ? <img src={editSource} alt="source" /> : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+                )}
+              </button>
+              <span className="ip-edit-src-label">
+                {editSource ? "Image to edit — describe your change below" : "Upload an image to edit"}
+                {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove">✕</button>}
+              </span>
+            </div>
+          )}
           <div className="ip-bar-input-row">
             <button className="ip-bar-plus" title="Add reference image">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -311,7 +348,7 @@ export default function ImagePage() {
             <MentionField
               value={prompt}
               onChange={setPrompt}
-              placeholder="Describe the scene — type @ to summon an influencer"
+              placeholder={mode === "edit" ? "Describe the change — type @ to summon an influencer" : "Describe the scene — type @ to summon an influencer"}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
             <button className="ip-bar-generate" onClick={generate} disabled={!canRun}>
