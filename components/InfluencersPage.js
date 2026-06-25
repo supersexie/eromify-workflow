@@ -2,11 +2,10 @@
 import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
-import SectionHero from "@/components/SectionHero";
 import { listInfluencers, syncInfluencers, saveInfluencerRemote, deleteInfluencerRemote, normHandle } from "@/lib/influencers";
 
-// Downscale an uploaded image to a small JPEG data URL so it fits comfortably
-// in localStorage and uploads fast as a generation reference. Long side capped.
+// Downscale an uploaded image to a small JPEG data URL so it uploads fast and
+// fits comfortably in storage. Long side capped.
 function downscale(file, max = 1024) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -29,17 +28,20 @@ function downscale(file, max = 1024) {
   });
 }
 
-const BLANK = { id: null, handle: "", name: "", description: "", image: null };
+const BLANK = { id: null, handle: "", description: "", image: null };
 
 export default function InfluencersPage() {
-  const [items, setItems] = useState([]);
-  const [editing, setEditing] = useState(null); // draft object or null
+  const [items, setItems] = useState(null); // null = still loading
+  const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Instant render from the local cache, then reconcile with the server.
+  // Server is the source of truth — fetch it, fall back to the local cache.
   useEffect(() => {
-    setItems(listInfluencers());
-    syncInfluencers().then(setItems);
+    let alive = true;
+    syncInfluencers()
+      .then((list) => { if (alive) setItems(Array.isArray(list) ? list : []); })
+      .catch(() => { if (alive) setItems(listInfluencers()); });
+    return () => { alive = false; };
   }, []);
 
   const openNew = () => setEditing({ ...BLANK });
@@ -60,24 +62,21 @@ export default function InfluencersPage() {
     const id = editing.id || `inf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     setEditing(null);
     await saveInfluencerRemote({
-      id,
-      handle,
-      name: handle, // no separate display name — the user_name (handle) is the identity
-      description: editing.description || "",
-      image: editing.image,
-      ts: editing.ts || Date.now(),
+      id, handle, name: handle, description: editing.description || "",
+      image: editing.image, ts: editing.ts || Date.now(),
     });
-    setItems(listInfluencers());
+    setItems(await syncInfluencers());
   };
 
   const onDelete = async (id, e) => {
     e?.stopPropagation();
     if (!confirm("Delete this influencer?")) return;
     await deleteInfluencerRemote(id);
-    setItems(listInfluencers());
+    setItems(await syncInfluencers());
   };
 
   const canSave = editing && !!editing.image && !!normHandle(editing.handle);
+  const list = items || [];
 
   return (
     <div className="ip-page">
@@ -89,37 +88,33 @@ export default function InfluencersPage() {
         <UserMenu />
       </>} />
 
-      <SectionHero
-        title="Build your"
-        brand="Influencers"
-        sub="Create a character once, then summon her anywhere with @handle — type “@sofie in a pool” in any prompt and her likeness is used automatically."
-        tiles={[
-          { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Face" },
-          { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Style" },
-          { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Persona" },
-          { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "@handle" },
-        ]}
-      />
+      <div className="inf-body">
+        <div className="inf-head">
+          <h1 className="inf-h1">Your influencers</h1>
+          <p className="inf-headsub">Summon them anywhere with <b>@handle</b> — e.g. type <b>“@ash on a beach”</b> in any Image, Video, or Canvas prompt.</p>
+        </div>
 
-      <div className="dash-body">
-        {items.length === 0 ? (
-          <div className="dash-empty">
-            <div className="dash-empty-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-            </div>
-            <h2>No influencers yet</h2>
-            <p>Build your first character to use across the app.</p>
-            <button className="primary-btn" onClick={openNew}>Create influencer</button>
+        {items === null ? (
+          <div className="inf-loading">
+            <span className="inf-spinner" /> Loading your influencers…
           </div>
         ) : (
           <div className="inf-grid">
-            <div className="inf-card inf-card-new" onClick={openNew}>
+            <button className="inf-card inf-card-new" onClick={openNew}>
               <div className="inf-card-new-plus">+</div>
               <div>New influencer</div>
-            </div>
-            {items.map((inf) => (
+            </button>
+            {list.map((inf) => (
               <div key={inf.id} className="inf-card" onClick={() => openEdit(inf)}>
-                <div className="inf-card-photo" style={{ backgroundImage: `url(${inf.image})` }} />
+                <div className="inf-card-photo">
+                  <img
+                    src={inf.image}
+                    alt={inf.handle}
+                    loading="lazy"
+                    onError={(e) => { const p = e.currentTarget.closest(".inf-card-photo"); if (p) p.classList.add("is-broken"); }}
+                  />
+                  <span className="inf-card-broken">⟳ Re-upload photo</span>
+                </div>
                 <div className="inf-card-meta">
                   <div className="inf-card-name">@{inf.handle}</div>
                 </div>
