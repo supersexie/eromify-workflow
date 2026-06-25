@@ -1465,6 +1465,9 @@ body {
   color: var(--ink); white-space: pre; z-index: 0;
 }
 .mf-multiline .mf-overlay { white-space: pre-wrap; }
+/* Single-line: the <input> vertically centers its text+caret, so center the
+   overlay text too — otherwise the caret sits lower than the visible text. */
+.mf-wrap:not(.mf-multiline) .mf-overlay { display: flex; align-items: center; }
 .mf-field {
   position: relative; z-index: 1; width: 100%; display: block;
   background: transparent; color: transparent; caret-color: var(--ink);
