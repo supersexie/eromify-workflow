@@ -1753,7 +1753,7 @@ body {
 }
 .vp-sidebar {
   background: var(--surface); border-right: 1px solid var(--line);
-  padding: 18px; overflow-y: auto;
+  padding: 18px; overflow-y: auto; scrollbar-gutter: stable;
   display: flex; flex-direction: column; gap: 14px;
 }
 .vp-subtabs {
@@ -1836,6 +1836,7 @@ body {
 
 .vp-generate {
   margin-top: auto;
+  flex: 0 0 50px; /* never shrink — keep the same 50px height in every sub-tab */
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   height: 50px; padding: 0 22px; border-radius: 14px;
   background: linear-gradient(95deg, #ec4899 0%, #a855f7 55%, #6366f1 100%);
