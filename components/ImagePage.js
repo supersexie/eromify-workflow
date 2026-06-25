@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
-import { listInfluencers, resolveMentions, normHandle } from "@/lib/influencers";
+import { listInfluencers, resolveMentions } from "@/lib/influencers";
+import MentionField from "@/components/MentionField";
 
 // localStorage key for the persistent gallery on /image. Stores an array of
 // {url, prompt, model, aspect, quality, ts}. Cap to MAX_HISTORY to keep the
@@ -156,19 +157,11 @@ export default function ImagePage() {
   useEffect(() => { if (loaded) saveHistory(results); }, [results, loaded]);
   const [error, setError] = useState(null);
 
-  // Influencers for @mention autocomplete + reference attaching.
+  // Characters currently referenced in the prompt (shown as chips). The
+  // MentionField handles the @autocomplete + pink inline tag itself.
   const [influencers, setInfluencers] = useState([]);
   useEffect(() => { setInfluencers(listInfluencers()); }, []);
-  // Characters currently referenced in the prompt (shown as chips).
   const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
-  // Autocomplete: if the prompt ends with a half-typed "@token", suggest matches.
-  const mentionQuery = (prompt.match(/@([a-z0-9_]*)$/i) || [])[1];
-  const suggestions = mentionQuery != null
-    ? influencers.filter((inf) => inf.handle.startsWith(normHandle(mentionQuery))).slice(0, 5)
-    : [];
-  const applyMention = (inf) => {
-    setPrompt((p) => p.replace(/@[a-z0-9_]*$/i, `@${inf.handle} `));
-  };
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
   const canRun = !!prompt.trim() && !running;
@@ -300,18 +293,6 @@ export default function ImagePage() {
 
       <div className="ip-bar">
         <div className="ip-bar-inner">
-          {/* @mention autocomplete — appears while typing an @handle */}
-          {suggestions.length > 0 && (
-            <div className="mention-pop">
-              {suggestions.map((inf) => (
-                <button key={inf.id} className="mention-row" onClick={() => applyMention(inf)}>
-                  <img src={inf.image} alt={inf.name} />
-                  <span className="mention-name">{inf.name}</span>
-                  <span className="mention-handle">@{inf.handle}</span>
-                </button>
-              ))}
-            </div>
-          )}
           {/* Attached character chips (resolved from the prompt) */}
           {mentioned.length > 0 && (
             <div className="mention-chips">
@@ -327,11 +308,10 @@ export default function ImagePage() {
             <button className="ip-bar-plus" title="Add reference image">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             </button>
-            <input
-              className="ip-bar-input"
-              placeholder="Describe the scene — type @ to summon an influencer"
+            <MentionField
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={setPrompt}
+              placeholder="Describe the scene — type @ to summon an influencer"
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
             <button className="ip-bar-generate" onClick={generate} disabled={!canRun}>

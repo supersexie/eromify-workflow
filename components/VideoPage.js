@@ -4,7 +4,8 @@ import { useSearchParams } from "next/navigation";
 import Tabs from "@/components/Tabs";
 import UserMenu from "@/components/UserMenu";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
-import { listInfluencers, resolveMentions, normHandle } from "@/lib/influencers";
+import { listInfluencers, resolveMentions } from "@/lib/influencers";
+import MentionField from "@/components/MentionField";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
 const EDIT_MODELS = [
@@ -223,15 +224,10 @@ function VideoPageInner() {
   const editVideoRef = useRef(null);
   const editRefsRef = useRef(null);
 
-  // Influencers for @mention autocomplete + reference attaching.
+  // Influencers for the attached-character chips (MentionField does autocomplete).
   const [influencers, setInfluencers] = useState([]);
   useEffect(() => { setInfluencers(listInfluencers()); }, []);
   const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
-  const mentionQuery = (prompt.match(/@([a-z0-9_]*)$/i) || [])[1];
-  const suggestions = mentionQuery != null
-    ? influencers.filter((inf) => inf.handle.startsWith(normHandle(mentionQuery))).slice(0, 5)
-    : [];
-  const applyMention = (inf) => setPrompt((p) => p.replace(/@[a-z0-9_]*$/i, `@${inf.handle} `));
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
 
@@ -495,8 +491,9 @@ function VideoPageInner() {
               </div>
             )}
             <div className="vp-prompt-wrap">
-              <textarea
-                className="vp-prompt"
+              <MentionField
+                multiline
+                rows={4}
                 placeholder={
                   sub === "edit"
                     ? 'Describe the change you want, like "Make it snow". Add elements using @'
@@ -504,22 +501,10 @@ function VideoPageInner() {
                       ? "(Optional) refine the motion — e.g. 'exaggerated arm swing'"
                       : "Describe your scene — type @ to summon an influencer."
                 }
-                rows={4}
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={setPrompt}
                 disabled={running}
               />
-              {suggestions.length > 0 && (
-                <div className="mention-pop mention-pop-below">
-                  {suggestions.map((inf) => (
-                    <button key={inf.id} className="mention-row" onClick={() => applyMention(inf)}>
-                      <img src={inf.image} alt={inf.name} />
-                      <span className="mention-name">{inf.name}</span>
-                      <span className="mention-handle">@{inf.handle}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

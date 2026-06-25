@@ -355,6 +355,10 @@ body {
 }
 .pb-title::placeholder { color: var(--muted-2); }
 .pb-title:disabled { color: var(--muted); }
+/* MentionField inside the canvas prompt bar — box metrics on the wrap. */
+.pb-title-row .mf-wrap { flex: 1; font-size: 14px; line-height: 1.5; padding: 2px 0; min-width: 0; }
+.pb-title-row .mf-field { min-height: 24px; max-height: 220px; }
+.pb-title-row .mf-overlay { color: var(--ink); }
 /* Slim scrollbar inside the prompt textarea so it doesn't shout once it grows. */
 .pb-title::-webkit-scrollbar { width: 6px; }
 .pb-title::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
@@ -1275,6 +1279,7 @@ body {
   color: var(--ink); font-size: 15px; font-family: inherit; padding: 8px 4px;
 }
 .ip-bar-input::placeholder { color: var(--muted-2); }
+.ip-bar-input-row .mf-wrap { flex: 1; font-size: 15px; padding: 8px 4px; color: var(--ink); }
 .ip-bar-generate {
   display: inline-flex; align-items: center; gap: 8px;
   height: 40px; padding: 0 20px; border-radius: 12px;
@@ -1403,6 +1408,36 @@ body {
 .mention-chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 .vp-prompt-wrap { position: relative; }
 .mention-pop-below { bottom: auto; top: calc(100% + 6px); }
+
+/* ---- MentionField: pink @handle pills via an overlay behind a clear field ---- */
+.mf-wrap { position: relative; display: block; }
+.mf-overlay, .mf-field {
+  font-family: inherit; font-size: inherit; line-height: inherit; letter-spacing: inherit;
+  margin: 0; border: 0; padding: 0; box-sizing: border-box;
+  word-break: break-word;
+}
+.mf-overlay {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  color: var(--ink); white-space: pre; z-index: 0;
+}
+.mf-multiline .mf-overlay { white-space: pre-wrap; }
+.mf-field {
+  position: relative; z-index: 1; width: 100%; display: block;
+  background: transparent; color: transparent; caret-color: var(--ink);
+  -webkit-text-fill-color: transparent; resize: none; outline: none;
+  white-space: pre; overflow-x: auto;
+}
+.mf-multiline .mf-field { white-space: pre-wrap; overflow-x: hidden; overflow-y: auto; }
+.mf-field::placeholder { color: var(--muted); -webkit-text-fill-color: var(--muted); }
+.mf-field::-webkit-scrollbar { display: none; }
+.mf-tag {
+  /* highlight only — no horizontal padding/margin so text advance width (and
+     thus the caret position) is unchanged vs the transparent field text. */
+  background: rgba(236, 72, 153, 0.22);
+  color: var(--pink, #ec4899);
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.4);
+}
 
 /* ---- Rich Image-bar pickers (model / aspect / quality / batch) ---- */
 .ip-chip-ic {
@@ -1600,6 +1635,14 @@ body {
 }
 .vp-prompt:focus { border-color: var(--blue); }
 .vp-prompt::placeholder { color: var(--muted-2); }
+/* MentionField inside the video prompt — box styling lives on the wrap so the
+   pink-tag overlay and the transparent field share identical metrics. */
+.vp-prompt-wrap .mf-wrap {
+  min-height: 80px; background: var(--surface-2); border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.5; color: var(--ink);
+}
+.vp-prompt-wrap .mf-wrap:focus-within { border-color: var(--blue); }
+.vp-prompt-wrap .mf-field { max-height: 160px; }
 
 .vp-controls { display: flex; flex-direction: column; gap: 8px; }
 .vp-control-row {

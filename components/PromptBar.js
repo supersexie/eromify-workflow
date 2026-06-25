@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import MentionField from "@/components/MentionField";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 2", "GPT Image 1"],
@@ -289,13 +290,13 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       )}
 
       <div className="pb-title-row">
-        <textarea
-          ref={promptRef}
-          className="pb-title"
+        <MentionField
+          inputRef={promptRef}
+          multiline
+          rows={1}
           placeholder={placeholder}
           value={data.prompt || ""}
-          rows={1}
-          onChange={(e) => set({ prompt: e.target.value })}
+          onChange={(v) => set({ prompt: v })}
           onKeyDown={(e) => e.stopPropagation()}
           onPaste={(e) => {
             e.preventDefault();
