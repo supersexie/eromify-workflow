@@ -20,7 +20,7 @@ import Tabs from "./Tabs";
 import { getWorkflow, saveWorkflow, renameWorkflow, recordGeneration } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
-import { resolveMentions } from "@/lib/influencers";
+import { resolveMentions, syncInfluencers } from "@/lib/influencers";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -129,6 +129,9 @@ function CanvasInner({ workflowId }) {
     setName(wf.name || "Untitled Canvas");
     setLoaded(true);
   }, [workflowId, router]);
+
+  // Hydrate the influencer cache from the server so @mentions resolve here too.
+  useEffect(() => { syncInfluencers(); }, []);
 
   useEffect(() => {
     if (!loaded || !workflowId) return;

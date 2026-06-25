@@ -5,7 +5,7 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
-import { listInfluencers, resolveMentions } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, resolveMentions } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
@@ -247,7 +247,7 @@ function VideoPageInner() {
 
   // Influencers for the attached-character chips (MentionField does autocomplete).
   const [influencers, setInfluencers] = useState([]);
-  useEffect(() => { setInfluencers(listInfluencers()); }, []);
+  useEffect(() => { setInfluencers(listInfluencers()); syncInfluencers().then(setInfluencers); }, []);
   const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));

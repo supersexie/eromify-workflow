@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
-import { listInfluencers, upsertInfluencer, deleteInfluencer, normHandle } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, saveInfluencerRemote, deleteInfluencerRemote, normHandle } from "@/lib/influencers";
 
 // Downscale an uploaded image to a small JPEG data URL so it fits comfortably
 // in localStorage and uploads fast as a generation reference. Long side capped.
@@ -36,7 +36,11 @@ export default function InfluencersPage() {
   const [editing, setEditing] = useState(null); // draft object or null
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { setItems(listInfluencers()); }, []);
+  // Instant render from the local cache, then reconcile with the server.
+  useEffect(() => {
+    setItems(listInfluencers());
+    syncInfluencers().then(setItems);
+  }, []);
 
   const openNew = () => setEditing({ ...BLANK });
   const openEdit = (inf) => setEditing({ ...inf });
@@ -50,12 +54,13 @@ export default function InfluencersPage() {
     } catch {} finally { setBusy(false); }
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     const handle = normHandle(editing.handle || editing.name);
     const name = (editing.name || "").trim() || handle;
     if (!handle || !editing.image) return;
     const id = editing.id || `inf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-    const next = upsertInfluencer({
+    setEditing(null);
+    await saveInfluencerRemote({
       id,
       handle,
       name,
@@ -63,14 +68,14 @@ export default function InfluencersPage() {
       image: editing.image,
       ts: editing.ts || Date.now(),
     });
-    setItems(next);
-    setEditing(null);
+    setItems(listInfluencers());
   };
 
-  const onDelete = (id, e) => {
+  const onDelete = async (id, e) => {
     e?.stopPropagation();
     if (!confirm("Delete this influencer?")) return;
-    setItems(deleteInfluencer(id));
+    await deleteInfluencerRemote(id);
+    setItems(listInfluencers());
   };
 
   const canSave = editing && !!editing.image && !!normHandle(editing.handle || editing.name);

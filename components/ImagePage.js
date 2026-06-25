@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
-import { listInfluencers, resolveMentions } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, resolveMentions } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
 
 // localStorage key for the persistent gallery on /image. Stores an array of
@@ -161,7 +161,7 @@ export default function ImagePage() {
   // Characters currently referenced in the prompt (shown as chips). The
   // MentionField handles the @autocomplete + pink inline tag itself.
   const [influencers, setInfluencers] = useState([]);
-  useEffect(() => { setInfluencers(listInfluencers()); }, []);
+  useEffect(() => { setInfluencers(listInfluencers()); syncInfluencers().then(setInfluencers); }, []);
   const mentioned = useMemo(() => resolveMentions(prompt).characters, [prompt, influencers]);
 
   // Generate | Edit mode. Edit takes an uploaded source image + prompt and

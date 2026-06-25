@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { listInfluencers, normHandle } from "@/lib/influencers";
+import { listInfluencers, syncInfluencers, normHandle } from "@/lib/influencers";
 
 // A text input/textarea that renders @handles (matching saved influencers) as
 // pink pills and offers an autocomplete dropdown while typing "@…". The pill is
@@ -35,7 +35,7 @@ export default function MentionField({
   maxHeight = 240,
 }) {
   const [influencers, setInfluencers] = useState([]);
-  useEffect(() => { setInfluencers(listInfluencers()); }, []);
+  useEffect(() => { setInfluencers(listInfluencers()); syncInfluencers().then(setInfluencers); }, []);
 
   const localRef = useRef(null);
   const fieldRef = inputRef || localRef;
