@@ -249,8 +249,8 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
   const placeholder = isAudio
     ? "Type what to speak…"
     : hasSources
-      ? "Describe your next edit — type @ to summon an influencer"
-      : "Describe what you want — type @ to summon an influencer";
+      ? "Describe your next edit…"
+      : "Describe what you want to create…";
 
   // Batch count for image/video runs — clamped to 1-4. Stepper lives in the
   // chip row (last chip); the play button just shows ×N when N > 1.
