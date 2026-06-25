@@ -364,6 +364,9 @@ export default function ImagePage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
             </button>
             <MentionField
+              multiline
+              rows={1}
+              maxHeight={200}
               value={prompt}
               onChange={setPrompt}
               placeholder={mode === "edit" ? "Describe the change — type @ to summon an influencer" : "Describe the scene — type @ to summon an influencer"}

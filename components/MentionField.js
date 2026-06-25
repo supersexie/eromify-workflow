@@ -32,6 +32,7 @@ export default function MentionField({
   onKeyDown,
   onPaste,
   dropUp = false,
+  maxHeight = 240,
 }) {
   const [influencers, setInfluencers] = useState([]);
   useEffect(() => { setInfluencers(listInfluencers()); }, []);
@@ -51,6 +52,16 @@ export default function MentionField({
     // refocus the field after picking
     requestAnimationFrame(() => fieldRef.current?.focus());
   };
+
+  // Auto-grow a multiline field to fit its content (so long prompts are fully
+  // visible) up to maxHeight, after which it scrolls. Runs on every value change.
+  useEffect(() => {
+    if (!multiline) return;
+    const el = fieldRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
+  }, [value, multiline, maxHeight]);
 
   const syncScroll = () => {
     if (overlayRef.current && fieldRef.current) {
