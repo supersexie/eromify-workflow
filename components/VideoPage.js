@@ -882,7 +882,7 @@ function VideoPageInner() {
             <SectionHero
               title="Create video with"
               brand={model}
-              sub="Describe a scene or start from an image — type @ to summon an influencer."
+              sub="Describe a scene or start from an image to bring it to life."
               tiles={[
                 { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Cinematic" },
                 { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "B-roll" },

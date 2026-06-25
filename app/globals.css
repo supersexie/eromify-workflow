@@ -1628,6 +1628,31 @@ body {
 .mf-multiline .mf-field { white-space: pre-wrap; overflow-x: hidden; overflow-y: auto; }
 .mf-field::placeholder { color: var(--muted); -webkit-text-fill-color: var(--muted); }
 .mf-field::-webkit-scrollbar { display: none; }
+
+/* Plain prompt textareas (Canvas prompt bar + Video page) — these replaced the
+   MentionField overlay once @mention was scoped to Image only. Without these
+   rules the browser renders a raw white/monospace box with a resize grip. */
+.mention-field {
+  font-family: inherit; font-size: inherit; line-height: 1.5; letter-spacing: inherit;
+  background: transparent; color: var(--ink);
+  border: 0; outline: none; resize: none; box-sizing: border-box;
+  width: 100%; margin: 0;
+}
+.mention-field::placeholder { color: var(--muted); }
+.mention-field::-webkit-scrollbar { width: 6px; }
+.mention-field::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.mention-field::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+/* Canvas node prompt bar: behave like a single line that grows on overflow. */
+.pb-title-row .mention-field {
+  flex: 1; min-width: 0; font-size: 14px; padding: 2px 0;
+  min-height: 24px; max-height: 220px; overflow-y: auto;
+}
+/* Video page: a bordered multi-line box. */
+.vp-prompt-wrap .mention-field {
+  background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 10px;
+  padding: 10px 12px; font-size: 13px; min-height: 96px; max-height: 200px; overflow-y: auto;
+}
+.vp-prompt-wrap .mention-field:focus { border-color: var(--blue); }
 .mf-tag {
   /* highlight only — no horizontal padding/margin so text advance width (and
      thus the caret position) is unchanged vs the transparent field text. */
