@@ -114,7 +114,12 @@ async function imageResult(url, prompt) {
 
 const VIDEO_INPUT = {
   prompt: z.string(),
-  model: z.enum(["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"]).optional(),
+  model: z.enum([
+    "Kling 3.0", "Kling 2.6", "Kling 2.5 Turbo", "Kling v2",
+    "Seedance 2.0", "Seedance 2.0 Fast", "Wan 2.7", "Wan 2.2",
+    "MiniMax Hailuo 2.3", "MiniMax Hailuo", "PixVerse v6", "Sora 2",
+    "LTX Video", "Veo 3.1", "Veo 3.1 Fast",
+  ]).optional(),
   image_url: z.string().optional(),
   aspect: z.enum(["16:9", "9:16"]).optional(),
   resolution: z.enum(["720p", "1080p"]).optional(),
@@ -139,7 +144,7 @@ const handler = createMcpHandler(
       {
         title: "Generate image",
         description: "Generate an image from a text prompt (FLUX / Seedream / Nano Banana). Use @handle (e.g. '@sofie on a beach') to put a saved influencer in the image — call list_influencers to see available handles. Renders inline.",
-        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"]).optional() },
+        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 2", "GPT Image 1"]).optional() },
         _meta: { ui: { resourceUri: UI_URI } },
       },
       async ({ prompt, model }) => {
