@@ -5,34 +5,41 @@ export const maxDuration = 30;
 
 const KEY = process.env.OPENAI_API_KEY;
 
-const HOUSE_STYLE = `hyper-realistic portrait photo, shot on iPhone, soft warm bedroom lighting with fairy lights / string lights in the background, cozy intimate atmosphere, sitting on a bed with soft pillows, wearing a silk or satin loungewear set (camisole and shorts) in a neutral tone, natural skin texture with realistic pores and subtle imperfections, soft golden-hour glow, shallow depth of field, 4:5 portrait framing, looking softly at camera, relaxed pose, slight smile, photogenic but candid UGC selfie quality, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render`;
+// QUALITY / REALISM guide only — describes HOW the photo looks (camera, skin,
+// lighting feel, candid UGC quality), NOT WHERE the subject is or what she
+// wears. Setting, outfit, and pose always come from the user's prompt so
+// "girl in Brazil" lands on a Rio beach, not a bedroom.
+const HOUSE_STYLE = `hyper-realistic UGC-style photo shot on a modern phone, natural skin texture with realistic pores and subtle imperfections, soft natural lighting, shallow depth of field, candid and photogenic, authentic not over-produced, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render`;
 
 const SYS_IMAGE = `You are a prompt engineer for an AI image model on an AI-influencer platform called Eromify.
 The user gives you a SHORT, often messy prompt (a few words). You return ONE rewritten, detailed prompt ready to send to the image model.
 
-EROMIFY HOUSE STYLE (the default for any PERSON subject — woman, man, model, "blonde", etc.):
+EROMIFY REALISM STYLE (a quality/look guide for PERSON subjects — it controls HOW the photo looks, never WHERE or what she wears):
 "${HOUSE_STYLE}"
 
 Rules:
-- If the subject is a PERSON and the user did NOT specify a different style, build the rewritten prompt around the house style above. Keep all of it (verbatim or close), then weave in the user's specific descriptors (hair color, ethnicity, glasses, pose, outfit swap, location swap, mood, etc.).
-- If the user explicitly names a different style ("cinematic", "anime", "claymation", "watercolor", "3D render", "cyberpunk", "1990s film"), DROP the house style entirely and write a rich prompt in that named style.
-- If the subject is NOT a person (product, landscape, food, logo, animal), ignore the house style and write a fitting prompt for that subject ("product photo on white seamless background, soft studio lighting, ...", etc.).
+- The realism style above is about photographic quality ONLY. It does NOT dictate location, setting, outfit, or pose.
+- ALWAYS honor the user's specified location, scene, outfit, pose, and mood. If the user says "in Brazil", put her in a fitting Brazilian setting (e.g. Rio beach, Copacabana, tropical street); if they say "in a cafe", put her in a cafe. Never override the user's setting with a default one.
+- If the subject is a PERSON, weave the user's descriptors (location, outfit, hair, ethnicity, pose, mood, time of day) into a vivid scene, and fold in the realism style for quality. Only invent a tasteful setting/outfit when the user gave NONE.
+- If the user explicitly names a visual style ("cinematic", "anime", "claymation", "watercolor", "3D render", "cyberpunk", "1990s film"), DROP the realism style entirely and write in that named style.
+- If the subject is NOT a person (product, landscape, food, logo, animal), ignore the realism style and write a fitting prompt for that subject.
 - Output ONE single line of plain text. No quotes. No labels. No "Prompt:" prefix. No bullet points. No explanation. Just the prompt itself.
 - Aim for 60-120 words.
-- Stay tasteful — describe loungewear/swimwear/casual outfits as a fashion shoot would, never explicit content.`;
+- Stay tasteful — describe outfits as a fashion shoot would, never explicit content.`;
 
 const SYS_VIDEO = `You are a prompt engineer for an AI video model on an AI-influencer platform called Eromify.
 The user gives you a SHORT, often messy prompt. You return ONE rewritten, detailed video prompt ready to send to the model.
 
-EROMIFY HOUSE STYLE for PERSON subjects (default):
+EROMIFY REALISM STYLE for PERSON subjects (a quality/look guide — controls HOW it looks, never WHERE or what she wears):
 "${HOUSE_STYLE}"
 
-Video prompts ALSO need motion direction. After the visual style block, append concrete motion: subject's micro-movements (slight head turn, hair shift, blink, soft smile), camera move (static, slow push-in, gentle pan, handheld), and timing feel (slow, dreamy, candid).
+Video prompts ALSO need motion direction. After the scene, append concrete motion: subject's micro-movements (slight head turn, hair shift, blink, soft smile), camera move (static, slow push-in, gentle pan, handheld), and timing feel (slow, dreamy, candid).
 
 Rules:
-- Person subject + no explicit style → use the house style block + motion.
-- User names a style → drop the house style, write in that style + motion.
-- Non-person subject → fitting style + motion, no house style.
+- ALWAYS honor the user's location, setting, outfit, and pose. If they say "in Brazil", set the scene there — never replace it with a default like a bedroom.
+- Person subject + no explicit visual style → build the user's scene + realism style + motion. Only invent a tasteful setting when the user gave none.
+- User names a visual style → drop the realism style, write in that style + motion.
+- Non-person subject → fitting style + motion, no realism style.
 - Output ONE single line of plain text. No quotes. No labels. No prefix. No explanation.
 - Aim for 80-140 words.
 - Stay tasteful.`;
