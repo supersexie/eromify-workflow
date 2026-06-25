@@ -4,6 +4,7 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { upscaleMedia } from "@/lib/run";
 import { upscaleCredits } from "@/lib/credits";
+import { recordServerGen } from "@/lib/serverGen";
 
 // Persistent upscale library (mirrors the image/video galleries). Stores
 // {url, kind, model, scale, ts, name}. fal URLs are short; cap to stay small.
@@ -117,6 +118,8 @@ export default function UpscalePage() {
           { url, kind, model, scale, ts: Date.now(), name: sourceName || model },
           ...rs,
         ]);
+        // kind is "image" or "video" here — record so it shows in the Library.
+        recordServerGen({ url, kind: kind === "video" ? "video" : "image", prompt: sourceName || `Upscaled (${model})` });
       }
     } catch (e) {
       setError(e.message || "Upscale failed");

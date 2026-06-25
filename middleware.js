@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // Gate the app + editor; the marketing site (/) and auth pages stay public.
-const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)", "/image(.*)", "/video(.*)", "/upscale(.*)", "/influencers(.*)", "/mcp"]);
+const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)", "/image(.*)", "/video(.*)", "/upscale(.*)", "/library(.*)", "/influencers(.*)", "/mcp"]);
 
 // Force the bare apex onto www so the page and its /api calls share one origin.
 // Without this, the page loads on eromify.pro but /api cross-redirects to

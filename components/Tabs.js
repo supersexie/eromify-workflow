@@ -11,6 +11,7 @@ const TABS = [
   { id: "video",  label: "Video",  path: "/video", match: (p, s) => p.startsWith("/video") && s.get("sub") !== "motion" },
   { id: "motion", label: "Motion Control", path: "/video?sub=motion", match: (p, s) => (p.startsWith("/video") && s.get("sub") === "motion") || p.startsWith("/motion") },
   { id: "upscale", label: "Upscale", path: "/upscale", match: (p) => p.startsWith("/upscale") },
+  { id: "library", label: "Library", path: "/library", match: (p) => p.startsWith("/library") },
   { id: "influencers", label: "Influencers", path: "/influencers", match: (p) => p.startsWith("/influencers") },
   { id: "mcp",    label: "MCP & CLI", path: "/mcp", match: (p) => p.startsWith("/mcp") },
 ];

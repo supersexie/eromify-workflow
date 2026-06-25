@@ -7,6 +7,7 @@ import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
 import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
 import { videoCredits, motionCredits, editCredits } from "@/lib/credits";
+import { recordServerGen } from "@/lib/serverGen";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
 const EDIT_MODELS = [
@@ -324,6 +325,8 @@ function VideoPageInner() {
           { url, prompt: prompt.trim() || meta.model, kind: sub, ts: Date.now(), ...meta },
           ...rs,
         ]);
+        // Record server-side (kind "video") so it shows in the Library anywhere.
+        recordServerGen({ url, kind: "video", prompt: prompt.trim() || meta.model });
       }
     } catch (e) {
       setError(e.message || "Generation failed");
