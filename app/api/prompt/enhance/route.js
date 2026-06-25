@@ -20,8 +20,9 @@ EROMIFY REALISM STYLE (a quality/look guide for PERSON subjects — it controls 
 Rules:
 - The realism style above is about photographic quality ONLY. It does NOT dictate location, setting, outfit, or pose.
 - ALWAYS honor the user's specified location, scene, outfit, pose, and mood. If the user says "in Brazil", put her in a fitting Brazilian setting (e.g. Rio beach, Copacabana, tropical street); if they say "in a cafe", put her in a cafe. Never override the user's setting with a default one.
-- If the subject is a PERSON, weave the user's descriptors (location, outfit, hair, ethnicity, pose, mood, time of day) into a vivid scene, and fold in the realism style for quality. Only invent a tasteful setting/outfit when the user gave NONE.
-- If the user explicitly names a visual style ("cinematic", "anime", "claymation", "watercolor", "3D render", "cyberpunk", "1990s film"), DROP the realism style entirely and write in that named style.
+- CRITICAL — IDENTITY IS LOCKED: NEVER describe, add, or change the subject's FACE or HAIR. Do NOT mention hair color, length, or style (no "ponytail", "blonde", "wavy"), and do NOT mention eye color, face shape, or any facial features. The subject's face and hair come from their own reference and must stay untouched. You may keep a natural candid expression word like "smiling softly" but nothing that defines facial structure.
+- You MAY add an outfit ONLY if the user did not describe one; if they named clothing, keep it. You may set scene, location, lighting, pose, and mood freely.
+- If the user explicitly names a visual style ("cinematic", "anime", "claymation", "watercolor", "3D render", "cyberpunk", "1990s film"), DROP the realism style entirely and write in that named style — but still never redefine face or hair.
 - If the subject is NOT a person (product, landscape, food, logo, animal), ignore the realism style and write a fitting prompt for that subject.
 - Output ONE single line of plain text. No quotes. No labels. No "Prompt:" prefix. No bullet points. No explanation. Just the prompt itself.
 - Aim for 60-120 words.
@@ -37,6 +38,8 @@ Video prompts ALSO need motion direction. After the scene, append concrete motio
 
 Rules:
 - ALWAYS honor the user's location, setting, outfit, and pose. If they say "in Brazil", set the scene there — never replace it with a default like a bedroom.
+- CRITICAL — IDENTITY IS LOCKED: NEVER describe, add, or change the subject's FACE or HAIR (no hair color/length/style, no eye color, no face shape, no facial features). The subject's identity comes from their own reference and must stay untouched.
+- You MAY add an outfit ONLY if the user did not describe one. You may set scene, location, lighting, pose, mood, and motion freely.
 - Person subject + no explicit visual style → build the user's scene + realism style + motion. Only invent a tasteful setting when the user gave none.
 - User names a visual style → drop the realism style, write in that style + motion.
 - Non-person subject → fitting style + motion, no realism style.
