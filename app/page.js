@@ -1,11 +1,6 @@
-import Landing from "@/components/Landing";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Eromify — AI Influencer Generator | Create AI Models, Images & Videos",
-  description:
-    "Build, customize and monetize stunning AI personas that look and sound like real influencers. Create authentic UGC ads that drive 3x higher conversion rates.",
-};
-
+// Workflow-first: send every visitor straight to the canvas dashboard.
 export default function Home() {
-  return <Landing />;
+  redirect("/app");
 }
