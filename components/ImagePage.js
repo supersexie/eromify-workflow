@@ -243,9 +243,6 @@ export default function ImagePage() {
         return;
       }
     }
-    if (images.length && /^GPT Image/.test(model)) {
-      throw new Error(`${model} stalled — OpenAI restricts edits of real people. Use Flux 2 Pro, Nano Banana Pro, or Seedream 4.5 for influencer references.`);
-    }
     throw new Error("Image generation timed out");
   };
 
