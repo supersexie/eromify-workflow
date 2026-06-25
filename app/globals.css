@@ -72,6 +72,15 @@ body {
 }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
 .topbar-right { display: flex; align-items: center; gap: 8px; }
+/* Centered section nav inside the canvas editor — jump to Image/Video/etc.
+   without going back to the dashboard. Absolutely centered so the side groups
+   don't shift it off-center. */
+.topbar-nav {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm);
+}
+.topbar-nav .mc-tab { font-size: 13px; padding: 5px 10px; }
 .chip {
   background: var(--surface); border: 1px solid var(--line);
   padding: 7px 12px; border-radius: 8px; font-size: 13px;

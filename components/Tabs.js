@@ -20,24 +20,26 @@ const TABS = [
 // Wrapped in a Suspense boundary because useSearchParams() (in TabsInner)
 // triggers a Next.js build error otherwise — see
 // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
-export default function Tabs() {
+export default function Tabs({ showBrand = true }) {
   return (
-    <Suspense fallback={<div className="mc-tabs"><div className="title-pill"><div className="logo">e</div><span>Eromify</span></div></div>}>
-      <TabsInner />
+    <Suspense fallback={<div className="mc-tabs">{showBrand && <div className="title-pill"><div className="logo">e</div><span>Eromify</span></div>}</div>}>
+      <TabsInner showBrand={showBrand} />
     </Suspense>
   );
 }
 
-function TabsInner() {
+function TabsInner({ showBrand = true }) {
   const router = useRouter();
   const pathname = usePathname() || "";
   const search = useSearchParams();
   return (
     <div className="mc-tabs">
-      <div className="title-pill">
-        <div className="logo">e</div>
-        <span>Eromify</span>
-      </div>
+      {showBrand && (
+        <div className="title-pill">
+          <div className="logo">e</div>
+          <span>Eromify</span>
+        </div>
+      )}
       {TABS.map((t) => {
         const active = t.match(pathname, search);
         return (

@@ -16,6 +16,7 @@ import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
+import Tabs from "./Tabs";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
@@ -525,6 +526,9 @@ function CanvasInner({ workflowId }) {
           <div className="logo">e</div>
           <input value={name} onChange={(e) => onTitleChange(e.target.value)} />
           <span className="dot" />
+        </div>
+        <div className="topbar-nav">
+          <Tabs showBrand={false} />
         </div>
         <div className="topbar-right">
           {savedAt && <span className="save-indicator">Saved</span>}
