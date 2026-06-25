@@ -67,9 +67,31 @@ export default function Dashboard() {
         <UserMenu />
       </>} />
 
+      <div className="cv-hero">
+        <div className="cv-hero-bg" />
+        {/* decorative floating media tiles + faint connectors */}
+        <svg className="cv-hero-lines" viewBox="0 0 1200 320" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M120,150 C260,150 300,150 430,150" />
+          <path d="M770,150 C900,150 940,150 1080,150" />
+          <path d="M150,250 C280,250 320,210 430,190" />
+        </svg>
+        <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }} />
+        <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }} />
+        <div className="cv-tile cv-tile-3" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }} />
+        <div className="cv-tile cv-tile-4" style={{ background: "linear-gradient(135deg,#0ea5e9,#22c55e)" }} />
+        <div className="cv-bubble cv-bubble-1">That's cool!</div>
+        <div className="cv-bubble cv-bubble-2">🔥 Love it</div>
+        <div className="cv-hero-inner">
+          <div className="cv-hero-eyebrow">EROMIFY CANVAS</div>
+          <h1 className="cv-hero-title">Generate stunning<br />media with AI Canvas</h1>
+        </div>
+      </div>
+
       <div className="dash-body">
-        <h1 className="dash-h1">Your canvases</h1>
-        <p className="dash-sub">Build node-based creative pipelines. Saved automatically in this browser.</p>
+        <div className="cv-tabs">
+          <button className="cv-tab is-active">All Canvases</button>
+          <button className="cv-tab cv-tab-soon" disabled>Templates <span className="cv-tab-badge">Soon</span></button>
+        </div>
 
         {items.length === 0 ? (
           <div className="dash-empty">
