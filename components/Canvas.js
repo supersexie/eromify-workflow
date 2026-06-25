@@ -19,6 +19,7 @@ import UserMenu from "./UserMenu";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
+import { resolveMentions } from "@/lib/influencers";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -278,7 +279,11 @@ function CanvasInner({ workflowId }) {
       const srcs = sourcesByNode[id] || [];
       const textPrompt = srcs.find((s) => s.kind === "text" && s.text)?.text;
       const typed = (node.data.prompt || "").trim();
-      const prompt = typed || textPrompt || "";
+      const rawPrompt = typed || textPrompt || "";
+      // Resolve @handles → swap to the character's name and surface her photo so
+      // it can be attached as a likeness reference (image start image / image-to-image).
+      const { prompt, characters } = resolveMentions(rawPrompt);
+      const charImage = characters[0]?.image || null;
       if (node.data.kind === "video") {
         // Aspect + quality are stored as separate fields now. Fall back to the
         // legacy "16:9 · 720p" combined string for older nodes.
@@ -292,7 +297,7 @@ function CanvasInner({ workflowId }) {
         output = await generateVideo({
           prompt,
           model: node.data.model || "LTX Video",
-          image: node.data.sourceThumb || null,
+          image: node.data.sourceThumb || charImage || null,
           aspect: aspectRatio,
           resolution,
           duration: dur,
@@ -301,6 +306,8 @@ function CanvasInner({ workflowId }) {
         const images = node.data.kind === "image"
           ? srcs.filter((s) => s.kind === "image" && s.url).map((s) => s.url)
           : [];
+        // Attach a mentioned influencer's photo as a likeness reference.
+        if (node.data.kind === "image" && charImage && !images.includes(charImage)) images.push(charImage);
         // Forward aspect + quality (image kind only) so fal renders at the
         // chip-selected ratio/resolution instead of defaulting to square.
         // Legacy "16:9 · 720p" strings still parse — we split for back-compat.
