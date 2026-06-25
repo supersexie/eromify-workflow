@@ -78,6 +78,39 @@ function fileToDataUrl(file) {
   });
 }
 
+// Persistent video library (mirrors the /image gallery). Stores an array of
+// {url, prompt, model, aspect, quality, kind, ts}; fal/Veo URLs are short so we
+// cap to keep the JSON small. Shared across all three sub-tabs.
+const VIDEO_HISTORY_KEY = "eromify:videoHistory:v1";
+const MAX_VIDEO_HISTORY = 100;
+function loadVideoHistory() {
+  if (typeof window === "undefined") return [];
+  try {
+    const arr = JSON.parse(localStorage.getItem(VIDEO_HISTORY_KEY) || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveVideoHistory(arr) {
+  try { localStorage.setItem(VIDEO_HISTORY_KEY, JSON.stringify(arr.slice(0, MAX_VIDEO_HISTORY))); } catch {}
+}
+
+// Force-download a video as a file (blob fetch works across origins).
+async function downloadVideo(url, filename) {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    const blob = await res.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename || `eromify-${Date.now()}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch {
+    window.open(url, "_blank", "noopener");
+  }
+}
+
 function MediaPick({ value, kind, accept, label, onPick, onClear, disabled }) {
   const ref = useRef(null);
   const handle = async (f) => {
@@ -166,8 +199,14 @@ function VideoPageInner() {
   const [duration, setDuration] = useState("8s");
   const [openMenu, setOpenMenu] = useState(null);
   const [running, setRunning] = useState(false);
-  const [output, setOutput] = useState(null);
   const [error, setError] = useState(null);
+  // Persistent video library (shared across create/edit/motion). The `loaded`
+  // gate prevents the save effect from clobbering storage with [] before the
+  // initial load lands (same pattern as the /image gallery).
+  const [results, setResults] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setResults(loadVideoHistory()); setLoaded(true); }, []);
+  useEffect(() => { if (loaded) saveVideoHistory(results); }, [results, loaded]);
   // Motion-mode extras
   const [motionQuality, setMotionQuality] = useState("720p");
   const [sceneCtrl, setSceneCtrl] = useState(true);
@@ -214,9 +253,9 @@ function VideoPageInner() {
     if (!canRun) return;
     setRunning(true);
     setError(null);
-    setOutput(null);
     try {
       let url;
+      let meta;
       if (sub === "create") {
         url = await generateVideo({
           prompt: prompt.trim(),
@@ -226,6 +265,7 @@ function VideoPageInner() {
           resolution: "720p",
           duration: parseInt(duration) || 8,
         });
+        meta = { model, aspect, quality: "720p" };
       } else if (sub === "motion") {
         url = await generateMotion({
           prompt: prompt.trim(),
@@ -233,6 +273,7 @@ function VideoPageInner() {
           image,
           video: refVideo,
         });
+        meta = { model: motionModel, aspect: "—", quality: motionQuality };
       } else if (sub === "edit") {
         url = await generateVideoEdit({
           prompt: prompt.trim(),
@@ -241,8 +282,14 @@ function VideoPageInner() {
           refs: editRefs,
           quality: editQuality,
         });
+        meta = { model: editModel, aspect: "—", quality: editQuality };
       }
-      setOutput(url);
+      if (url) {
+        setResults((rs) => [
+          { url, prompt: prompt.trim() || meta.model, kind: sub, ts: Date.now(), ...meta },
+          ...rs,
+        ]);
+      }
     } catch (e) {
       setError(e.message || "Generation failed");
     } finally {
@@ -654,14 +701,42 @@ function VideoPageInner() {
         </aside>
 
         <main className="vp-main">
-          {output ? (
-            <div className="vp-output">
-              <video src={output} controls autoPlay loop playsInline className="vp-output-video" />
-            </div>
-          ) : running ? (
-            <div className="vp-loading">
-              <div className="vp-loading-bar"><div className="vp-loading-bar-inner" /></div>
-              <p>Generating video on fal's queue. This usually takes 60–120 seconds.</p>
+          {(results.length > 0 || running) ? (
+            <div className="ip-grid vp-grid">
+              {running && (
+                <div className="ip-card ip-card-loading">
+                  <div className="ip-loading-shimmer" />
+                  <div className="ip-card-meta">Generating…</div>
+                </div>
+              )}
+              {results.map((r, i) => (
+                <div key={(r.ts || 0) + "-" + i} className="ip-card">
+                  <video
+                    src={r.url}
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    onMouseEnter={(e) => { e.currentTarget.play().catch(() => {}); }}
+                    onMouseLeave={(e) => { e.currentTarget.pause(); }}
+                  />
+                  <button
+                    className="ip-card-dl"
+                    onClick={() => downloadVideo(r.url, `eromify-${(r.prompt || "video").slice(0, 32).replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.mp4`)}
+                    title="Download"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  </button>
+                  <button
+                    className="ip-card-del"
+                    onClick={() => setResults((rs) => rs.filter((_, j) => j !== i))}
+                    title="Remove from library"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  </button>
+                  <div className="ip-card-meta" title={r.prompt}>{r.prompt}</div>
+                </div>
+              ))}
             </div>
           ) : sub === "motion" ? (
             <div className="vp-motion-main">
