@@ -3,6 +3,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
+import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
 import { listInfluencers, resolveMentions } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
@@ -843,28 +844,30 @@ function VideoPageInner() {
                 </div>
               </div>
             </div>
+          ) : sub === "edit" ? (
+            <SectionHero
+              title="Edit any"
+              brand="Video"
+              sub="Upload a 3–10s clip and describe the change — restyle, relight, swap elements, or add motion."
+              tiles={[
+                { hue: "linear-gradient(135deg,#6366f1,#a855f7)", label: "Restyle" },
+                { hue: "linear-gradient(135deg,#0ea5e9,#22c55e)", label: "Relight" },
+                { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Swap" },
+                { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Motion" },
+              ]}
+            />
           ) : (
-            <div className="vp-hero">
-              <h1 className="vp-hero-title">Make videos in one click</h1>
-              <p className="vp-hero-sub">250+ presets for camera control, framing, and high-quality VFX — or use the general preset for manual control.</p>
-              <div className="vp-steps">
-                <div className="vp-step">
-                  <div className="vp-step-num">1</div>
-                  <div className="vp-step-title">{sub === "edit" ? "Upload a 3–10s video" : "Add image"}</div>
-                  <div className="vp-step-sub">{sub === "edit" ? "Optional: add up to 4 reference images for elements." : "Optional — start from an image or generate from text."}</div>
-                </div>
-                <div className="vp-step">
-                  <div className="vp-step-num">2</div>
-                  <div className="vp-step-title">Describe & choose</div>
-                  <div className="vp-step-sub">Write a prompt and pick model / aspect / duration.</div>
-                </div>
-                <div className="vp-step">
-                  <div className="vp-step-num">3</div>
-                  <div className="vp-step-title">Generate</div>
-                  <div className="vp-step-sub">Click generate. The clip lands here when fal finishes the render.</div>
-                </div>
-              </div>
-            </div>
+            <SectionHero
+              title="Create video with"
+              brand={model}
+              sub="Describe a scene or start from an image — type @ to summon an influencer."
+              tiles={[
+                { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Cinematic" },
+                { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "B-roll" },
+                { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Portrait" },
+                { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "VFX" },
+              ]}
+            />
           )}
           {error && <div className="mc-error vp-error">{error}</div>}
         </main>

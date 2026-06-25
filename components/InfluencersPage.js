@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
+import SectionHero from "@/components/SectionHero";
 import { listInfluencers, upsertInfluencer, deleteInfluencer, normHandle } from "@/lib/influencers";
 
 // Downscale an uploaded image to a small JPEG data URL so it fits comfortably
@@ -84,10 +85,19 @@ export default function InfluencersPage() {
         <UserMenu />
       </>} />
 
-      <div className="dash-body">
-        <h1 className="dash-h1">Your influencers</h1>
-        <p className="dash-sub">Create a character once, then summon her anywhere with <b>@handle</b> — e.g. type <b>“@sofie in a pool”</b> in the Image, Video, or Canvas prompt and her likeness is used automatically.</p>
+      <SectionHero
+        title="Build your"
+        brand="Influencers"
+        sub="Create a character once, then summon her anywhere with @handle — type “@sofie in a pool” in any prompt and her likeness is used automatically."
+        tiles={[
+          { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Face" },
+          { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Style" },
+          { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Persona" },
+          { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "@handle" },
+        ]}
+      />
 
+      <div className="dash-body">
         {items.length === 0 ? (
           <div className="dash-empty">
             <div className="dash-empty-icon">

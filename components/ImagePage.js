@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
+import SectionHero from "@/components/SectionHero";
 import { listInfluencers, resolveMentions } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
 
@@ -279,24 +280,11 @@ export default function ImagePage() {
           <button className={mode === "edit" ? "is-active" : ""} onClick={() => setMode("edit")}>Edit</button>
         </div>
         {results.length === 0 ? (
-          <div className="ip-hero">
-            <div className="ip-hero-tiles">
-              {SAMPLE_TILES.map((t, i) => (
-                <div
-                  key={i}
-                  className="ip-hero-tile"
-                  style={{ background: t.hue, transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}
-                >
-                  <span>{t.label}</span>
-                </div>
-              ))}
-            </div>
-            <h1 className="ip-hero-title">
-              Start creating with
-              <span className="ip-hero-brand"> {model}</span>
-            </h1>
-            <p className="ip-hero-sub">Describe a scene, character, mood, or style — and watch it come to life.</p>
-          </div>
+          <SectionHero
+            title={mode === "edit" ? "Edit with" : "Start creating with"}
+            brand={model}
+            sub={mode === "edit" ? "Upload an image and describe your change — type @ to summon an influencer." : "Describe a scene, character, mood, or style — and watch it come to life."}
+          />
         ) : (
           <div className="ip-grid">
             {running && Array.from({ length: batch }).map((_, i) => (
