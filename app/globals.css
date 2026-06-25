@@ -1321,6 +1321,14 @@ body {
 .ip-grid { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
 .ip-card { height: 300px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; position: relative; }
 .ip-card img, .ip-card video { height: 100%; width: auto; display: block; background: #000; }
+
+/* Uniform image gallery: equal square tiles regardless of ratio (cropped);
+   click opens the full image at its real aspect ratio in the lightbox. */
+.ip-grid-uniform { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+.ip-grid-uniform .ip-card { height: auto; aspect-ratio: 1 / 1; width: 100%; padding: 0; cursor: pointer; background: var(--surface-2); transition: transform .12s ease, border-color .12s ease; }
+.ip-grid-uniform .ip-card:hover { transform: translateY(-2px); border-color: var(--blue); }
+.ip-grid-uniform .ip-card img { width: 100%; height: 100%; object-fit: cover; }
+.ip-grid-uniform .ip-card-loading { aspect-ratio: 1 / 1; height: auto; }
 .ip-card-meta {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 28px 12px 10px;
@@ -1351,6 +1359,39 @@ body {
 .ip-card-dl:hover { background: var(--grad); border-color: transparent; }
 .ip-card-del:hover { background: rgba(248, 113, 113, 0.85); border-color: transparent; }
 .ip-card-loading { position: relative; aspect-ratio: 1 / 1; }
+
+/* ---- Image lightbox: full image at its real aspect ratio + actions ---- */
+.ip-lightbox {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(6px);
+  display: grid; place-items: center; padding: 40px;
+}
+.ip-lightbox-close {
+  position: absolute; top: 18px; right: 18px; width: 40px; height: 40px;
+  border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; cursor: pointer; display: grid; place-items: center; z-index: 1;
+}
+.ip-lightbox-close:hover { background: rgba(255,255,255,0.2); }
+.ip-lightbox-inner { display: flex; flex-direction: column; max-width: 92vw; max-height: 88vh; }
+.ip-lightbox-img {
+  max-width: 92vw; max-height: 78vh; width: auto; height: auto;
+  border-radius: 14px 14px 0 0; display: block; object-fit: contain; background: #000;
+}
+.ip-lightbox-bar {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface); border: 1px solid var(--line); border-top: none;
+  border-radius: 0 0 14px 14px; padding: 12px 16px;
+}
+.ip-lightbox-caption { flex: 1; min-width: 0; font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ip-lightbox-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.ip-lightbox-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 36px; padding: 0 14px; border-radius: 10px;
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--ink);
+  font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.ip-lightbox-btn:hover { border-color: var(--blue); }
+.ip-lightbox-btn-del:hover { background: rgba(248, 113, 113, 0.85); border-color: transparent; color: #fff; }
 .ip-loading-shimmer {
   position: absolute; inset: 0; background: var(--surface-2);
   background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.06) 50%, transparent 100%);

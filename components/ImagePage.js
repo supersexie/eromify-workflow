@@ -180,6 +180,14 @@ export default function ImagePage() {
   const [mode, setMode] = useState("generate");
   const [editSource, setEditSource] = useState(null); // data URI
   const [enhancing, setEnhancing] = useState(false);
+  const [lightbox, setLightbox] = useState(null); // { url, prompt, i, ... } | null
+  // Close the lightbox on Escape.
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => { if (e.key === "Escape") setLightbox(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
   const [enhanceModel, setEnhanceModel] = useState(ENHANCE_MODELS[0].id);
   useEffect(() => {
     try { const v = localStorage.getItem(ENHANCE_PREF_KEY); if (v && ENHANCE_MODELS.some((m) => m.id === v)) setEnhanceModel(v); } catch {}
@@ -305,7 +313,7 @@ export default function ImagePage() {
             sub={mode === "edit" ? "Upload an image and describe your change — type @ to summon an influencer." : "Describe a scene, character, mood, or style — and watch it come to life."}
           />
         ) : (
-          <div className="ip-grid">
+          <div className="ip-grid ip-grid-uniform">
             {running && Array.from({ length: batch }).map((_, i) => (
               <div key={"ld-" + i} className="ip-card ip-card-loading">
                 <div className="ip-loading-shimmer" />
@@ -313,24 +321,9 @@ export default function ImagePage() {
               </div>
             ))}
             {results.map((r, i) => (
-              <div key={(r.ts || 0) + "-" + i} className="ip-card">
+              <button key={(r.ts || 0) + "-" + i} className="ip-card" onClick={() => setLightbox({ ...r, i })} title="Open">
                 <img src={r.url} alt={r.prompt} />
-                <button
-                  className="ip-card-dl"
-                  onClick={() => downloadImage(r.url, `eromify-${(r.prompt || "image").slice(0, 32).replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`)}
-                  title="Download"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                </button>
-                <button
-                  className="ip-card-del"
-                  onClick={() => setResults((rs) => rs.filter((_, j) => j !== i))}
-                  title="Remove from library"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-                <div className="ip-card-meta" title={r.prompt}>{r.prompt}</div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -551,6 +544,38 @@ export default function ImagePage() {
           </div>
         </div>
       </div>
+
+      {lightbox && (
+        <div className="ip-lightbox" onClick={() => setLightbox(null)}>
+          <button className="ip-lightbox-close" onClick={() => setLightbox(null)} title="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div className="ip-lightbox-inner" onClick={(e) => e.stopPropagation()}>
+            <img className="ip-lightbox-img" src={lightbox.url} alt={lightbox.prompt} />
+            <div className="ip-lightbox-bar">
+              <div className="ip-lightbox-caption" title={lightbox.prompt}>{lightbox.prompt || "(no prompt)"}</div>
+              <div className="ip-lightbox-actions">
+                <button
+                  className="ip-lightbox-btn"
+                  onClick={() => downloadImage(lightbox.url, `eromify-${(lightbox.prompt || "image").slice(0, 32).replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.png`)}
+                  title="Download"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Download
+                </button>
+                <button
+                  className="ip-lightbox-btn ip-lightbox-btn-del"
+                  onClick={() => { setResults((rs) => rs.filter((_, j) => j !== lightbox.i)); setLightbox(null); }}
+                  title="Delete"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
