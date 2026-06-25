@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { uploadDataUrl } from "@/lib/genstore";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -110,7 +111,14 @@ export async function POST(req) {
     if (!prompt || !prompt.trim()) {
       return NextResponse.json({ error: "Video edit needs a prompt describing the change." }, { status: 400 });
     }
-    const input = { video_url: editVideo, prompt: prompt.trim() };
+    // fal rejects base64 data URIs for video_url — host it on Blob first.
+    let editVideoUrl;
+    try {
+      editVideoUrl = await uploadDataUrl(editVideo, "edit-src");
+    } catch (e) {
+      return NextResponse.json({ error: `Could not host source video: ${e.message}` }, { status: 500 });
+    }
+    const input = { video_url: editVideoUrl, prompt: prompt.trim() };
     if (Array.isArray(editRefs) && editRefs.length) input.image_urls = editRefs.slice(0, 4);
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
@@ -141,9 +149,20 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+    // fal rejects base64 data URIs for video_url (and validates image_url
+    // strictly), so host both on Blob and pass real https URLs.
+    let imageUrl, motionUrl;
+    try {
+      [imageUrl, motionUrl] = await Promise.all([
+        uploadDataUrl(image, "motion-char"),
+        uploadDataUrl(motionVideo, "motion-clip"),
+      ]);
+    } catch (e) {
+      return NextResponse.json({ error: `Could not host motion inputs: ${e.message}` }, { status: 500 });
+    }
     const input = {
-      image_url: image,
-      video_url: motionVideo,
+      image_url: imageUrl,
+      video_url: motionUrl,
     };
     if (prompt && prompt.trim()) input.prompt = prompt.trim();
     // Kling motion-control endpoints require character_orientation; "video"
