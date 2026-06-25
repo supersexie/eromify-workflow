@@ -167,6 +167,27 @@ export default function ImagePage() {
   // routes through fal's edit endpoints (image_urls), supporting @mention refs.
   const [mode, setMode] = useState("generate");
   const [editSource, setEditSource] = useState(null); // data URI
+  const [enhancing, setEnhancing] = useState(false);
+
+  const enhancePrompt = async () => {
+    const cur = prompt.trim();
+    if (!cur || enhancing) return;
+    setEnhancing(true);
+    try {
+      // In edit mode the uploaded image locks the subject, so the API uses its
+      // "describe only the change" prompt instead of the house style.
+      const hasSourceImage = mode === "edit" && !!editSource;
+      const res = await fetch("/api/prompt/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: cur, kind: "image", hasSourceImage }),
+      });
+      const j = await res.json();
+      if (res.ok && j.prompt) setPrompt(j.prompt);
+    } catch {} finally {
+      setEnhancing(false);
+    }
+  };
   const editFileRef = useRef(null);
   const onPickEdit = async (file) => {
     if (!file) return;
@@ -348,6 +369,14 @@ export default function ImagePage() {
               placeholder={mode === "edit" ? "Describe the change — type @ to summon an influencer" : "Describe the scene — type @ to summon an influencer"}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
+            <button className="pb-enhance" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Eromify style">
+              {enhancing ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14z" /></svg>
+              )}
+              <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
+            </button>
             <button className="ip-bar-generate" onClick={generate} disabled={!canRun}>
               {running ? (
                 <>

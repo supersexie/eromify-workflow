@@ -202,6 +202,7 @@ function VideoPageInner() {
   const [openMenu, setOpenMenu] = useState(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
+  const [enhancing, setEnhancing] = useState(false);
   // Persistent video library (shared across create/edit/motion). The `loaded`
   // gate prevents the save effect from clobbering storage with [] before the
   // initial load lands (same pattern as the /image gallery).
@@ -223,6 +224,25 @@ function VideoPageInner() {
   const [editSearch, setEditSearch] = useState("");
   const editVideoRef = useRef(null);
   const editRefsRef = useRef(null);
+
+  const enhancePrompt = async () => {
+    const cur = prompt.trim();
+    if (!cur || enhancing) return;
+    setEnhancing(true);
+    try {
+      // Edit/motion lock the subject via uploaded media → "describe the change".
+      const hasSourceImage = (sub === "edit" && !!editVideo) || (sub === "motion" && (!!image || !!refVideo));
+      const res = await fetch("/api/prompt/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: cur, kind: "video", hasSourceImage }),
+      });
+      const j = await res.json();
+      if (res.ok && j.prompt) setPrompt(j.prompt);
+    } catch {} finally {
+      setEnhancing(false);
+    }
+  };
 
   // Influencers for the attached-character chips (MentionField does autocomplete).
   const [influencers, setInfluencers] = useState([]);
@@ -476,7 +496,17 @@ function VideoPageInner() {
           )}
 
           <div className="vp-prompt-block">
-            <div className="vp-prompt-label">Prompt</div>
+            <div className="vp-prompt-labelrow">
+              <div className="vp-prompt-label">Prompt</div>
+              <button className="pb-enhance pb-enhance-sm" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Eromify style">
+                {enhancing ? (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                ) : (
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14z" /></svg>
+                )}
+                <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
+              </button>
+            </div>
             {mentioned.length > 0 && (
               <div className="mention-chips">
                 {mentioned.map((inf) => (

@@ -1690,6 +1690,8 @@ body {
 }
 .vp-prompt-wrap .mf-wrap:focus-within { border-color: var(--blue); }
 .vp-prompt-wrap .mf-field { max-height: 160px; }
+.vp-prompt-labelrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.pb-enhance-sm { height: 26px; padding: 0 10px; font-size: 12px; }
 
 .vp-controls { display: flex; flex-direction: column; gap: 8px; }
 .vp-control-row {
