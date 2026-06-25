@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getInfluencers, putInfluencers } from "@/lib/influencerStore";
+import { getInfluencers, putInfluencers, configured } from "@/lib/influencerStore";
 import { uploadDataUrl } from "@/lib/genstore";
 
 export const runtime = "nodejs";
@@ -27,7 +27,15 @@ async function hostImage(image) {
   }
 }
 
-export async function GET() {
+export async function GET(req) {
+  // ?debug=1 → report whether the Blob store sees a write token (names only,
+  // never values) so we can diagnose persistence without exposing secrets.
+  if (new URL(req.url).searchParams.get("debug")) {
+    const tokenEnvNames = Object.keys(process.env).filter(
+      (k) => k.includes("BLOB") || k.endsWith("_READ_WRITE_TOKEN")
+    );
+    return NextResponse.json({ configured: configured(), tokenEnvNames, userId: await uid() });
+  }
   const items = await getInfluencers(await uid());
   return NextResponse.json({ items });
 }
