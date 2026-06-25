@@ -55,16 +55,15 @@ export default function InfluencersPage() {
   };
 
   const onSave = async () => {
-    const handle = normHandle(editing.handle || editing.name);
-    const name = (editing.name || "").trim() || handle;
+    const handle = normHandle(editing.handle);
     if (!handle || !editing.image) return;
     const id = editing.id || `inf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
     setEditing(null);
     await saveInfluencerRemote({
       id,
       handle,
-      name,
-      description: (editing.description || "").trim(),
+      name: handle, // no separate display name — the user_name (handle) is the identity
+      description: editing.description || "",
       image: editing.image,
       ts: editing.ts || Date.now(),
     });
@@ -78,7 +77,7 @@ export default function InfluencersPage() {
     setItems(listInfluencers());
   };
 
-  const canSave = editing && !!editing.image && !!normHandle(editing.handle || editing.name);
+  const canSave = editing && !!editing.image && !!normHandle(editing.handle);
 
   return (
     <div className="ip-page">
@@ -122,9 +121,7 @@ export default function InfluencersPage() {
               <div key={inf.id} className="inf-card" onClick={() => openEdit(inf)}>
                 <div className="inf-card-photo" style={{ backgroundImage: `url(${inf.image})` }} />
                 <div className="inf-card-meta">
-                  <div className="inf-card-name">{inf.name}</div>
-                  <div className="inf-card-handle">@{inf.handle}</div>
-                  {inf.description && <div className="inf-card-desc">{inf.description}</div>}
+                  <div className="inf-card-name">@{inf.handle}</div>
                 </div>
                 <button className="inf-card-del" onClick={(e) => onDelete(inf.id, e)} title="Delete">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
@@ -139,7 +136,7 @@ export default function InfluencersPage() {
         <div className="nw-backdrop" onClick={() => setEditing(null)}>
           <div className="nw-modal inf-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="nw-title">{editing.id ? "Edit influencer" : "New influencer"}</h3>
-            <p className="nw-sub">A name, a handle, and one clear reference photo (face + body visible works best).</p>
+            <p className="nw-sub">A user_name and one clear reference photo (face + body visible works best).</p>
 
             <div className="inf-form">
               <label className="inf-photo-pick">
@@ -155,31 +152,16 @@ export default function InfluencersPage() {
               </label>
 
               <div className="inf-fields">
-                <label className="inf-label">Name</label>
-                <input
-                  className="nw-input"
-                  autoFocus
-                  placeholder="Sofie"
-                  value={editing.name}
-                  onChange={(e) => setEditing((x) => ({ ...x, name: e.target.value }))}
-                />
-                <label className="inf-label">Handle</label>
+                <label className="inf-label">user_name</label>
                 <div className="inf-handle-input">
                   <span>@</span>
                   <input
-                    placeholder={normHandle(editing.name) || "sofie"}
+                    autoFocus
+                    placeholder="katrina"
                     value={editing.handle}
                     onChange={(e) => setEditing((x) => ({ ...x, handle: normHandle(e.target.value) }))}
                   />
                 </div>
-                <label className="inf-label">Description <span className="inf-opt">(optional)</span></label>
-                <textarea
-                  className="nw-input inf-textarea"
-                  placeholder="22, sun-kissed blonde, athletic, warm smile…"
-                  value={editing.description}
-                  onChange={(e) => setEditing((x) => ({ ...x, description: e.target.value }))}
-                  rows={2}
-                />
               </div>
             </div>
 
