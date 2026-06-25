@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { imageCredits, videoCredits, motionCredits } from "@/lib/credits";
+import MentionField from "@/components/MentionField";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 2", "GPT Image 1"],
@@ -248,9 +249,13 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
     || (isAudio ? "Loading voices…" : "");
   const placeholder = isAudio
     ? "Type what to speak…"
-    : hasSources
-      ? "Describe your next edit…"
-      : "Describe what you want to create…";
+    : kind === "image"
+      ? (hasSources
+          ? "Describe your next edit — type @ to summon an influencer"
+          : "Describe the image — type @ to summon an influencer")
+      : hasSources
+        ? "Describe your next edit…"
+        : "Describe what you want to create…";
 
   // Batch count for image/video runs — clamped to 1-4. Stepper lives in the
   // chip row (last chip); the play button just shows ×N when N > 1.
@@ -298,25 +303,50 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       )}
 
       <div className="pb-title-row">
-        <textarea
-          ref={promptRef}
-          className="mention-field"
-          rows={1}
-          placeholder={placeholder}
-          value={data.prompt || ""}
-          onChange={(e) => set({ prompt: e.target.value })}
-          onKeyDown={(e) => e.stopPropagation()}
-          onPaste={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const text = e.clipboardData.getData("text");
-            const el = e.target;
-            const cur = data.prompt || "";
-            const start = el.selectionStart ?? cur.length;
-            const end = el.selectionEnd ?? start;
-            set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
-          }}
-        />
+        {/* Image nodes get the @mention field (summon an influencer); other
+            kinds use a plain textarea since @mention is image-only. */}
+        {kind === "image" ? (
+          <MentionField
+            inputRef={promptRef}
+            multiline
+            dropUp
+            rows={1}
+            placeholder={placeholder}
+            value={data.prompt || ""}
+            onChange={(v) => set({ prompt: v })}
+            onKeyDown={(e) => e.stopPropagation()}
+            onPaste={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const text = e.clipboardData.getData("text");
+              const el = e.target;
+              const cur = data.prompt || "";
+              const start = el.selectionStart ?? cur.length;
+              const end = el.selectionEnd ?? start;
+              set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
+            }}
+          />
+        ) : (
+          <textarea
+            ref={promptRef}
+            className="mention-field"
+            rows={1}
+            placeholder={placeholder}
+            value={data.prompt || ""}
+            onChange={(e) => set({ prompt: e.target.value })}
+            onKeyDown={(e) => e.stopPropagation()}
+            onPaste={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const text = e.clipboardData.getData("text");
+              const el = e.target;
+              const cur = data.prompt || "";
+              const start = el.selectionStart ?? cur.length;
+              const end = el.selectionEnd ?? start;
+              set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
+            }}
+          />
+        )}
         {canEnhance && (
           <>
             <input
