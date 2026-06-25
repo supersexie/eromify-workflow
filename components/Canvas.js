@@ -251,6 +251,7 @@ function CanvasInner({ workflowId }) {
     const id = nextId();
     const data = { kind, prompt: options.prompt || "" };
     if (options.model) data.model = options.model;
+    else if (kind === "video") data.model = "Kling 2.6";
     if (options.aspect) data.aspect = options.aspect;
     const node = { id, type: "workflow", position: pos, data, width: W, height: H };
     setNodes((n) => [...n, node]);
@@ -567,8 +568,6 @@ function CanvasInner({ workflowId }) {
         <button title="Select">{RAIL_ICONS.cursor}</button>
         <button title="Add node" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
         <button title="Fit view" onClick={() => fitView({ padding: 0.3, duration: 300 })}>{RAIL_ICONS.frame}</button>
-        <button title="Templates">{RAIL_ICONS.grid}</button>
-        <button title="Comments">{RAIL_ICONS.chat}</button>
         <button title="Library" onClick={() => setLibraryOpen(true)}>{RAIL_ICONS.folder}</button>
         <div className="divider" />
         <button title="Undo (Ctrl+Z)" onClick={undo} disabled={!past.length} style={!past.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.undo}</button>

@@ -12,6 +12,11 @@ const VEO_MODELS = {
   "Veo 3.1": "veo-3.1-generate-preview",
 };
 
+// Models that accept an explicit `enable_audio` parameter. Sora 2 and Veo
+// produce audio natively (always on), so they don't need a flag and aren't
+// listed here. Other fal video endpoints don't support audio at all.
+const AUDIO_PARAM_MODELS = new Set(["MiniMax Hailuo 2.3", "Wan 2.7"]);
+
 const FAL_MODELS = {
   // `ar: true` => endpoint requires an explicit aspect_ratio (it 422s on the
   // default "auto" when the input image resolves to an unsupported size).
@@ -99,7 +104,7 @@ function parseDataUrl(d) {
 }
 
 export async function POST(req) {
-  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs } = await req.json();
+  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs, audio } = await req.json();
 
   // ---- Video Edit (Kling) — source video + prompt → edited video ----
   if (kind === "edit") {
@@ -210,6 +215,12 @@ export async function POST(req) {
     // explicit ratio (one of 16:9 / 9:16 / 1:1) for models that need it.
     if (fal.ar) {
       input.aspect_ratio = aspect === "9:16" || aspect === "1:1" ? aspect : "16:9";
+    }
+    // Audio: only set the param for models that accept it. Sora 2 + Veo produce
+    // audio natively (no flag needed); the rest don't support it and will 422
+    // on unknown fields, so leave the input untouched.
+    if (typeof audio === "boolean" && AUDIO_PARAM_MODELS.has(model)) {
+      input.enable_audio = audio;
     }
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {

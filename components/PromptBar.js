@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import MentionField from "@/components/MentionField";
 import { imageCredits, videoCredits, motionCredits } from "@/lib/credits";
 
 const MODELS = {
@@ -299,13 +298,13 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
       )}
 
       <div className="pb-title-row">
-        <MentionField
-          inputRef={promptRef}
-          multiline
+        <textarea
+          ref={promptRef}
+          className="mention-field"
           rows={1}
           placeholder={placeholder}
           value={data.prompt || ""}
-          onChange={(v) => set({ prompt: v })}
+          onChange={(e) => set({ prompt: e.target.value })}
           onKeyDown={(e) => e.stopPropagation()}
           onPaste={(e) => {
             e.preventDefault();

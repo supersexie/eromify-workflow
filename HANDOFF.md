@@ -1,219 +1,453 @@
-# Geoflix — Project Handoff
+# Eromify — Engineering Handoff
 
-> A node-based AI creative canvas (Picsart-Workflows clone) with a marketing landing page, deployed at **geoflix.online**, plus a Claude MCP connector that renders generated media **inline in claude.ai chat**. This doc lets a new Claude instance continue with full context.
-
-Last updated: **2026-06-23.** Supersedes the 2026-06-22 version. The biggest change since then: **the inline-media-in-Claude problem is SOLVED** (was the #1 open item), plus a full marketing landing page, Clerk auth, a light theme, and an Assistant "director" mode.
+This document is the complete memory transfer for the **Eromify** project. A developer (or a fresh AI session) should be able to read this and continue building with zero prior context. Everything below reflects the actual code in the repository.
 
 ---
 
-## 1. What it is & current state
+## Overview
 
-A web app with two halves:
-1. **Marketing landing page** at `/` (geoflix.online) — viewmax.io-style. Hero, tool-card grid (with demo videos), features section, Claude-MCP 3-step guide, FAQ, CTA, footer, and an auto-scrolling video marquee.
-2. **The app** at `/app` (dashboard) + `/w/[id]` (node editor) — build node workflows (Image/Video/Text/Audio), connect them, generate real AI media, an AI Assistant side panel, and a Library gallery.
+**Eromify** (eromify.pro) is an AI-influencer content platform — a node-based canvas plus standalone studios for generating images, video, motion-controlled video, and upscaled media, all powered by AI models. The UI mimics Higgsfield.ai patterns. A reusable "@influencer" character system lets you summon a saved AI character (by face/likeness reference) into any generation.
 
-Plus an **MCP server** (`/api/mcp`) so Claude (claude.ai connector / Desktop) can generate media — and it now **renders inline in chat** via an MCP-Apps widget.
-
-**User:** Indian locale, GitHub `supersexie`, email `rishavvashisht347@gmail.com`. Vercel **Hobby** plan, **no card added** (so Vercel will never bill — it throttles/pauses instead). Real costs are **fal.ai + OpenAI + ElevenLabs** (their own accounts). Prefers fast, verified-against-reality work; dislikes guessing.
-
----
-
-## 2. Architecture & stack
-
-- **Next.js 15.5.x** (App Router), **React 19**.
-- **Canvas:** `@xyflow/react` (React Flow v12).
-- **Hosting:** Vercel (Hobby → **60s serverless function cap**). Auto-deploys on push to `main` (~90s).
-- **Repo:** GitHub `supersexie/workflow-canvas`.
-- **Domain:** `geoflix.online` (Hostinger DNS: A `@`→`76.76.21.21`, CNAME `www`→`cname.vercel-dns.com`). Use **`https://www.geoflix.online`**.
-- **Persistence:** browser **localStorage** for workflows (key `wfc:workflows:v1`) + **Vercel Blob** for a server-side generations index (so MCP-generated media show in the Library). No SQL DB.
-- **Auth:** **Clerk** (currently **DEV keys**). Gates `/app` + `/w`; landing + auth pages public.
-- **`.npmrc`** has `legacy-peer-deps=true` (required — ext-apps SDK ^1.7 vs mcp-handler pinning).
-
-### Env vars (Vercel → Settings → Environment Variables)
-| Var | Used for |
+| Aspect | Detail |
 |---|---|
-| `OPENAI_API_KEY` | text (`gpt-4o`/`gpt-4o-mini`), audio fallback (`tts-1`) |
-| `FAL_KEY` | images (FLUX/Seedream/Nano Banana) + video (LTX/Wan/MiniMax/Kling) + ffmpeg compose |
-| `ELEVENLABS_API_KEY` | audio (TTS via ElevenLabs voices) |
-| `GEMINI_API_KEY` | Google Veo video (wired, **billing-blocked**) |
-| `MCP_KEY` | shared secret gating `/api/mcp?key=` |
-| `GEOFLIX_READ_WRITE_TOKEN` | Vercel Blob (generations index). Created with a custom "GEOFLIX" prefix; code accepts any `*_READ_WRITE_TOKEN` or `BLOB_READ_WRITE_TOKEN`. |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` | Clerk auth (dev keys) |
+| **Framework** | Next.js `^15.0.3` (App Router) + React `^19.0.0` / react-dom `^19.0.0` |
+| **Canvas UI** | React Flow (`@xyflow/react ^12.3.5`) |
+| **Auth** | Clerk (`@clerk/nextjs ^7.5.7`) — **scaffolded but disabled** (no keys set); app is fully open |
+| **AI providers** | fal.ai (`@fal-ai/client`) — images/video/upscale/motion; OpenAI — text, GPT image, prompt enhance, vision; ElevenLabs — TTS; Google Gemini/Veo — video |
+| **Persistence** | Vercel Blob (`@vercel/blob ^2.4.1`) server-side; `localStorage` client-side |
+| **MCP** | Open MCP server via `mcp-handler` + `@modelcontextprotocol/ext-apps` (inline media widget) |
+| **Repo** | GitHub `supersexie/eromify-workflow` |
+| **Deploy target** | Vercel (auto-deploys on push, ~1–2 min) |
+| **Canonical domain** | `https://www.eromify.pro` (bare apex 308-redirects to www — see Domain section) |
 
-Everything is **guarded** — if a key is missing the feature degrades gracefully (Clerk no-ops, Blob no-ops, audio falls back to OpenAI, generation falls back to mock).
+A **single `FAL_KEY`** pays for ALL image/video/upscale/motion generation across fal, including the `openai/*` and `bytedance/*` namespaced endpoints hosted on fal.
 
----
+> **Brand split:** the in-app UI says "Eromify"; the marketing/pricing page (`app/pricing/page.js`) and its copy/footers say "Genmax". The MCP connector URL is hardcoded to `eromify.pro`.
 
-## 3. ⭐ Inline media in claude.ai (SOLVED — was the long-running blocker)
-
-**Goal (achieved):** generated images & video render **inline in claude.ai chat** through the MCP connector, like Eromify.
-
-**The mechanism:** an **MCP-Apps UI widget** (`ui://geoflix/media-v3.html`), registered via `registerAppResource`; image/video tools carry `_meta.ui.resourceUri` and return `structuredContent`; the widget runs in a sandboxed iframe and renders the media. claude.ai does **not** inline-render raw image/blob content blocks or markdown from custom connectors — the widget is the only path.
-
-**What was actually broken (the fix):** the hand-written widget sent `ui/initialize` with the *regular* MCP shape `{capabilities, clientInfo}`, but the **MCP-Apps schema requires `{protocolVersion, appInfo, appCapabilities}`**. So the host never completed init → never sent `ui/notifications/tool-result` → widget stayed blank. Found by reading `node_modules/@modelcontextprotocol/ext-apps/dist/src/app.js`.
-
-**How it works now:**
-- **Images:** the tool fetches the fal image, embeds it as a **base64 `data:` URI inside `structuredContent`** (`{kind, url, image}`), and the widget renders it — no cross-origin fetch needed.
-- **Video:** the tool returns the **raw `fal.media` URL** (widget CSP whitelists `*.fal.media`; fal's CDN supports HTTP range, so `<video>` plays). The `/api/media` proxy also got Range/206 passthrough for non-fal (Veo) media.
-- **Sizing:** the widget reports `ui/notifications/size-changed` (height computed from the media's natural aspect ratio, like the official SDK) AND caps media at `max-height:100vh` so there's **never a scrollbar** even if the host ignores resize.
-- **Clean UI:** an animated "Generating…" loader until media arrives (no debug log).
-
-**Files:** `app/api/[transport]/route.js` (MCP server), `geoflix-widget/widget.html` (the ~3.5KB hand-written widget), `geoflix-widget/build.js` (emits `app/api/[transport]/widget-html.js` — **run `node build.js` after editing widget.html**, then push).
-
-**⚠️ Cache gotcha (critical):** the widget HTML is **cached at connector-connect time**. ANY widget change requires the user to **fully remove + re-add** the connector in claude.ai (toggling/regenerating won't refresh it). Server-only changes (what URL/data a tool returns) do NOT need a re-add. Bumping the resource URI (`media.html`→`media-v2`→`media-v3`) is how we force-busted the cache during debugging.
+> **Heritage:** the project is derived from a prior "geoflix" template. `BACKEND.md`, `FRONTEND.md`, and `geoflix-mcp/index.js` are reference/template docs using old `GEOFLIX_*` names and `geoflix.online`. The live code uses `EROMIFY_*` / `eromify.pro`, but the Blob token resolver still **falls back to `GEOFLIX_READ_WRITE_TOKEN`**.
 
 ---
 
-## 4. Routing & auth
+## Quick start
 
-- `/` → **landing page** (`app/page.js`, styles in `app/landing.module.css`).
-- `/app` → **dashboard** (`app/app/page.js` → `components/Dashboard.js`).
-- `/w/[id]` → **editor** (`components/Canvas.js`).
-- `/sign-in`, `/sign-up` → Clerk pages (catch-all routes).
-- **`middleware.js`** protects `/app` + `/w`: signed-out users get redirected to `/sign-in`. Guarded — no-op until Clerk keys exist.
-- Landing CTAs (Sign In / Sign Up / Start Creating / Open App) route into `/app` or the auth pages.
-- **Clerk is on DEV keys** → works on the live domain but shows a dev banner + lower limits. For launch: create a **Production instance** in Clerk, add `geoflix.online` + the CNAME DNS records Clerk provides, swap in `pk_live_`/`sk_live_`, redeploy. Set the **Application name to "Geoflix"** in Clerk settings (that's the name shown on the sign-in card).
-- Sign-out is the Clerk **`<UserButton>`** in the editor topbar + dashboard (`components/UserMenu.js`, guarded).
-
----
-
-## 5. Theme
-
-The whole app + landing use a **light / royal-blue** theme with **SF Pro Display** (self-hosted, Latin-subset woff2 in `public/fonts/`, declared in `globals.css` and `landing.module.css`). CSS variables live at `:root` in `app/globals.css` (`--blue #2563eb`, `--ink #0b1220`, `--bg #f3f6fb`, etc.). The editor was converted from the old dark/purple look to match. Connection edges are black; node connect-handles are a 20px dot that scales ~2.4× into a big "+" on hover.
-
-> **Specificity gotcha:** `@xyflow/react`'s own CSS sometimes loads *after* `globals.css` and overrides plain `.react-flow__*` rules (handles stuck at 6px, edges grey). Scope such rules under `.react-flow .react-flow__…` to win. Bitten twice.
-
----
-
-## 6. Landing page (`app/page.js` + `app/landing.module.css`)
-
-viewmax.io-inspired. Sections: fixed/frosted nav; hero ("The Easiest Way to Make Viral Videos"); auto-scrolling **video marquee** (`SHOWCASE` array: 5 landscape 16:9 + 4 portrait 9:16 clips in `public/marquee/`, looping, each with a red "X.XM Views" pill floating above the tile); "Top Creators Don't Start from Scratch" showcase header; **tools grid** (6 cards: Image/Video/Voiceover/Scriptwriter/Assistant/**Genmax Flow** — each plays a demo video from `public/tools/`); **features** section (canvas screen-recording, card sized to the video's native ratio + blue outline); **Claude MCP** 3-step connect guide (with copy button); FAQ; CTA banner; footer.
-
-> **Marquee pill gotcha:** the view pill must live in a non-clipping wrapper *outside* the tile — the tile has `overflow:hidden` for rounded corners and was clipping the pill. Marketing view counts are fabricated placeholders.
-
----
-
-## 7. Generation backend & flows
-
-### Routes
-- `app/api/generate/route.js` — POST `{kind,prompt,model,images,voice}`. image(fal)/text(OpenAI gpt-4o-mini)/audio(ElevenLabs or OpenAI). Image-to-image when `images` present (fal edit endpoints). Mock fallback if no keys.
-- `app/api/image/start` + `/status` — async fal image queue (start+poll) so slow edit models dodge the 60s cap. `lib/falImage.js` has the endpoint maps.
-- `app/api/video/start` + `/status` — fal queue or Veo. Veo uses `bytesBase64Encoded` image format. **LTX & Wan i2v send an explicit `aspect_ratio`** (else fal 422s on "auto" resolved size). Unknown/missing video model defaults to **fal LTX** (not Veo).
-- `app/api/video/combine/start` + `/status` — **fal `ffmpeg-api/compose`** stitches multiple clips into one (used by director mode).
-- `app/api/audio/voices` — lists ElevenLabs voices (stock + cloned), OpenAI fallback.
-- `app/api/media` — same-origin SSRF-allowlisted proxy with Range/206 support.
-- `app/api/generations` — GET the Blob generations index (`lib/genstore.js`); returns `{items, configured}`.
-- `app/api/assistant` — the AI Assistant brain (see §8).
-
-### Client (`lib/run.js`)
-`generateOutput(kind, prompt, model, images, {voice})`, `generateVideo(...)`, `combineVideos(urls, durations)`. Images/video poll async; text/audio sync.
-
-### Models (`components/PromptBar.js`)
-image = Flux 2 Pro/Max, Nano Banana Pro, Seedream 4.5 · video = LTX/Wan 2.2/MiniMax Hailuo/Kling v2/Veo 3.1 (Fast). Audio has **no model chip** — the **voice** is the choice (fetched live from `/api/audio/voices`). Durations 4–60s. Node cards **reshape to the selected aspect ratio** (`lib/cardSize.js`).
-
-### Connections that mean something
-- **Image → Video** = image-to-video (image seeds the clip).
-- **Text → Video/Image/Audio** = the text becomes the prompt/speech (typed prompt still wins).
-- Source propagation: `sourcesByNode` in `Canvas.js`; the prompt bar shows source thumbnails (video first frame via `#t=0.1`) / a "Prompt from Text" pill.
-
----
-
-## 8. AI Assistant + "Director" mode (`app/api/assistant/route.js` + `components/Assistant.js`)
-
-Model **`gpt-4o`**, JSON output. Classifies intent → creates+runs the right node. Key behaviors:
-- **Adaptive style** — honors a named style; defaults to **photorealistic/cinematic** for real subjects (no more forced "Pixar").
-- **Selected-image awareness** — Canvas passes `hasSelectedImage`; "turn this into a video" seeds from the selected image.
-- **Director mode (multi-scene video):** for long/story prompts it returns a `scenes[]` array + a `character` reference-image prompt. `Canvas.runDirector` then: generates **one reference image** → per scene does an **image-to-image staging edit** seeded from it → **image-to-video** → **stitches all clips** into one via the combine endpoint. Builds the whole node graph live. Model is selectable in the Assistant (LTX/Wan/MiniMax/Kling). Scenes repeat the style+character verbatim for consistency. **Use LTX or Wan** in director mode (Kling/MiniMax i2v unverified).
-- A director run is ~1 + N + N generations + a stitch — **real fal cost & a few minutes.**
-
----
-
-## 9. Audio / TTS
-
-ElevenLabs TTS wired (`eleven_multilingual_v2`), voice picker populated from `/api/audio/voices` (the user's account has ~23 voices incl. premades + a "Peter Griffin" clone). OpenAI `tts-1` fallback (6 voices) if no ElevenLabs key. **Voice cloning UI was built then removed** at the user's request — but cloned voices already in their ElevenLabs account still appear in the dropdown. Audio is **synchronous** via `/api/generate`.
-
----
-
-## 10. Bugs fixed this session (so they don't get re-broken)
-1. **Inline-media blank widget** → wrong `ui/initialize` params (see §3).
-2. **Widget scrollbar** → report size from natural ratio + `max-height:100vh` cap.
-3. **MCP video wouldn't play** → use raw fal URL + Range support in proxy.
-4. **Video defaulted to Veo** when model unset → default to LTX in `runNode` + server.
-5. **LTX/Wan i2v 422** → send explicit `aspect_ratio`.
-6. **Veo i2v 400** → `bytesBase64Encoded` not `inlineData`.
-7. **image-to-image ignored source** → forward `images`, use fal edit endpoints.
-8. **Assistant JSON truncation** → `max_tokens` 250→2000.
-9. **`position:sticky` nav scrolled away** → `.page{overflow-x:hidden}` breaks sticky; switched nav to `position:fixed`.
-10. **Library slow/glitchy** → lazy images, `preload="none"` videos, `content-visibility:auto`.
-11. **Landing couldn't scroll** → `globals.css` locks `body{overflow:hidden}` for the canvas; landing releases it on mount, restores on unmount.
-
----
-
-## 11. Commands & workflow
-- **Deploy:** `git push` (Vercel auto-deploys `main`). Commit author: `-c user.email="rishavvashisht347@gmail.com" -c user.name="supersexie"`.
-- **Rebuild MCP widget after editing `geoflix-widget/widget.html`:** `cd geoflix-widget && node build.js` → regenerates `app/api/[transport]/widget-html.js` → push.
-- **Local dev / verify:** `preview_start` (port 3000). Verify against the built output, not just dev. ⚠️ Never `npm run build` while `next dev` runs (corrupts `.next`; fix: stop dev, `rm -rf .next`, restart).
-- **Test MCP locally:** POST `http://localhost:3000/api/mcp` with `Accept: application/json, text/event-stream`, body `{"jsonrpc":"2.0","id":1,"method":"tools/list"}` (gated only if `MCP_KEY` set; unset locally). Locally `/api/generate` returns mock URLs (no FAL key), which is enough to exercise tool shapes.
-- **Connector URL (claude.ai):** `https://www.geoflix.online/api/mcp?key=<MCP_KEY>`
-- **Screenshot tool is flaky** in this environment — prefer `preview_eval` + DOM/`getComputedStyle` assertions for verification; take screenshots sparingly.
-- **Chrome MCP blocks `localhost` and `geoflix.online`** — can't drive the live site there; verify via `curl` and the local preview.
-
----
-
-## 12. Outstanding / next (priority order)
-1. **Lock down open API routes** — `/api/generate`, `/api/video/*`, `/api/image/*`, `/api/media`, `/api/audio/*` are **unauthenticated**. A leaked URL could burn fal/OpenAI/ElevenLabs credits. Add a secret/Clerk-session gate or rate-limit. (Highest real-money risk.)
-2. **Clerk → production keys + DNS** (removes dev banner/limits, shows "Geoflix" on the sign-in card).
-3. **Library thumbnails** — it still loads full-res fal URLs per tile (lazy now, but heavy). Generate/store small previews (or use fal resize on the URL).
-4. **Persist media durably** — `lib/genstore.js` stores fal *URLs*, which **expire**. Re-host bytes to Blob for permanence.
-5. **Veo** — paid Gemini tier to clear the 429, or drop Veo options.
-6. **Verify Kling/MiniMax image-to-video** `aspect_ratio` handling (only LTX/Wan confirmed).
-
----
-
-## 13. Key files map
-```
-app/
-  page.js                     # LANDING (/), landing.module.css alongside
-  app/page.js                 # Dashboard (/app)
-  w/[id]/page.js              # Editor route → <Canvas>
-  layout.js                   # ClerkProvider (guarded) + SF Pro fonts + xyflow css
-  globals.css                 # app theme (light/blue, CSS vars, all editor styles)
-  landing.module.css          # landing-only styles
-  sign-in|sign-up/[[...]]/page.js
-  api/
-    [transport]/route.js      # MCP server (tools + widget resource)
-    [transport]/widget-html.js# AUTO-GENERATED widget string (don't edit)
-    generate/route.js         # image/text/audio (sync)
-    image/{start,status}      # async fal image queue
-    video/{start,status}      # fal/Veo video
-    video/combine/{start,status} # fal ffmpeg stitch (director)
-    audio/voices/route.js     # ElevenLabs voice list
-    media/route.js            # same-origin media proxy (Range support)
-    generations/route.js      # Blob generations index (GET)
-    assistant/route.js        # Assistant brain (gpt-4o, director mode)
-components/
-  Canvas.js                   # editor: nodes/edges, runNode, runDirector, Assistant wiring
-  nodes/WorkflowNode.js       # node card (per-kind, aspect-aware sizing, text output render)
-  PromptBar.js                # bottom bar: model/aspect/duration/voice, Play
-  Assistant.js                # right-side AI panel (+ video model selector)
-  Library.js                  # gallery modal (lazy + content-visibility)
-  Dashboard.js                # workflow list + name-on-create modal
-  UserMenu.js                 # Clerk UserButton (guarded)
-lib/
-  store.js                    # localStorage CRUD + listGenerations()
-  run.js                      # client generate/combine helpers
-  cardSize.js                 # aspect-ratio → node card dimensions
-  falImage.js                 # fal image endpoint maps
-  genstore.js                 # Vercel Blob generations index
-geoflix-widget/widget.html + build.js   # MCP Apps inline-media widget
-middleware.js                 # Clerk route protection (guarded)
-public/fonts|tools|marquee/   # SF Pro woff2; tool-card & marquee demo videos
-geoflix-mcp/                  # local stdio MCP server (Claude Desktop/Code)
+```bash
+git clone https://github.com/supersexie/eromify-workflow.git
+cd eromify-workflow
+npm install
+npm run dev          # next dev (port 3001 per .claude/launch.json)
 ```
 
+Scripts (`package.json`): `dev` → `next dev`, `build` → `next build`, `start` → `next start`.
+
+**Deploy flow:**
+
+1. Edit code.
+2. `npx next build` — verify it compiles.
+3. `git commit` → `git push`.
+4. Vercel auto-deploys (~1–2 min).
+
+**Preview/dev server:** configured in `.claude/launch.json` (`npm run dev`, **port 3001**, config name `eromify-workflow`).
+
+> ### CRITICAL GOTCHA — do not build against a live dev server
+> Running `npx next build` while a `next dev` preview server is live **corrupts the dev server's `.next` cache** — you get blank pages, stale CSS, or `__webpack_modules__ is not a function`.
+> **Fix:** stop the dev server, delete `.next`, restart. Always stop the dev server before building.
+
 ---
 
-## 14. Memory notes (`~/.claude/.../memory/`)
-- `nextjs-dev-no-minify-verify-built-css` — verify CSS against built/live, not dev; `inset` shorthand dodges minifier.
-- `claude-mcp-inline-video` — historical inline-media findings (now SOLVED via §3; update if revisited).
-- `railway-ffmpeg-no-drawtext`, `clipzo-ranking-oninput-unreliable` — unrelated older projects.
+## Environment variables
+
+Set in the Vercel dashboard. When a key is unset, the relevant route degrades to a mock/placeholder rather than crashing (except `prompt/from-image`, which hard-requires OpenAI).
+
+| Variable | Required? | Purpose |
+|---|---|---|
+| `FAL_KEY` | **Yes** (for any real generation) | fal.ai credentials. Powers ALL image/video/upscale/motion generation. Also used as a **fallback file host** (`fal.storage.upload`) in `genstore.js`. Unset → routes return mock/picsum. |
+| `BLOB_READ_WRITE_TOKEN` | **Yes** (for persistence) | Vercel Blob token. Stores influencers, the generations index, and hosts uploaded media. **The Blob store MUST be PUBLIC** — a private store rejects the public writes the code performs (`access:"public"`). |
+| `OPENAI_API_KEY` | Recommended | Prompt Enhance (`/api/prompt/enhance`), image→prompt vision (`/api/prompt/from-image` — **503 if unset**), text generation, GPT image, assistant, TTS fallback. |
+| `GEMINI_API_KEY` | Optional | Google Veo video models (`veo-3.1-*`), status polling, and the Veo file proxy. |
+| `ELEVENLABS_API_KEY` | Optional | ElevenLabs TTS + voice listing (OpenAI TTS is the alternative path). |
+| `EROMIFY_BASE_URL` | Optional | Overrides the MCP base URL. Defaults to `https://${VERCEL_PROJECT_PRODUCTION_URL}`, then `https://eromify.pro`. |
+| `VERCEL_PROJECT_PRODUCTION_URL` | Auto (Vercel) | Production host; used as MCP base URL fallback. |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | **Not set** | Master on/off switch for auth. **Currently unset → app is fully open, no sign-in.** When set: `ClerkProvider` wraps the app, middleware protects routes, sign-in/up render. |
+| `CLERK_SECRET_KEY` | **Not set** | Clerk server secret; required by `@clerk/nextjs` whenever the publishable key is set. |
+| `GEOFLIX_READ_WRITE_TOKEN` / `*_READ_WRITE_TOKEN` | Optional (legacy/fallback) | Secondary Blob token resolution. The resolver tries `BLOB_READ_WRITE_TOKEN` → `GEOFLIX_READ_WRITE_TOKEN` → any env key ending in `_READ_WRITE_TOKEN`. |
+| `MCP_KEY` | **Not used** | Referenced only in `BACKEND.md`. The live MCP endpoint is intentionally OPEN and does not read it. |
+
+> **Because Clerk is off,** `uid()` resolves to the shared `"public"` bucket everywhere — influencers and per-user data are a single shared store.
+
+---
+
+## Architecture
+
+App root: `C:/Users/91821/eromify-workflow`.
+
+### Pages (`app/**/page.js`)
+
+| Route | File | Purpose |
+|---|---|---|
+| `/` | `app/page.js` | `redirect("/app")` — workflow-first launch; real landing TODO. |
+| `/app` | `app/app/page.js` | `<Dashboard />` — canvas list / home. |
+| `/w/[id]` | `app/w/[id]/page.js` | `<Canvas workflowId={id} />` — node editor. |
+| `/pricing` | `app/pricing/page.js` | Self-contained "Genmax" marketing pricing page. |
+| `/image` | `app/image/page.js` | `<ImagePage />`. |
+| `/video` | `app/video/page.js` | `<VideoPage />` (Create / Edit / Motion sub-tabs via `?sub=`). |
+| `/motion` | `app/motion/page.js` | Legacy redirect → `/video?sub=motion`. |
+| `/upscale` | `app/upscale/page.js` | `<UpscalePage />`. |
+| `/influencers` | `app/influencers/page.js` | `<InfluencersPage />`. |
+| `/mcp` | `app/mcp/page.js` | `<MCPPage />` — connector setup instructions. |
+| `/sign-in/[[...sign-in]]` | `app/sign-in/.../page.js` | Clerk `<SignIn>`; redirects to `/app` if Clerk disabled. |
+| `/sign-up/[[...sign-up]]` | `app/sign-up/.../page.js` | Clerk `<SignUp>`; redirects to `/app` if Clerk disabled. |
+
+### Components (`components/`)
+
+| Component | Used by | Role |
+|---|---|---|
+| `Dashboard.js` | `/app` | Canvas list, create/rename/delete, "New Canvas" modal. |
+| `Canvas.js` | `/w/[id]` | Core React Flow editor: nodes/edges, autosave, 50-step undo/redo, batch runs, **Director mode**, rail, add-node menu, PromptBar, Assistant, Library. |
+| `ImagePage.js` | `/image` | Image studio (Generate / Edit), model+aspect+quality+batch, Enhance, image→prompt, lightbox, `localStorage` gallery. |
+| `VideoPage.js` | `/video` | Create / Edit / Motion sub-tabs. |
+| `UpscalePage.js` | `/upscale` | Image/video upscaler. |
+| `InfluencersPage.js` | `/influencers` | CRUD for AI characters (handle + photo). |
+| `MCPPage.js` | `/mcp` | Static connector/CLI/Skill setup instructions. |
+| `TopBar.js` | all section pages | Brand + centered nav pill + right actions slot. |
+| `Tabs.js` | TopBar / Canvas | Section tab strip (Suspense-wrapped). |
+| `SectionHero.js` | Image/Video/Influencers | Empty-state hero. |
+| `PromptBar.js` | Canvas | Per-node prompt/controls + Generate button. |
+| `MentionField.js` | Image/Video/PromptBar | `@handle` pink-pill overlay + autocomplete. |
+| `Assistant.js` | Canvas | Chat panel → creates/runs nodes or triggers Director mode. |
+| `Library.js` | Canvas | Modal gallery merging local + server generations. |
+| `UserMenu.js` | all TopBars / Canvas | Clerk `<UserButton>`; renders `null` when Clerk off. |
+| `nodes/WorkflowNode.js` | Canvas | Custom React Flow node (`type:"workflow"`). |
+| `PropertiesPanel.js` | **nobody** | Dead/legacy; superseded by `PromptBar`. |
+
+### lib/ (`lib/`)
+
+| File | Role |
+|---|---|
+| `run.js` | Client generation orchestration — POST `/start`, poll `/status`. Exports `generateOutput`, `generateVideo`, `generateMotion`, `generateVideoEdit`, `upscaleMedia`, `combineVideos`. |
+| `genstore.js` | Server-side: `uploadDataUrl` (host media → Blob/fal), `getGenerations` / `addGeneration` (Blob index `generations.json`, max 500), `configured()`. |
+| `influencers.js` | Client influencer store (localStorage `eromify:influencers:v1`) + `syncInfluencers`, `resolveMentions`, `IDENTITY_CLAUSE`, remote save/delete. |
+| `influencerStore.js` | Server-side per-user Blob store at `influencers/<userId>.json`. |
+| `falImage.js` | `FAL_IMAGE_MAP` / `FAL_EDIT_MAP` + `pickImageEndpoint(model, hasImages)`. |
+| `credits.js` | Pure credit-cost estimators (indicative only). |
+| `store.js` | Client workflow store (localStorage `wfc:workflows:v1`) + generation history (`eromify:genHistory:v1`). |
+| `cardSize.js` | Aspect-ratio-driven node sizing (`bodyDims`, `nodeDims`, `aspectRatio`). |
+| `mockRun.js` | `mockOutput(kind, prompt)` + `topoOrder` (Kahn's topological sort). |
+
+### API routes (`app/api/**/route.js`)
+
+| Route | Methods | Purpose |
+|---|---|---|
+| `image/start` | POST | Submit image gen to fal **queue**; returns `{statusUrl, responseUrl}`. |
+| `image/status` | POST | Poll fal; returns `{done, output}`. |
+| `video/start` | POST | 4 branches: edit / motion / fal t2v-i2v / Veo. |
+| `video/status` | POST | Poll fal or Veo. |
+| `video/combine/start` + `/status` | POST | Stitch clips into one video. |
+| `video/file`, `video/check` | GET/POST | Veo file proxy + status. |
+| `upscale/start` + `/status` | POST | Image/video upscale via fal queue. |
+| `generate` | POST | **Synchronous** gen (image/text/audio) — used by MCP + assistant. |
+| `generations` | GET | Read Blob generations index. |
+| `media` | GET | Allowlisted media proxy (`?u=`) for the MCP widget iframe. |
+| `influencers` | GET/POST/DELETE | Per-user influencer CRUD (Blob). |
+| `prompt/enhance` | POST | LLM prompt rewriter (graceful fallback w/o OpenAI). |
+| `prompt/from-image` | POST | Vision reverse-prompt (**503 without OpenAI**). |
+| `audio/voices` | GET | List TTS voices. |
+| `assistant` | POST | Canvas chat assistant. |
+| `[transport]` | GET/POST/DELETE | The MCP server. |
+
+### Infrastructure
+
+- **`middleware.js`** — (1) canonical-host 308 redirect apex→www (skips `/api*`); (2) Clerk route protection (only active when the Clerk key is set). When Clerk is unset, only the host redirect runs. Protected matcher: `/app`, `/w`, `/motion`, `/image`, `/video`, `/upscale`, `/influencers`, `/mcp`.
+- **`app/layout.js`** — root layout; metadata; inline `<head>` apex→www `location.replace` guard; conditional `<ClerkProvider>`.
+- **`next.config.js`** — minimal: `{ reactStrictMode: true }`.
+
+---
+
+## Core systems
+
+### 1. Generation pipeline (start + poll)
+
+The async media routes all follow the same pattern: a `/start` route submits a job to the **fal async queue** (`https://queue.fal.run/<endpoint>`, `Authorization: Key <FAL_KEY>`) and returns `{ statusUrl, responseUrl }`; the matching `/status` route polls it. Client orchestration lives in `lib/run.js` (POST `/start`, then poll `/status` on an interval until `done`, with a wall-clock deadline).
+
+| Operation | start route | client fn (`run.js`) | deadline / poll |
+|---|---|---|---|
+| Image | `image/start` | `generateImage` (internal) | 5 min / 3s |
+| Video | `video/start` | `generateVideo` | 5 min / 6s |
+| Video edit | `video/start` (`kind:"edit"`) | `generateVideoEdit` | 15 min / 6s |
+| Motion | `video/start` (`kind:"motion"`) | `generateMotion` | 15 min / 6s |
+| Upscale | `upscale/start` | `upscaleMedia` | 15 min / 6s video, 3s image |
+| Combine | `video/combine/start` | `combineVideos` | 4 min / 4s |
+
+> **Note:** `app/api/generate/route.js` is the **synchronous** path (calls `https://fal.run/<endpoint>` directly, not the queue). It's used by the MCP and the canvas assistant for image/text/audio.
+
+**Status error handling (critical invariant):** every `/status` route treats **only `IN_QUEUE` / `IN_PROGRESS` as "keep polling"** (`{done:false}`). Any other non-`COMPLETED` state (e.g. `ERROR`, `FAILED`, OpenAI moderation rejections) **throws (500)** and surfaces as an error. Without this, fal failures look like silent timeouts. On `COMPLETED`, the route GETs the `responseUrl` and extracts the output URL:
+- image: `result.images[0].url || result.image.url`
+- video: `result.video.url || result.videos[0].url`
+- upscale: `result.image.url || result.images[0].url || result.video.url || result.output.url`
+
+`lib/run.js`'s internal `safeJson()` detects Vercel timeout HTML pages (`FUNCTION_INVOCATION_TIMEOUT`) and converts them into clean error messages suggesting a cheaper model.
+
+**Media hosting — `lib/genstore.js` `uploadDataUrl(dataUrl, prefix)`:** fal endpoints reject `data:` URIs for `video_url` / strict `image_url` fields, so any base64 media must be hosted to a real URL first.
+- Pass-through if already `http(s)` or not a data URI.
+- **Strategy 1 (preferred, permanent):** Vercel Blob `put` (`access:"public"`, `addRandomSuffix:false`). Chosen because **fal storage URLs EXPIRE**.
+- **Strategy 2 (fallback):** `fal.storage.upload` (only if `FAL_KEY` set).
+- Throws if neither host is configured (a Blob failure only rethrows when there's no fal fallback).
+
+### 2. Models & fal endpoints
+
+All endpoints dispatch against `https://queue.fal.run/{endpoint}` (Veo → Google instead). A single `FAL_KEY` covers all of them, including `openai/*` and `bytedance/*` namespaces.
+
+#### Image — text-to-image (`FAL_IMAGE_MAP`, `lib/falImage.js`)
+
+| Model label | fal endpoint |
+|---|---|
+| Flux 2 Pro | `fal-ai/flux-2-pro` |
+| Flux 2 Max | `fal-ai/flux-2-max` |
+| Nano Banana Pro | `fal-ai/nano-banana-pro` |
+| Seedream 4.5 | `fal-ai/bytedance/seedream/v4.5/text-to-image` |
+| GPT Image 2 | `openai/gpt-image-2` |
+| GPT Image 1 | `fal-ai/gpt-image-1/text-to-image` |
+
+#### Image — edit / image-to-image (`FAL_EDIT_MAP`) — takes `prompt` + `image_urls`
+
+| Model label | fal edit endpoint |
+|---|---|
+| Flux 2 Pro | `fal-ai/flux-2-pro/edit` |
+| Flux 2 Max | `fal-ai/flux-2-max/edit` |
+| Nano Banana Pro | `fal-ai/nano-banana-pro/edit` |
+| Seedream 4.5 | `fal-ai/bytedance/seedream/v4.5/edit` |
+| GPT Image 2 | `openai/gpt-image-2/edit` |
+| GPT Image 1 | `fal-ai/gpt-image-1/edit-image` |
+
+`pickImageEndpoint(model, hasImages)`: edit if `hasImages` (fallback `fal-ai/nano-banana-pro/edit`), else t2i (fallback `fal-ai/flux-2-pro`).
+
+**Aspect/size snapping (`image/start`):** Flux 2 Pro/Max + GPT Image 2 → `image_size` **preset enum** (`square_hd`, `portrait_*`, `landscape_*`); Nano Banana Pro → `aspect_ratio` string; everything else → custom `{width,height}` snapped to multiples of 64 (max edge 1024/2048/4096 by quality 1K/2K/4K).
+
+#### Video — Create (`FAL_MODELS`, `app/api/video/start/route.js`) — `i2v` used when a start `image` is present
+
+| Model label | text-to-video | image-to-video | `ar` flag |
+|---|---|---|---|
+| Kling 3.0 | `fal-ai/kling-video/v3/pro/text-to-video` | `fal-ai/kling-video/v3/pro/image-to-video` | — |
+| Kling 2.6 | `fal-ai/kling-video/v2.6/pro/text-to-video` | `fal-ai/kling-video/v2.6/pro/image-to-video` | — |
+| Kling 2.5 Turbo | `fal-ai/kling-video/v2.5-turbo/pro/text-to-video` | `fal-ai/kling-video/v2.5-turbo/pro/image-to-video` | — |
+| Kling v2 | `fal-ai/kling-video/v2/master/text-to-video` | `fal-ai/kling-video/v2/master/image-to-video` | — |
+| Seedance 2.0 | `bytedance/seedance-2.0/text-to-video` | `bytedance/seedance-2.0/image-to-video` | — |
+| Seedance 2.0 Fast | `bytedance/seedance-2.0/fast/text-to-video` | `bytedance/seedance-2.0/fast/image-to-video` | — |
+| Wan 2.7 | `fal-ai/wan/v2.7/text-to-video` | `fal-ai/wan/v2.7/image-to-video` | — |
+| Wan 2.2 | `fal-ai/wan/v2.2-a14b/text-to-video` | `fal-ai/wan/v2.2-a14b/image-to-video` | **true** |
+| MiniMax Hailuo 2.3 | `fal-ai/minimax/hailuo-2.3/pro/text-to-video` | `fal-ai/minimax/hailuo-2.3/pro/image-to-video` | — |
+| MiniMax Hailuo | `fal-ai/minimax/hailuo-02/standard/text-to-video` | `fal-ai/minimax/hailuo-02/standard/image-to-video` | — |
+| PixVerse v6 | `fal-ai/pixverse/v6/text-to-video` | `fal-ai/pixverse/v6/image-to-video` | — |
+| Sora 2 | `fal-ai/sora-2/text-to-video` | `fal-ai/sora-2/image-to-video` | — |
+| LTX Video | `fal-ai/ltx-video` | `fal-ai/ltx-video/image-to-video` | **true** |
+
+`ar:true` endpoints (Wan 2.2, LTX) get an explicit `aspect_ratio` (the endpoint 422s on "auto"). fal fallback for unknown models → **LTX Video**.
+
+#### Video — Google Veo (`VEO_MODELS`) — routed to Google, NOT fal
+
+| Model label | Veo model id |
+|---|---|
+| Veo 3.1 Fast | `veo-3.1-fast-generate-preview` |
+| Veo 3.1 | `veo-3.1-generate-preview` |
+
+Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/{modelId}:predictLongRunning` with `x-goog-api-key: <GEMINI_API_KEY>`. Veo fallback: `veo-3.1-fast-generate-preview`. Output video is wrapped as `/api/video/file?uri=...`.
+
+#### Motion Control (`FAL_MOTION_MODELS`) — `{image_url, video_url, prompt?}`; Kling endpoints also set `character_orientation:"video"`
+
+| Model label | fal endpoint |
+|---|---|
+| Kling 3.0 Motion Control | `fal-ai/kling-video/v3/pro/motion-control` |
+| Kling 3.0 Motion Control Std | `fal-ai/kling-video/v3/standard/motion-control` |
+| Kling Motion Control Pro | `fal-ai/kling-video/v2.6/pro/motion-control` |
+| Kling Motion Control Std | `fal-ai/kling-video/v2.6/standard/motion-control` |
+| Wan Motion | `fal-ai/wan-motion` |
+| Wan 2.2 Animate Move | `fal-ai/wan/v2.2-14b/animate/move` |
+| Wan 2.2 Animate Replace | `fal-ai/wan/v2.2-14b/animate/replace` |
+
+Motion fallback: `Kling Motion Control Pro`.
+
+#### Video Edit (`FAL_EDIT_MODELS`) — `{video_url, prompt, image_urls?(≤4)}`
+
+| Model label (UI) | fal endpoint |
+|---|---|
+| Kling O1 Video Edit | `fal-ai/kling-video/o1/video-to-video/edit` |
+| Kling O3 Omni Edit | `fal-ai/kling-video/o1/video-to-video/edit` *(same as O1 — placeholder/dup)* |
+| Kling Motion Control | `fal-ai/kling-video/v2.6/pro/motion-control` |
+
+Edit fallback: `Kling O1 Video Edit`.
+
+#### Upscale (`app/api/upscale/start/route.js`)
+
+| Model label | fal endpoint | factor param |
+|---|---|---|
+| Clarity Upscaler (image) | `fal-ai/clarity-upscaler` | `upscale_factor` |
+| Topaz Image | `fal-ai/topaz/upscale/image` | `upscale_factor` |
+| ESRGAN | `fal-ai/esrgan` | `scale` |
+| AuraSR (4x) | `fal-ai/aura-sr` | none (fixed 4×) |
+| Topaz Video | `fal-ai/topaz/upscale/video` | `upscale_factor` |
+| SeedVR2 | `fal-ai/seedvr/upscale/video` | `upscale_factor` |
+
+Fallbacks: image → `Clarity Upscaler`, video → `Topaz Video`.
+
+> **Two model catalogs exist and are maintained independently:** the **fal endpoint maps** (routing, above) and the **`credits.js` price tables** (cost, below). They do not fully overlap.
+
+### 3. Influencers & @mention
+
+An influencer/character = `{ id, handle, name, description, image, ts }` (image = downscaled ~1024px JPEG likeness reference). The UI form collects only a `user_name` (handle) + one photo; `name == handle`.
+
+**Two parallel persistence layers:**
+- **Server (durable source of truth):** `lib/influencerStore.js` → Vercel Blob at `influencers/<userId>.json`. With Clerk off, `userId` is always `"public"` → a single shared bucket. Backed by `app/api/influencers` (GET/POST/DELETE).
+- **Client cache + offline fallback:** `lib/influencers.js` → localStorage `eromify:influencers:v1`. This is the fast cache `resolveMentions` reads during generation.
+
+**`syncInfluencers()`** reconciles the two (SSR-safe), with a 4s failsafe timeout in `InfluencersPage.js`:
+- Server has non-empty `items` → **server wins**, overwrite local cache.
+- Server empty but local has entries → **migrate up** (`POST {seed: local}`), recovering characters created before the server store existed.
+- Error / no data → fall back to `listInfluencers()`.
+
+**`resolveMentions(text)`** regex-replaces `@([a-z0-9_]+)` (case-insensitive): unknown handles left untouched; known handles swapped for the character's natural-language `name`; returns `{ prompt, characters }` (each carries its hosted `image` reference, deduped by `id`). The matched character's image is sent to the model's **edit** endpoint (image-to-image) for images, or as the **start frame** for video.
+
+**`IDENTITY_CLAUSE`** (appended whenever a reference image is attached), verbatim:
+> "Use the person shown in the reference image as the exact subject — keep their exact face, facial features, and hair identical to the reference; do not invent a different person."
+
+This is needed because Nano Banana Pro (Gemini) renders a generic stranger otherwise; it's harmless reinforcement for other edit models.
+
+`@mention` works in: Image page, Video (create), Canvas nodes, and the MCP. UI rendering of `@handle` pills lives in `components/MentionField.js` (overlay technique + autocomplete dropdown).
+
+> **Per-origin localStorage caveat:** localStorage is PER-ORIGIN. The www/non-www domain split caused influencers to "disappear" repeatedly — always use `www.eromify.pro`. (The server Blob store and the canonical redirect both exist to mitigate this.)
+
+### 4. Canvas (`components/Canvas.js`)
+
+The node-based editor on `/w/[id]`, built on React Flow (`@xyflow/react`), wrapped in `<ReactFlowProvider>`.
+
+- Loads/saves the workflow via `lib/store` (`wfc:workflows:v1`), with **debounced autosave** and **50-step undo/redo** (Ctrl/Cmd+Z / +Y).
+- Manages nodes/edges; upstream output propagates to downstream `sourceThumb`; drop-to-create connected nodes (type picker).
+- **Batch runs:** 1–4 clones in parallel.
+- **Director mode** (`runDirector`): reference image → per-scene image-to-image → image-to-video → stitched `combineVideos`.
+- Custom node `nodes/WorkflowNode.js` (`type:"workflow"`): per-kind header/preview (image/video/text/audio/motion), upload affordance, source-thumb tile from upstream, running/error states, left target + right source handles; sized via `lib/cardSize`.
+- **`PromptBar.js`** is the per-selected-node controls bar: model lists (image/video/text/motion), aspect/quality chips, video duration/audio chips, voice picker (`/api/audio/voices`, cached), batch stepper (1–4), prompt Enhance (selectable+persisted model), reference-image→prompt, `MentionField`, live credit estimate, Generate button.
+- **`Assistant.js`** posts to `/api/assistant` → creates+optionally-auto-runs a single node, or triggers Director mode (≥2 scenes → parallel generate + stitch). Has an auto-run toggle + director video-model select.
+- **`Library.js`** merges local `listGenerations()` with server `/api/generations` (e.g. MCP-created items), deduped by URL, with cross-origin blob download fallback.
+- Generations run via `lib/run` and `@mentions` resolve via `lib/influencers`.
+
+### 5. Prompt Enhance (`app/api/prompt/enhance/route.js`)
+
+LLM prompt-rewriter. Picks one of four system prompts: `kind` (image/video) × `hasSourceImage`. The **FROM_SOURCE** variants avoid injecting the Eromify house-style realism template when a source image already locks identity/scene (i.e. identity lock takes precedence over house style). Model allowlist: `{gpt-4.1-mini, gpt-4.1, gpt-4o, gpt-4o-mini, gpt-5.5, gpt-5.5-pro}`, default `gpt-4.1-mini`; `max_tokens:400, temperature:0.7`; strips surrounding quotes. The enhance model is selectable in the UI and persisted.
+
+Without `OPENAI_API_KEY`: graceful fallback (no 503) — returns `{ prompt: hasSourceImage ? input : "<input>, <HOUSE_STYLE>", fallback:true }`.
+
+**`prompt/from-image`** (reverse-prompt/vision) is stricter: it **hard-requires `OPENAI_API_KEY` (503 if unset)**, default `gpt-4o-mini`, sends `{type:"image_url", detail:"low"}`. Two system prompts (image vs. video starting-frame description).
+
+### 6. Credits estimator (`lib/credits.js`)
+
+**Indicative cost only — there is NO real billing/credit system.** All estimators are pure (UI recomputes live on every settings change) and floor at 1. `QUALITY_MULT = {1K:1, 2K:2, 4K:4}`.
+
+| Export | Formula |
+|---|---|
+| `imageCredits({model,quality,batch,edit})` | `round(IMAGE_BASE[model]??2 × QUALITY_MULT) + (edit?1:0)`, `× batch` |
+| `videoCredits({model,duration,quality})` | `round(VIDEO_BASE[model]??6 × (secs/4) × q)`, `q=1.5` for 1080p |
+| `motionCredits({model,quality})` | `round(MOTION_BASE[model]??8 × (1080p?1.5:1))` |
+| `editCredits({model,quality})` | `round(EDIT_BASE[model]??8 × (1080p?1.5:1))` |
+| `upscaleCredits({kind,model,scale})` | `f=2` if `≥4x` else 1; video `VID_UPSCALE_BASE??6`, image `IMG_UPSCALE_BASE??2`, `× f` |
+
+Base tables (credit cost, NOT fal endpoints): e.g. `IMAGE_BASE` Flux 2 Pro 2 / Flux 2 Max 3 / GPT Image 2 3; `VIDEO_BASE` Sora 2 12 / LTX Video 3 / Veo 3.1 12; `MOTION_BASE` Kling 3.0 Motion Control 10; `EDIT_BASE` Kling O3 Omni Edit 10; upscalers Topaz Video 8 / ESRGAN 1.
+
+### 7. MCP connector
+
+Endpoint: **`https://eromify.pro/api/mcp`** (served by `app/api/[transport]/route.js` via `createMcpHandler`, `basePath:"/api"`, `maxDuration=60`). Bound to `GET`/`POST`/`DELETE`.
+
+> **Intentionally OPEN — no auth.** claude.ai treats any `401` from an MCP connector as an OAuth challenge and attempts dynamic client registration (which this server doesn't implement), failing with "couldn't register with sign-in service". A `?key=` gate broke the connection and was removed.
+
+**Base URL resolution:** `EROMIFY_BASE_URL` → `https://${VERCEL_PROJECT_PRODUCTION_URL}` → `https://eromify.pro`. MCP tools call the app's own `/api/*` routes via `postJson`, record results via `addGeneration`, and read influencers from the shared `getInfluencers("public")` bucket.
+
+**Tools:**
+
+| Tool | Type | Inline? | Inputs |
+|---|---|---|---|
+| `generate_image` | app tool | yes | `prompt` (req), `model?` (Flux 2 Pro/Max, Nano Banana Pro, Seedream 4.5, GPT Image 2/1) |
+| `generate_video` | app tool | yes | `prompt` (req), `model?` (15 video models; default **LTX Video**), `image_url?`, `aspect?` (16:9\|9:16), `resolution?` (720p\|1080p), `duration?` |
+| `check_video` | app tool | yes | `handle` (JSON string from `generate_video`) |
+| `generate_text` | plain | no | `prompt` (req) |
+| `generate_audio` | plain | no (native audio) | `prompt` (req) |
+| `list_influencers` | plain | no | none |
+
+- `generate_image`: resolves `@handle` → if an influencer image matched, routes through `/api/image/start` (edit + `IDENTITY_CLAUSE`), polls `/api/image/status` (≤55s); else `/api/generate`. Embeds the result as a base64 `data:` URI in `structuredContent:{kind:"image", url:proxied(url), image:<dataURI>}`. OpenAI base64 outputs return a native `{type:"image", data, mimeType}` block.
+- `generate_video`: resolves `@handle` → influencer photo becomes the start frame + identity lock. Default model **LTX Video**. Polls `pollVideo` (≤45s). If not done, returns the JSON `handle` for `check_video` (which polls ≤50s).
+- **Inline media widget** (`app/api/[transport]/widget-html.js`, resource `ui://eromify/media-v1.html`): a tiny hand-written self-contained HTML/JS doc (auto-generated by `geoflix-widget/build.js`). It does the MCP-Apps handshake (`ui/initialize` with `protocolVersion:'2026-01-26'`, `appInfo`, `appCapabilities:{availableDisplayModes:['inline']}`, then `ui/notifications/initialized`), runs `findMedia()` recursively (depth ≤10) over inbound messages — embedded base64 `image` wins, then `url` — and renders an `<img>` (base64) or `<video>` (autoplay/loop/muted/controls), reporting iframe size back via `ui/notifications/size-changed`.
+- **Video URL strategy:** raw `*.fal.media` / `*.fal.run` URLs are passed through directly (the fal CDN supports HTTP **range requests**, so `<video>` can seek/stream); non-fal URLs go through `proxied()`. (The MEMORY note confirms the tiny hand-written widget works inline; the full ext-apps SDK bundle renders blank, and embedded video/mp4 blobs / bare .mp4 URLs don't play.)
+- **CSP `resourceDomains`:** `[BASE, "https://*.fal.media", "https://*.googleapis.com"]`. (Note: `*.fal.run` is used in the pass-through regex but NOT in this allowlist.)
+- The **`/api/media` proxy** (`app/api/media/route.js`) is the security boundary for what the widget iframe can load: host allowlist (`*.fal.media`, `*.fal.run`, `*.googleapis.com`, `storage.googleapis.com`, `*.eromify.com`, `generativelanguage.googleapis.com`), forwards `Range` for streaming, else **403**.
+
+> **claude.ai CACHES the widget + tool list at connect time.** Changing tools or the widget HTML requires **removing and re-adding the connector** in Claude.
+
+---
+
+## Domain & data persistence
+
+- **`www.eromify.pro` is canonical.** The bare apex `eromify.pro` 308-redirects to www via `middleware.js` (pages) **plus** an inline `<script>` `location.replace` guard in `app/layout.js`. The redirect **skips `/api*`** so the MCP connector URL and same-origin `/api` calls keep working (and to avoid a CORS split that made influencers appear empty).
+- **Vercel Blob store must be PUBLIC** — the code writes with `access:"public"`; a private store rejects these writes. Used for: `influencers/<userId>.json`, the `generations.json` index, and hosting uploaded media (permanent, vs expiring fal URLs).
+- **Per-user "public" bucket:** with Clerk off, `uid()` → `"public"` everywhere (web API and MCP). All influencer/data reads/writes share this one bucket.
+- **Client persistence:** image/video/upscale galleries in `localStorage` (`eromify:imageHistory:v1`, `eromify:videoHistory:v1`, `eromify:upscaleHistory:v1`); workflows in `wfc:workflows:v1`; generation history in `eromify:genHistory:v1` (`MAX_GENS=500`); influencer cache in `eromify:influencers:v1`.
+
+---
+
+## Known issues & TODOs
+
+| Item | Status |
+|---|---|
+| **Per-user MCP auth via OAuth (Clerk)** | Deferred. User chose per-user, but currently the MCP is open + shared `"public"` bucket. Comment in route: "will be added before public launch." |
+| **Real credit/billing system** | TODO. `lib/credits.js` is fake/indicative numbers only. |
+| **"brooke" influencer photo expired** | Its original fal URL 404'd before re-host; needs a fresh upload. (`ash`/`katrina`/`ellie` were re-hosted to permanent Blob URLs.) |
+| **Clerk sign-in not enabled** | Scaffolded (middleware, `ClerkProvider`, sign-in/up pages) but keys unset → app is open. |
+| **Real landing page** | `/` redirects to `/app`. The pricing nav anchors (`/#tools`, `/#features`, `/#mcp`, `/#faq`) point at a landing page that doesn't exist yet. |
+| **`PropertiesPanel.js`** | Dead/legacy component, no importer; superseded by `PromptBar`. |
+| **Kling O3 Omni Edit** | Maps to the same endpoint as Kling O1 Video Edit — placeholder/duplicate. |
+| **`*.fal.run` CSP gap** | Used in the video pass-through regex but not listed in widget `resourceDomains`. |
+
+---
+
+## Gotchas / hard-won lessons
+
+| Lesson | Detail |
+|---|---|
+| **fal storage URLs expire** | This is why influencer photos vanished. `uploadDataUrl` prefers permanent Vercel Blob; fal storage is fallback only. |
+| **www/non-www localStorage split** | localStorage is per-origin; the domain split made influencers "disappear". Always use `www.eromify.pro`; the canonical redirect + server Blob store mitigate it. |
+| **401 → OAuth in MCP** | Any 401 makes claude.ai attempt dynamic client registration and fail. The MCP endpoint MUST stay open (no auth gate, no `?key=`). |
+| **Flux 2 needs `/edit`** | The base Flux endpoint **ignores `image_urls`** — references silently don't apply. Must use the dedicated `/edit` endpoint for image-to-image. |
+| **GPT Image 2 preset enum** | Must use the `image_size` preset enum (`square_hd`, etc.); custom dims return a **422**. |
+| **Status non-COMPLETED handling** | Only `IN_QUEUE`/`IN_PROGRESS` mean "keep polling"; any other non-`COMPLETED` state must throw, or fal failures (e.g. OpenAI moderation) look like silent timeouts. |
+| **Dev-build cache corruption** | Running `npx next build` against a live `next dev` server corrupts `.next` (blank pages / stale CSS / `__webpack_modules__ is not a function`). Stop dev, delete `.next`, restart. |
+| **MCP widget/tool caching** | claude.ai caches the widget HTML + tool list at connect time. To ship changes, remove and re-add the connector. |
+| **Tiny widget only** | The hand-written ~1.6KB `ui://` widget renders video inline; the 376KB ext-apps SDK bundle renders blank. Embedded video/mp4 blobs and bare `.mp4` URLs don't play — use raw `*.fal.media` URLs (range requests). |
+| **Railway ffmpeg** | (prior-project memory) ffmpeg has no `drawtext` on Railway — burn text via ASS/libass; `acopy` is gone in ffmpeg 7.x (use `anull`). Relevant if video combine ever moves off fal. |
+| **`prompt/from-image` 503** | Unlike `prompt/enhance`, it hard-requires `OPENAI_API_KEY`. |
+
+---
+
+## Where to look ("if you want to change X, edit Y")
+
+| Want to change… | Edit… |
+|---|---|
+| Image model list / fal endpoints | `lib/falImage.js` (maps) + `components/ImagePage.js` (UI catalog) |
+| Image size/aspect snapping | `app/api/image/start/route.js` |
+| Video / motion / edit model endpoints | `app/api/video/start/route.js` (`FAL_MODELS`, `FAL_MOTION_MODELS`, `FAL_EDIT_MODELS`, `VEO_MODELS`) + `components/VideoPage.js` |
+| Upscale models | `app/api/upscale/start/route.js` + `components/UpscalePage.js` |
+| Poll deadlines / intervals / error parsing | `lib/run.js` |
+| Status output extraction / polling invariant | `app/api/{image,video,upscale}/status/route.js` |
+| Media hosting (Blob vs fal) | `lib/genstore.js` (`uploadDataUrl`) |
+| Influencer @mention resolution / IDENTITY_CLAUSE | `lib/influencers.js` |
+| Influencer server storage | `lib/influencerStore.js` + `app/api/influencers/route.js` |
+| Prompt enhance behavior / house style / model allowlist | `app/api/prompt/enhance/route.js` |
+| Image→prompt vision | `app/api/prompt/from-image/route.js` |
+| Credit prices | `lib/credits.js` |
+| Canvas editor / Director mode / undo-redo | `components/Canvas.js` |
+| Per-node controls / Generate button | `components/PromptBar.js` |
+| Node rendering / sizing | `components/nodes/WorkflowNode.js` + `lib/cardSize.js` |
+| @mention input UI | `components/MentionField.js` |
+| Workflow / generation-history storage | `lib/store.js` |
+| MCP tools / inline rendering | `app/api/[transport]/route.js` |
+| MCP widget HTML | `app/api/[transport]/widget-html.js` (auto-generated by `geoflix-widget/build.js` — don't hand-edit) |
+| Media proxy allowlist | `app/api/media/route.js` |
+| Canonical redirect / auth gate | `middleware.js` (+ `app/layout.js` inline guard) |
+| Enable Clerk auth | Set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` (then `middleware.js`, `layout.js`, `UserMenu.js` activate) |
+| Section nav tabs | `components/Tabs.js` |
+| MCP/CLI setup page | `components/MCPPage.js` |
+| Pricing / marketing ("Genmax") | `app/pricing/page.js` |

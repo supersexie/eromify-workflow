@@ -25,6 +25,38 @@ function saveHistory(arr) {
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0, MAX_HISTORY))); } catch {}
 }
 
+// In-flight jobs persisted so you can navigate away from /image (or refresh)
+// and the placeholder card + polling pick back up when you return.
+const PENDING_KEY = "eromify:imagePending:v1";
+function loadPending() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(PENDING_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(arr)) return [];
+    // Drop entries older than 10 min — fal cleans up handles around then.
+    const cutoff = Date.now() - 10 * 60 * 1000;
+    return arr.filter((p) => p && p.statusUrl && (p.ts || 0) > cutoff);
+  } catch { return []; }
+}
+function savePending(arr) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(arr)); } catch {}
+}
+
+// Fire-and-forget: record a finished generation in the server-side index so
+// it shows up across origins/devices, not just on whoever's localStorage.
+function recordGeneration(url, prompt) {
+  if (!url) return;
+  try {
+    fetch("/api/generations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, kind: "image", prompt: prompt || "" }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+}
+
 // Force-download an image as a file (works across origins via blob fetch).
 async function downloadImage(url, filename) {
   try {
@@ -155,13 +187,37 @@ export default function ImagePage() {
   const [batch, setBatch] = useState(1);
   const [openMenu, setOpenMenu] = useState(null);
   const [search, setSearch] = useState("");
-  const [running, setRunning] = useState(false);
+  const [pending, setPending] = useState([]); // in-flight jobs (placeholder cards)
   const [results, setResults] = useState([]);
   const [loaded, setLoaded] = useState(false);
+
+  // Single-source-of-truth setter that also persists, so pending cards survive
+  // navigation away from /image and a refresh.
+  const updatePending = (updater) => {
+    setPending((cur) => {
+      const next = typeof updater === "function" ? updater(cur) : updater;
+      savePending(next);
+      return next;
+    });
+  };
   // Load saved history on mount so generations survive refresh/navigation.
+  // Also merge in the server-side index so images show up across origins
+  // (apex vs www), devices, and browsers — not just whoever's localStorage.
   useEffect(() => {
-    setResults(loadHistory());
+    const local = loadHistory();
+    setResults(local);
     setLoaded(true);
+    fetch("/api/generations").then(r => r.ok ? r.json() : null).then((j) => {
+      const server = (j?.items || []).filter((g) => (g.kind || "image") === "image" && g.url);
+      if (!server.length) return;
+      setResults((cur) => {
+        const seen = new Set(cur.map((r) => r.url));
+        const extra = server.filter((g) => !seen.has(g.url)).map((g) => ({
+          url: g.url, prompt: g.prompt || "", model: g.model || "", aspect: g.aspect || "", quality: g.quality || "", ts: g.ts || 0,
+        }));
+        return [...cur, ...extra].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      });
+    }).catch(() => {});
   }, []);
   // Persist to localStorage only AFTER the initial load. Without this guard
   // the save effect fires once with the initial [] and wipes the saved data
@@ -201,7 +257,7 @@ export default function ImagePage() {
     try {
       // In edit mode the uploaded image locks the subject, so the API uses its
       // "describe only the change" prompt instead of the house style.
-      const hasSourceImage = mode === "edit" && !!editSource;
+      const hasSourceImage = (mode === "edit" || mode === "swap") && !!editSource;
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -223,7 +279,13 @@ export default function ImagePage() {
   };
 
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
-  const canRun = !running && !!prompt.trim() && (mode === "generate" || !!editSource);
+  // Face Swap requires a source image + exactly one @influencer; the prompt is
+  // optional (a baked-in template does the heavy lifting).
+  const canRun = pending.length === 0 && (
+    mode === "generate" ? !!prompt.trim() :
+    mode === "edit"     ? (!!prompt.trim() && !!editSource) :
+    /* swap */            (!!editSource && mentioned.length === 1)
+  );
   const currentModel = ALL_MODELS.find((m) => m.id === model);
 
   const filteredFeatured = MODELS.featured.filter((m) =>
@@ -233,66 +295,110 @@ export default function ImagePage() {
     !search || m.id.toLowerCase().includes(search.toLowerCase()) || m.desc.toLowerCase().includes(search.toLowerCase())
   );
 
-  const generate = async () => {
-    if (!canRun) return;
-    setRunning(true);
-    setError(null);
-    try {
-      const jobs = Array.from({ length: batch }, () => runOne());
-      const settled = await Promise.allSettled(jobs);
-      const fails = settled.filter((s) => s.status === "rejected");
-      if (fails.length && fails.length === settled.length) {
-        setError(fails[0].reason?.message || "Generation failed");
-      }
-    } finally {
-      setRunning(false);
-    }
-  };
-
-  const runOne = async () => {
-    // Resolve @handles → swap to the character's name and attach her photo as a
-    // likeness reference (image-to-image keeps her consistent).
-    const original = prompt.trim();
-    const { prompt: resolved, characters } = resolveMentions(original);
-    // In edit mode the uploaded source goes first; @mentioned characters add
-    // extra references. Both paths use fal's edit endpoints when images exist.
-    const images = [
-      ...(mode === "edit" && editSource ? [editSource] : []),
-      ...characters.map((c) => c.image),
-    ].filter(Boolean);
-    const caption = original; // keep the @handle text for the library caption
-    // When an influencer is referenced, instruct the model to preserve her
-    // exact identity (Nano Banana Pro needs this or it renders a stranger).
-    const finalPrompt = characters.length ? `${resolved.trim()} ${IDENTITY_CLAUSE}` : resolved.trim();
-
-    const startRes = await fetch("/api/image/start", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: finalPrompt, model, aspect, quality, images: images.length ? images : undefined }),
-    });
-    const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
-    if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
-    if (start.output) {
-      setResults((r) => [{ url: start.output, prompt: caption, model, aspect, quality, ts: Date.now() }, ...r]);
-      return;
-    }
-    const handle = { statusUrl: start.statusUrl, responseUrl: start.responseUrl };
+  // Poll a single in-flight job to completion (or failure). Removes itself
+  // from `pending` either way; on success pushes the finished image into
+  // `results` + records it server-side.
+  const pollJob = async (job) => {
     const deadline = Date.now() + 5 * 60 * 1000;
     while (Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 3000));
-      const sRes = await fetch("/api/image/status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(handle),
-      });
-      const s = await sRes.json().catch(() => ({ error: `HTTP ${sRes.status}` }));
-      if (!sRes.ok) throw new Error(s.error || `HTTP ${sRes.status}`);
-      if (s.done) {
-        setResults((r) => [{ url: s.output, prompt: caption, model, aspect, quality, ts: Date.now() }, ...r]);
+      try {
+        const sRes = await fetch("/api/image/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ statusUrl: job.statusUrl, responseUrl: job.responseUrl }),
+        });
+        const s = await sRes.json().catch(() => ({ error: `HTTP ${sRes.status}` }));
+        if (!sRes.ok) throw new Error(s.error || `HTTP ${sRes.status}`);
+        if (s.done) {
+          setResults((r) => [{ url: s.output, prompt: job.prompt, model: job.model, aspect: job.aspect, quality: job.quality, ts: Date.now() }, ...r]);
+          recordGeneration(s.output, job.prompt);
+          updatePending((cur) => cur.filter((p) => p.id !== job.id));
+          return;
+        }
+      } catch (e) {
+        updatePending((cur) => cur.filter((p) => p.id !== job.id));
+        setError(e.message || "Generation failed");
         return;
       }
     }
-    throw new Error("Image generation timed out");
+    updatePending((cur) => cur.filter((p) => p.id !== job.id));
+    setError("Image generation timed out");
+  };
+
+  // Resume any in-flight jobs persisted from a previous page visit so the
+  // placeholder cards reappear and polling picks back up.
+  useEffect(() => {
+    const persisted = loadPending();
+    if (!persisted.length) return;
+    setPending(persisted);
+    persisted.forEach((p) => { if (p.statusUrl) pollJob(p); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const generate = async () => {
+    if (!canRun) return;
+    setError(null);
+    const original = prompt.trim();
+    const { prompt: resolved, characters } = resolveMentions(original);
+    // Source image goes FIRST in image_urls so prompt templates can refer to
+    // "the first image" as the scene/composition to preserve. Influencer
+    // photos follow as the identity references.
+    const includeSource = (mode === "edit" || mode === "swap") && editSource;
+    const images = [
+      ...(includeSource ? [editSource] : []),
+      ...characters.map((c) => c.image),
+    ].filter(Boolean);
+    const caption = original || (mode === "swap" ? `Face swap with @${characters[0]?.handle}` : "");
+
+    // Build the model prompt per mode. Edit+@mention and Swap get explicit
+    // ordering instructions because the generic IDENTITY_CLAUSE doesn't tell
+    // the model which of the multiple references is the person vs the scene.
+    let finalPrompt;
+    if (mode === "swap") {
+      const extra = resolved.trim();
+      finalPrompt = `Take the scene, pose, body, clothing, lighting, and composition from the first image. Replace ONLY the person's face and hair with the person shown in the second image — keep their exact face, facial features, and hair identical to the second image. Everything else (background, clothing, pose, framing) must stay identical to the first image.${extra ? ` Additional guidance: ${extra}.` : ""}`;
+    } else if (mode === "edit" && characters.length) {
+      finalPrompt = `${resolved.trim()} The first image is the scene to edit (preserve its composition, lighting, and framing). The additional reference image(s) show the person to use — keep their exact face, facial features, and hair identical to the reference; do not invent a different person.`;
+    } else if (characters.length) {
+      finalPrompt = `${resolved.trim()} ${IDENTITY_CLAUSE}`;
+    } else {
+      finalPrompt = resolved.trim();
+    }
+
+    // Show placeholder cards immediately, before /api/image/start resolves.
+    const placeholders = Array.from({ length: batch }, (_, i) => ({
+      id: `job_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 7)}`,
+      prompt: caption, model, aspect, quality, ts: Date.now(),
+    }));
+    updatePending((cur) => [...placeholders, ...cur]);
+
+    placeholders.forEach((ph) => startAndPoll(ph, finalPrompt, images));
+  };
+
+  const startAndPoll = async (ph, finalPrompt, images) => {
+    try {
+      const startRes = await fetch("/api/image/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: finalPrompt, model: ph.model, aspect: ph.aspect, quality: ph.quality, images: images.length ? images : undefined }),
+      });
+      const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
+      if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
+      if (start.output) {
+        setResults((r) => [{ url: start.output, prompt: ph.prompt, model: ph.model, aspect: ph.aspect, quality: ph.quality, ts: Date.now() }, ...r]);
+        recordGeneration(start.output, ph.prompt);
+        updatePending((cur) => cur.filter((p) => p.id !== ph.id));
+        return;
+      }
+      // Attach handle + persist so polling can resume after navigation.
+      const enriched = { ...ph, statusUrl: start.statusUrl, responseUrl: start.responseUrl };
+      updatePending((cur) => cur.map((p) => (p.id === ph.id ? enriched : p)));
+      await pollJob(enriched);
+    } catch (e) {
+      updatePending((cur) => cur.filter((p) => p.id !== ph.id));
+      setError(e.message || "Generation failed");
+    }
   };
 
   const aspectMeta = ASPECTS.find((a) => a.id === aspect) || ASPECTS[0];
@@ -305,17 +411,24 @@ export default function ImagePage() {
         <div className="ip-mode-seg">
           <button className={mode === "generate" ? "is-active" : ""} onClick={() => setMode("generate")}>Generate</button>
           <button className={mode === "edit" ? "is-active" : ""} onClick={() => setMode("edit")}>Edit</button>
+          <button className={mode === "swap" ? "is-active" : ""} onClick={() => { setMode("swap"); setModel("Nano Banana Pro"); }}>Face Swap</button>
         </div>
-        {results.length === 0 ? (
+        {results.length === 0 && pending.length === 0 ? (
           <SectionHero
-            title={mode === "edit" ? "Edit with" : "Start creating with"}
-            brand={model}
-            sub={mode === "edit" ? "Upload an image and describe your change — type @ to summon an influencer." : "Describe a scene, character, mood, or style — and watch it come to life."}
+            title={mode === "swap" ? "Face swap with" : mode === "edit" ? "Edit with" : "Start creating with"}
+            brand={mode === "swap" ? "Influencers" : model}
+            sub={
+              mode === "swap"
+                ? "Upload a photo, then @-mention an influencer to put her face in the scene — pose, clothing, and composition stay identical."
+                : mode === "edit"
+                  ? "Upload an image and describe your change — type @ to summon an influencer."
+                  : "Describe a scene, character, mood, or style — and watch it come to life."
+            }
           />
         ) : (
           <div className="ip-grid ip-grid-uniform">
-            {running && Array.from({ length: batch }).map((_, i) => (
-              <div key={"ld-" + i} className="ip-card ip-card-loading">
+            {pending.map((p) => (
+              <div key={p.id} className="ip-card ip-card-loading" title={p.prompt}>
                 <div className="ip-loading-shimmer" />
                 <div className="ip-card-meta">Generating…</div>
               </div>
@@ -345,16 +458,22 @@ export default function ImagePage() {
             </div>
           )}
           {/* Edit mode: the source image being edited */}
-          {mode === "edit" && (
+          {(mode === "edit" || mode === "swap") && (
             <div className="ip-edit-src-row">
               <input ref={editFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickEdit(e.target.files?.[0]); e.target.value = ""; }} />
-              <button className="ip-edit-src" onClick={() => editFileRef.current?.click()} title="Upload image to edit">
+              <button className="ip-edit-src" onClick={() => editFileRef.current?.click()} title={mode === "swap" ? "Upload the scene image (the body, pose, and composition we'll keep)" : "Upload image to edit"}>
                 {editSource ? <img src={editSource} alt="source" /> : (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
                 )}
               </button>
               <span className="ip-edit-src-label">
-                {editSource ? "Image to edit — describe your change below" : "Upload an image to edit"}
+                {mode === "swap"
+                  ? (editSource
+                      ? (mentioned.length === 1
+                          ? `Swapping the face in this image with @${mentioned[0].handle}`
+                          : "Now @-mention an influencer below — her face goes in.")
+                      : "Upload a photo — we'll keep its pose, body, and composition.")
+                  : (editSource ? "Image to edit — describe your change below" : "Upload an image to edit")}
                 {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove">✕</button>}
               </span>
             </div>
@@ -365,11 +484,18 @@ export default function ImagePage() {
             </button>
             <MentionField
               multiline
+              dropUp
               rows={1}
               maxHeight={200}
               value={prompt}
               onChange={setPrompt}
-              placeholder={mode === "edit" ? "Describe the change — type @ to summon an influencer" : "Describe the scene — type @ to summon an influencer"}
+              placeholder={
+                mode === "swap"
+                  ? "Optional extra guidance — e.g. 'studio lighting' (or leave blank)"
+                  : mode === "edit"
+                    ? "Describe the change — type @ to summon an influencer"
+                    : "Describe the scene — type @ to summon an influencer"
+              }
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
             <div className="chip-wrap pb-enhance-model-wrap">
@@ -530,7 +656,7 @@ export default function ImagePage() {
 
             {/* Generate — pinned to the bottom-right corner of the chatbox */}
             <button className="ip-bar-generate ip-bar-generate-corner" onClick={generate} disabled={!canRun}>
-              {running ? (
+              {pending.length > 0 ? (
                 <>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
                   Generating
@@ -539,7 +665,7 @@ export default function ImagePage() {
                 <>
                   Generate
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
-                  <span className="ip-bar-count" title="Estimated credits">{imageCredits({ model, quality, batch, edit: mode === "edit" })}</span>
+                  <span className="ip-bar-count" title="Estimated credits">{imageCredits({ model, quality, batch, edit: mode === "edit" || mode === "swap" })}</span>
                 </>
               )}
             </button>

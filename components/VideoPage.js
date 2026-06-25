@@ -7,7 +7,6 @@ import SectionHero from "@/components/SectionHero";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
 import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
 import { videoCredits, motionCredits, editCredits } from "@/lib/credits";
-import MentionField from "@/components/MentionField";
 
 // Edit-mode model catalog — top showcase + grouped picker on the sidebar.
 const EDIT_MODELS = [
@@ -201,6 +200,7 @@ function VideoPageInner() {
   const [motionModel, setMotionModel] = useState(MOTION_MODELS[0]); // defaults to Kling 3.0 Motion Control
   const [aspect, setAspect] = useState("16:9");
   const [duration, setDuration] = useState("8s");
+  const [audio, setAudio] = useState(true);
   const [openMenu, setOpenMenu] = useState(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
@@ -298,6 +298,7 @@ function VideoPageInner() {
           aspect,
           resolution: "720p",
           duration: parseInt(duration) || 8,
+          audio,
         });
         meta = { model, aspect, quality: "720p" };
       } else if (sub === "motion") {
@@ -521,18 +522,18 @@ function VideoPageInner() {
               </div>
             )}
             <div className="vp-prompt-wrap">
-              <MentionField
-                multiline
+              <textarea
+                className="mention-field"
                 rows={4}
                 placeholder={
                   sub === "edit"
-                    ? 'Describe the change you want, like "Make it snow". Add elements using @'
+                    ? 'Describe the change you want, like "Make it snow".'
                     : sub === "motion"
                       ? "(Optional) refine the motion — e.g. 'exaggerated arm swing'"
-                      : "Describe your scene — type @ to summon an influencer."
+                      : "Describe your scene."
                 }
                 value={prompt}
-                onChange={setPrompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 disabled={running}
               />
             </div>
@@ -560,6 +561,15 @@ function VideoPageInner() {
                 <div className="chip-wrap">
                   <Chip label={duration} onClick={() => toggle("duration")} />
                   <Dropdown open={openMenu === "duration"} options={DURATIONS} onPick={setDuration} onClose={() => setOpenMenu(null)} />
+                </div>
+              </div>
+              <div className="vp-control-row">
+                <div className="vp-control-label">Audio</div>
+                <div className="chip-wrap">
+                  <Chip
+                    label={audio ? "🔊 On" : "🔇 Off"}
+                    onClick={() => setAudio((a) => !a)}
+                  />
                 </div>
               </div>
             </div>
