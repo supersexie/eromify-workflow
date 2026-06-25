@@ -3,11 +3,21 @@ import { useEffect, useRef, useState } from "react";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 2", "GPT Image 1"],
-  video: ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"],
+  // Full fal video catalog — kept in sync with the Video page picker.
+  video: [
+    "Kling 3.0", "Kling 2.6", "Kling 2.5 Turbo", "Kling v2",
+    "Seedance 2.0", "Seedance 2.0 Fast", "Wan 2.7", "Wan 2.2",
+    "MiniMax Hailuo 2.3", "MiniMax Hailuo", "PixVerse v6", "Sora 2",
+    "LTX Video", "Veo 3.1", "Veo 3.1 Fast",
+  ],
   text: ["GPT-5.1", "Claude Opus 4.7", "Gemini 2.5 Pro"],
   // Audio doesn't use a model chip — the voice IS the choice. Backend
   // routes to ElevenLabs / OpenAI automatically.
-  motion: ["Kling Motion Control Pro", "Kling Motion Control Std"],
+  motion: [
+    "Kling 3.0 Motion Control", "Kling 3.0 Motion Control Std",
+    "Kling Motion Control Pro", "Kling Motion Control Std",
+    "Wan Motion", "Wan 2.2 Animate Move", "Wan 2.2 Animate Replace",
+  ],
 };
 
 // Cached so we don't refetch on every selection change.

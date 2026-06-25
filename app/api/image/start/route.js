@@ -60,8 +60,11 @@ function dimsFor(aspect, quality) {
 function applySizeParams(input, model, aspect, quality) {
   if (!aspect || aspect === "auto") return;
 
-  // Flux 2 family — preset enum only.
-  if (model === "Flux 2 Pro" || model === "Flux 2 Max") {
+  // Flux 2 family + GPT Image 2 — use the preset enum. GPT Image 2 accepts the
+  // same preset names (square_hd / portrait_*/ landscape_*) and otherwise 422s
+  // on out-of-range custom dims (e.g. 4K = 4096px > its 3840 max edge, or thin
+  // ratios that fall under its 655K-pixel floor).
+  if (model === "Flux 2 Pro" || model === "Flux 2 Max" || model === "GPT Image 2") {
     const preset = closestFluxPreset(aspect);
     if (preset) input.image_size = preset;
     return;
