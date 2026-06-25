@@ -6,15 +6,15 @@ import { addGeneration } from "@/lib/genstore";
 
 export const maxDuration = 60;
 
-const UI_URI = "ui://geoflix/media-v3.html";
+const UI_URI = "ui://eromify/media-v1.html";
 
 const BASE = (
-  process.env.GEOFLIX_BASE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://geoflix.online")
+  process.env.EROMIFY_BASE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://eromify.pro")
 ).replace(/\/$/, "");
 
 // Wrap a generated media URL in our same-origin proxy so the widget iframe can load it
-// (claude.ai won't load raw fal.media in the sandbox — Eromify does the same thing).
+// (claude.ai won't load raw fal.media in the sandbox — proxy via our own origin).
 function proxied(url) {
   if (!url || typeof url !== "string" || !url.startsWith("http")) return url;
   return `${BASE}/api/media?u=${encodeURIComponent(url)}`;
@@ -71,7 +71,7 @@ const handler = createMcpHandler(
     // UI widget that renders generated media inline (same-origin source).
     registerAppResource(
       server,
-      "geoflix-media",
+      "eromify-media",
       UI_URI,
       { _meta: { ui: { csp: { resourceDomains: [BASE, "https://*.fal.media", "https://*.googleapis.com"] } } } },
       async () => ({ contents: [{ uri: UI_URI, mimeType: RESOURCE_MIME_TYPE, text: WIDGET_HTML }] })
