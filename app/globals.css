@@ -365,7 +365,7 @@ body {
 .pb-title::placeholder { color: var(--muted-2); }
 .pb-title:disabled { color: var(--muted); }
 /* MentionField inside the canvas prompt bar — box metrics on the wrap. */
-.pb-title-row .mf-wrap { flex: 1; font-size: 14px; line-height: 1.5; padding: 2px 0; min-width: 0; }
+.pb-title-row .mf-wrap { flex: 1; font-size: 14px; line-height: 1.5; --mf-pad: 2px 0; min-width: 0; }
 .pb-title-row .mf-field { min-height: 24px; max-height: 220px; }
 .pb-title-row .mf-overlay { color: var(--ink); }
 /* Slim scrollbar inside the prompt textarea so it doesn't shout once it grows. */
@@ -1372,7 +1372,6 @@ body {
   box-shadow: 0 10px 40px rgba(0,0,0,.45);
 }
 .ip-bar-input-row { display: flex; align-items: flex-end; gap: 8px; }
-.ip-bar-input-row .mf-field { line-height: 1.4; }
 .ip-bar-plus {
   width: 32px; height: 32px; border-radius: 8px;
   background: var(--surface-2); border: 1px solid var(--line);
@@ -1384,7 +1383,7 @@ body {
   color: var(--ink); font-size: 15px; font-family: inherit; padding: 8px 4px;
 }
 .ip-bar-input::placeholder { color: var(--muted-2); }
-.ip-bar-input-row .mf-wrap { flex: 1; font-size: 15px; padding: 8px 4px; color: var(--ink); }
+.ip-bar-input-row .mf-wrap { flex: 1; font-size: 15px; line-height: 1.5; --mf-pad: 8px 4px; color: var(--ink); }
 
 /* Image page: Generate | Edit mode toggle + edit source picker */
 .ip-mode-seg {
@@ -1536,10 +1535,13 @@ body {
 .mention-pop-below { bottom: auto; top: calc(100% + 6px); }
 
 /* ---- MentionField: pink @handle pills via an overlay behind a clear field ---- */
-.mf-wrap { position: relative; display: block; }
+.mf-wrap { position: relative; display: block; --mf-pad: 0px; }
+/* Padding lives on BOTH the field and overlay (never the wrap) so their content
+   boxes coincide — otherwise the absolute overlay sits over the wrap padding
+   while the in-flow field starts after it, offsetting text from the caret. */
 .mf-overlay, .mf-field {
   font-family: inherit; font-size: inherit; line-height: inherit; letter-spacing: inherit;
-  margin: 0; border: 0; padding: 0; box-sizing: border-box;
+  margin: 0; border: 0; padding: var(--mf-pad); box-sizing: border-box;
   word-break: break-word;
 }
 .mf-overlay {
@@ -1768,7 +1770,7 @@ body {
    pink-tag overlay and the transparent field share identical metrics. */
 .vp-prompt-wrap .mf-wrap {
   min-height: 80px; background: var(--surface-2); border: 1px solid var(--line-2);
-  border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.5; color: var(--ink);
+  border-radius: 10px; --mf-pad: 10px 12px; font-size: 13px; line-height: 1.5; color: var(--ink);
 }
 .vp-prompt-wrap .mf-wrap:focus-within { border-color: var(--blue); }
 .vp-prompt-wrap .mf-field { max-height: 160px; }
