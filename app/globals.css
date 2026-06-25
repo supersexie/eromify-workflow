@@ -1507,8 +1507,10 @@ body {
 .up-seg button.is-active { background: var(--grad); color: #fff; }
 
 /* ---- Influencers page ---- */
-/* Compact page header (replaces the oversized hero that pushed cards off-screen) */
-.inf-body { max-width: 1100px; margin: 0 auto; padding: 28px 32px 60px; }
+/* Influencers: the hero + cards live in a single scroll container so the page
+   never clips (the parent .ip-page is overflow:hidden). */
+.inf-scroll { flex: 1; overflow-y: auto; }
+.inf-body { max-width: 1100px; margin: 0 auto; padding: 24px 32px 80px; }
 .inf-head { margin-bottom: 22px; }
 .inf-h1 { font-size: 26px; font-weight: 800; color: var(--ink); margin: 0 0 6px; }
 .inf-headsub { font-size: 14px; color: var(--muted); margin: 0; max-width: 640px; }

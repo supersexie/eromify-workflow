@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
+import SectionHero from "@/components/SectionHero";
 import { listInfluencers, syncInfluencers, saveInfluencerRemote, deleteInfluencerRemote, normHandle } from "@/lib/influencers";
 
 // Downscale an uploaded image to a small JPEG data URL so it uploads fast and
@@ -35,13 +36,19 @@ export default function InfluencersPage() {
   const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // Server is the source of truth — fetch it, fall back to the local cache.
+  // Render the local cache instantly (loading only if there's no cache), then
+  // reconcile with the server. A fail-safe timeout guarantees we never sit on
+  // the spinner forever if the network/sync stalls.
   useEffect(() => {
     let alive = true;
+    const cached = listInfluencers();
+    setItems(cached.length ? cached : null);
+    let settled = false;
     syncInfluencers()
-      .then((list) => { if (alive) setItems(Array.isArray(list) ? list : []); })
-      .catch(() => { if (alive) setItems(listInfluencers()); });
-    return () => { alive = false; };
+      .then((list) => { settled = true; if (alive && Array.isArray(list)) setItems(list); })
+      .catch(() => { settled = true; if (alive) setItems(cached); });
+    const t = setTimeout(() => { if (alive && !settled) setItems(cached); }, 4000);
+    return () => { alive = false; clearTimeout(t); };
   }, []);
 
   const openNew = () => setEditing({ ...BLANK });
@@ -88,6 +95,19 @@ export default function InfluencersPage() {
         <UserMenu />
       </>} />
 
+      <div className="inf-scroll">
+      <SectionHero
+        title="Build your"
+        brand="Influencers"
+        sub="Create a character once, then summon her anywhere with @handle — type “@ash on a beach” in any Image, Video, or Canvas prompt and her likeness is used automatically."
+        tiles={[
+          { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Face" },
+          { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Style" },
+          { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Persona" },
+          { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "@handle" },
+        ]}
+      />
+
       <div className="inf-body">
         <div className="inf-head">
           <h1 className="inf-h1">Your influencers</h1>
@@ -125,6 +145,7 @@ export default function InfluencersPage() {
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {editing && (
