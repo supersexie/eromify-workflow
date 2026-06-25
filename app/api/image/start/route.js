@@ -89,13 +89,23 @@ function applySizeParams(input, model, aspect, quality) {
 // key is no longer needed for image generation (vision endpoints like
 // /api/prompt/from-image still use it).
 export async function POST(req) {
-  const { prompt, model, images, aspect, quality } = await req.json();
+  const { prompt, model: requestedModel, images, aspect, quality } = await req.json();
   const hasImages = Array.isArray(images) && images.length > 0;
 
   if (!FAL) {
     return NextResponse.json({
       output: `https://picsum.photos/seed/${Math.floor(Math.random() * 9999)}/768/768`,
     });
+  }
+
+  // GPT Image (OpenAI) refuses edits of real-looking people, so a reference
+  // image (e.g. an @influencer) makes it stall forever. Influencers are AI
+  // characters, but OpenAI's classifier can't tell — so when a reference is
+  // attached we transparently route to Nano Banana Pro, which does identity-
+  // preserving edits without that restriction. Text-to-image keeps the model.
+  let model = requestedModel;
+  if (hasImages && /^GPT Image/.test(model || "")) {
+    model = "Nano Banana Pro";
   }
 
   const endpoint = pickImageEndpoint(model, hasImages);
