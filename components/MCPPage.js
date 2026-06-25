@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 
 // MCP connector URL — served by our Next.js MCP route at /api/[transport].
@@ -70,10 +70,7 @@ export default function MCPPage() {
 
   return (
     <div className="mcp-page">
-      <div className="dash-topbar">
-        <Tabs />
-        <UserMenu />
-      </div>
+      <TopBar right={<UserMenu />} />
 
       <div className="mcp-body">
         {/* Hero card — gradient brand banner */}

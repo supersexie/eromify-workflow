@@ -943,6 +943,20 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 32px; border-bottom: 1px solid var(--line);
 }
+
+/* Shared section top bar — brand left, centered floating tab pill, actions right */
+.app-topbar {
+  position: relative; display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px; border-bottom: 1px solid var(--line);
+}
+.app-topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.app-topbar-right { display: flex; align-items: center; gap: 14px; }
+.nav-pill {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm); z-index: 5;
+}
+.nav-pill .mc-tab { font-size: 13px; padding: 6px 12px; }
 .primary-btn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--blue);

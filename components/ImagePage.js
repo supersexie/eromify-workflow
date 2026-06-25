@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { listInfluencers, resolveMentions } from "@/lib/influencers";
 import MentionField from "@/components/MentionField";
@@ -250,10 +250,7 @@ export default function ImagePage() {
 
   return (
     <div className="ip-page">
-      <div className="dash-topbar">
-        <Tabs />
-        <UserMenu />
-      </div>
+      <TopBar right={<UserMenu />} />
 
       <div className="ip-body">
         <div className="ip-mode-seg">

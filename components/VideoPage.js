@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { generateVideo, generateMotion, generateVideoEdit } from "@/lib/run";
 import { listInfluencers, resolveMentions } from "@/lib/influencers";
@@ -310,10 +310,7 @@ function VideoPageInner() {
 
   return (
     <div className="vp-page">
-      <div className="dash-topbar">
-        <Tabs />
-        <UserMenu />
-      </div>
+      <TopBar right={<UserMenu />} />
 
       <div className="vp-shell">
         <aside className="vp-sidebar">

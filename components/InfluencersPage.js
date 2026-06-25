@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { listInfluencers, upsertInfluencer, deleteInfluencer, normHandle } from "@/lib/influencers";
 
@@ -76,16 +76,13 @@ export default function InfluencersPage() {
 
   return (
     <div className="ip-page">
-      <div className="dash-topbar">
-        <Tabs />
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <button className="primary-btn" onClick={openNew}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-            New influencer
-          </button>
-          <UserMenu />
-        </div>
-      </div>
+      <TopBar right={<>
+        <button className="primary-btn" onClick={openNew}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+          New influencer
+        </button>
+        <UserMenu />
+      </>} />
 
       <div className="dash-body">
         <h1 className="dash-h1">Your influencers</h1>

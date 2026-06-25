@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { upscaleMedia } from "@/lib/run";
 
@@ -126,10 +126,7 @@ export default function UpscalePage() {
 
   return (
     <div className="ip-page">
-      <div className="dash-topbar">
-        <Tabs />
-        <UserMenu />
-      </div>
+      <TopBar right={<UserMenu />} />
 
       <div className="ip-body">
         {results.length === 0 && !running ? (

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { listWorkflows, createWorkflow, deleteWorkflow, renameWorkflow } from "@/lib/store";
 import UserMenu from "@/components/UserMenu";
-import Tabs from "@/components/Tabs";
+import TopBar from "@/components/TopBar";
 
 function relTime(ts) {
   const s = Math.floor((Date.now() - ts) / 1000);
@@ -59,16 +59,13 @@ export default function Dashboard() {
 
   return (
     <div className="dash">
-      <div className="dash-topbar">
-        <Tabs />
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <button className="primary-btn" onClick={onCreate}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-            New Canvas
-          </button>
-          <UserMenu />
-        </div>
-      </div>
+      <TopBar right={<>
+        <button className="primary-btn" onClick={onCreate}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+          New Canvas
+        </button>
+        <UserMenu />
+      </>} />
 
       <div className="dash-body">
         <h1 className="dash-h1">Your canvases</h1>
