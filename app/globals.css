@@ -1378,6 +1378,30 @@ body {
   color: var(--ink); font-size: 14px; font-family: inherit; padding: 10px 0;
 }
 
+/* ---- @mention autocomplete + attached-character chips ---- */
+.mention-pop {
+  position: absolute; bottom: calc(100% + 8px); left: 0; right: 0;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 6px; box-shadow: 0 12px 32px rgba(0,0,0,.45); z-index: 20;
+}
+.mention-row {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 10px; border: none; border-radius: 8px; background: transparent;
+  color: var(--ink); font-family: inherit; font-size: 14px; cursor: pointer; text-align: left;
+}
+.mention-row:hover { background: var(--surface-2); }
+.mention-row img { width: 28px; height: 28px; border-radius: 7px; object-fit: cover; }
+.mention-name { font-weight: 600; }
+.mention-handle { color: var(--blue); font-size: 12px; font-weight: 600; margin-left: auto; }
+.mention-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; padding: 0 4px; }
+.mention-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px 4px 4px; border-radius: 999px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  font-size: 12px; font-weight: 600; color: var(--ink);
+}
+.mention-chip img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
 /* ---- Rich Image-bar pickers (model / aspect / quality / batch) ---- */
 .ip-chip-ic {
   width: 18px; height: 18px; border-radius: 5px;

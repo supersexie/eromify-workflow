@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { pickImageEndpoint } from "@/lib/falImage";
+import { uploadDataUrl } from "@/lib/genstore";
 
 export const runtime = "nodejs";
 // 60s is Vercel Hobby's max. fal returns a request_id near-instantly, so this
@@ -96,7 +97,15 @@ export async function POST(req) {
 
   const endpoint = pickImageEndpoint(model, hasImages);
   const input = { prompt: prompt || "abstract gradient" };
-  if (hasImages) input.image_urls = images;
+  if (hasImages) {
+    // Reference images (e.g. an influencer's photo) arrive as data URIs; host
+    // them so edit endpoints that require real URLs (Flux 2) accept them.
+    try {
+      input.image_urls = await Promise.all(images.map((im) => uploadDataUrl(im, "img-ref")));
+    } catch (e) {
+      return NextResponse.json({ error: `Could not host reference image: ${e.message}` }, { status: 500 });
+    }
+  }
   applySizeParams(input, model, aspect, quality);
 
   try {
