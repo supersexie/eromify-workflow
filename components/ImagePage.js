@@ -405,20 +405,6 @@ export default function ImagePage() {
               )}
               <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
             </button>
-            <button className="ip-bar-generate" onClick={generate} disabled={!canRun}>
-              {running ? (
-                <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
-                  Generating
-                </>
-              ) : (
-                <>
-                  Generate
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
-                  <span className="ip-bar-count" title="Estimated credits">{imageCredits({ model, quality, batch, edit: mode === "edit" })}</span>
-                </>
-              )}
-            </button>
           </div>
 
           <div className="ip-bar-chips">
@@ -541,6 +527,22 @@ export default function ImagePage() {
                 <div className="ip-batch-hint">Generate up to 4 images at once. Each costs the same as a single generation.</div>
               </Popover>
             </div>
+
+            {/* Generate — pinned to the bottom-right corner of the chatbox */}
+            <button className="ip-bar-generate ip-bar-generate-corner" onClick={generate} disabled={!canRun}>
+              {running ? (
+                <>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                  Generating
+                </>
+              ) : (
+                <>
+                  Generate
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2z"/></svg>
+                  <span className="ip-bar-count" title="Estimated credits">{imageCredits({ model, quality, batch, edit: mode === "edit" })}</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
