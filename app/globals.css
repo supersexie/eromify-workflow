@@ -1210,9 +1210,9 @@ body {
 }
 .ip-hero-sub { color: var(--muted); font-size: 14px; margin: 0; max-width: 520px; }
 
-.ip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; align-items: start; }
-.ip-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; position: relative; }
-.ip-card img { width: 100%; height: auto; display: block; }
+.ip-grid { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.ip-card { height: 300px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; position: relative; }
+.ip-card img { height: 100%; width: auto; display: block; }
 .ip-card-meta {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 28px 12px 10px;
