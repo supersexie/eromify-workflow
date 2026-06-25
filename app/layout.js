@@ -10,6 +10,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   const page = (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Force the bare apex onto www before anything renders, so the page and
+            its same-origin /api never split across the apex→www redirect (which
+            otherwise makes server-stored data like influencers look empty). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if(location.hostname==='eromify.pro'){location.replace('https://www.eromify.pro'+location.pathname+location.search+location.hash);}",
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
