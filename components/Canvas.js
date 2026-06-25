@@ -66,7 +66,7 @@ const nextId = () => `n_${++idCounter}_${Math.random().toString(36).slice(2, 6)}
 
 function CanvasInner({ workflowId }) {
   const router = useRouter();
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition, fitView, setCenter, getZoom } = useReactFlow();
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [name, setName] = useState("Untitled Canvas");
@@ -259,6 +259,10 @@ function CanvasInner({ workflowId }) {
     }
     setSelectedId(id);
     setAddMenuOpen(false);
+    // Pan/zoom the viewport to the new card so the user lands on it instead of
+    // hunting for it (preserve their zoom, but don't stay zoomed too far out).
+    const cx = pos.x + W / 2, cy = pos.y + H / 2;
+    requestAnimationFrame(() => setCenter(cx, cy, { zoom: Math.max(getZoom(), 0.7), duration: 450 }));
     return id;
   };
 
