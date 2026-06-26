@@ -519,32 +519,6 @@ export default function ImagePage() {
               }
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
-            <div className="ip-enhance-group">
-            <div className="chip-wrap pb-enhance-model-wrap">
-              <button className="pb-enhance-model" onClick={() => toggle("enhanceModel")} title="Pick the model used by Enhance">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
-                <span>{enhanceLabel}</span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"><path d="M6 9l6 6 6-6" /></svg>
-              </button>
-              {openMenu === "enhanceModel" && (
-                <>
-                  <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
-                  <div className="dd-menu pb-enhance-menu">
-                    <div className="pb-enhance-menu-header">Enhance with</div>
-                    {ENHANCE_MODELS.map((m) => (
-                      <button
-                        key={m.id}
-                        className={m.id === enhanceModel ? "is-active" : ""}
-                        onClick={() => { setEnhanceModel(m.id); try { localStorage.setItem(ENHANCE_PREF_KEY, m.id); } catch {} setOpenMenu(null); }}
-                      >
-                        <span className="pb-enhance-menu-label">{m.label}</span>
-                        <span className="pb-enhance-menu-note">{m.note}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
             <button className="pb-enhance" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Eromify style">
               {enhancing ? (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
@@ -553,7 +527,6 @@ export default function ImagePage() {
               )}
               <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
             </button>
-            </div>
           </div>
 
           <div className="ip-bar-chips">
@@ -599,6 +572,34 @@ export default function ImagePage() {
                   </>
                 )}
               </Popover>
+            </div>
+
+            {/* Enhance model picker — sits in line with the model (and under the
+                Enhance button on mobile). */}
+            <div className="chip-wrap pb-enhance-model-wrap">
+              <button className="pb-enhance-model" onClick={() => toggle("enhanceModel")} title="Pick the model used by Enhance">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
+                <span>{enhanceLabel}</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" opacity="0.6"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {openMenu === "enhanceModel" && (
+                <>
+                  <div className="dd-backdrop" onClick={() => setOpenMenu(null)} />
+                  <div className="dd-menu pb-enhance-menu">
+                    <div className="pb-enhance-menu-header">Enhance with</div>
+                    {ENHANCE_MODELS.map((m) => (
+                      <button
+                        key={m.id}
+                        className={m.id === enhanceModel ? "is-active" : ""}
+                        onClick={() => { setEnhanceModel(m.id); try { localStorage.setItem(ENHANCE_PREF_KEY, m.id); } catch {} setOpenMenu(null); }}
+                      >
+                        <span className="pb-enhance-menu-label">{m.label}</span>
+                        <span className="pb-enhance-menu-note">{m.note}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Aspect ratio */}
