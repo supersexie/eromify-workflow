@@ -2474,24 +2474,26 @@ body {
   .ip-body { padding-bottom: 300px; }
 }
 
-/* The Canvas editor needs a pointer + space — gate it on phones. The notice
-   is rendered by Canvas.js; this just lays it out. */
-.cv-mobile-gate {
-  position: fixed; inset: 0; z-index: 50;
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-  gap: 16px; text-align: center; padding: 40px 28px;
-  background: var(--bg); color: var(--ink);
-}
-.cv-mobile-gate h2 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
-.cv-mobile-gate p { color: var(--muted); margin: 0; max-width: 320px; line-height: 1.55; font-size: 14px; }
-.cv-mobile-gate-icon { color: var(--blue); }
-.cv-mobile-gate-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; margin-top: 6px; }
-.cv-mobile-gate-actions a {
-  display: block; padding: 13px 18px; border-radius: 12px; font-size: 15px; font-weight: 600;
-  text-decoration: none;
-}
-.cv-mobile-gate-actions .is-primary { background: var(--blue); color: #fff; }
-.cv-mobile-gate-actions .is-ghost { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); }
+/* ---- Canvas on phones ---- touch pan/pinch/tap work natively; here we just
+   make the chrome fit. The per-node prompt bar becomes a bottom sheet and the
+   tool rail moves to a compact bottom-left dock. */
 @media (max-width: 760px) {
-  .cv-mobile-gate { display: flex; }
+  /* Per-node editor becomes a full-width bottom sheet. */
+  .prompt-bar {
+    left: 0; right: 0; bottom: 0; transform: none;
+    width: 100%; border-radius: 16px 16px 0 0;
+    max-height: 62vh; overflow-y: auto;
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+  }
+  /* Inside the sheet: prompt field full-width, controls drop below it. */
+  .pb-title-row { flex-wrap: wrap; align-items: center; row-gap: 8px; }
+  .pb-title-row .mf-wrap,
+  .pb-title-row > .mention-field { flex: 1 1 100%; order: -1; }
+  .pb-title-row .pb-enhance { margin-left: auto; }
+
+  /* Keep the tool rail as a slim vertical strip on the left edge so it never
+     sits under the bottom sheet; just enlarge the targets for touch. */
+  .rail { left: 8px; gap: 4px; }
+  .rail button { width: 40px; height: 40px; }
+  .add-menu { max-width: calc(100vw - 24px); }
 }
