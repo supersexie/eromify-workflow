@@ -101,10 +101,10 @@ export default function InfluencersPage() {
         brand="Influencers"
         sub="Create a character once, then summon her anywhere with @handle — type “@ash on a beach” in any Image, Video, or Canvas prompt and her likeness is used automatically."
         tiles={[
-          { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Face" },
-          { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Style" },
-          { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Persona" },
-          { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "@handle" },
+          { img: "/hero/inf1.png" },
+          { img: "/hero/inf2.png" },
+          { img: "/hero/inf3.png" },
+          { img: "/hero/inf4.png" },
         ]}
       />
 
