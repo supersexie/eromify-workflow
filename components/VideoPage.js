@@ -856,18 +856,19 @@ function VideoPageInner() {
                 <h2 className="vp-motion-library-title">Start by copying motion from library</h2>
                 <div className="vp-motion-library-grid">
                   {[
-                    "linear-gradient(135deg,#7c3aed,#ec4899)",
-                    "linear-gradient(135deg,#06b6d4,#3b82f6)",
-                    "linear-gradient(135deg,#f59e0b,#ef4444)",
-                    "linear-gradient(135deg,#10b981,#84cc16)",
-                    "linear-gradient(135deg,#a855f7,#ec4899)",
-                  ].map((bg, i) => (
+                    { bg: "linear-gradient(135deg,#7c3aed,#ec4899)", video: "/hero/ml1.mp4" },
+                    { bg: "linear-gradient(135deg,#06b6d4,#3b82f6)", video: "/hero/ml2.mp4" },
+                    { bg: "linear-gradient(135deg,#f59e0b,#ef4444)", video: "/hero/ml3.mp4" },
+                    { bg: "linear-gradient(135deg,#10b981,#84cc16)", video: "/hero/ml4.mp4" },
+                    { bg: "linear-gradient(135deg,#a855f7,#ec4899)", video: "/hero/ml5.mp4" },
+                  ].map((t, i) => (
                     <button
                       key={i}
                       className="vp-motion-library-card"
-                      style={{ background: bg }}
+                      style={{ background: t.bg }}
                       title="Use this motion (coming soon)"
                     >
+                      <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
                       <svg className="vp-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
                     </button>
                   ))}

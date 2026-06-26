@@ -2226,15 +2226,16 @@ body {
   gap: 12px;
 }
 .vp-motion-library-card {
-  position: relative;
+  position: relative; overflow: hidden;
   aspect-ratio: 4 / 5;
   border-radius: 14px; border: 1px solid var(--line);
   cursor: pointer; transition: transform .15s ease;
   display: grid; place-items: center;
   color: rgba(255,255,255,0.85);
 }
+.vp-motion-library-card video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .vp-motion-library-card:hover { transform: translateY(-2px); }
-.vp-play { filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
+.vp-play { position: relative; z-index: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
 
 /* ============================================================
    MCP page (/mcp) — connector setup
