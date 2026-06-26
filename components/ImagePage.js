@@ -388,8 +388,10 @@ export default function ImagePage() {
     if (mode === "swap") {
       const extra = resolved.trim();
       if (model === "Nano Banana Pro") {
-        // Nano Banana Pro handles face swaps best with this simpler prompt.
-        finalPrompt = `Take the scene, pose, body, clothing, lighting, and composition from the first image. Replace ONLY the person's face and hair with the person shown in the second image — keep their exact face, facial features, and hair identical to the second image, including the second person's exact hair color, shade, and tone (do not lighten, darken, or recolor the hair to match the first image). Everything else (background, clothing, pose, framing) must stay identical to the first image.${extra ? ` Additional guidance: ${extra}.` : ""}`;
+        // Nano Banana Pro handles face swaps best with this simple prompt — the
+        // "hair identical to the second image" clause already preserves her hair
+        // color, so keep it concise (verbose constraints degrade its output).
+        finalPrompt = `Take the scene, pose, body, clothing, lighting, and composition from the first image. Replace ONLY the person's face and hair with the person shown in the second image — keep their exact face, facial features, and hair identical to the second image. Everything else (background, clothing, pose, framing) must stay identical to the first image.${extra ? ` Additional guidance: ${extra}.` : ""}`;
       } else {
         // Other models need explicit instructions to adapt the new face to the
         // scene's angle, gaze, and lighting instead of pasting the reference.
