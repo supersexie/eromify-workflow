@@ -19,7 +19,11 @@ export default function SectionHero({ title, brand, sub, tiles = TILES }) {
             className="ip-hero-tile"
             style={{ background: t.hue, transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}
           >
-            <span>{t.label}</span>
+            {t.img ? (
+              <img src={t.img} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+            ) : (
+              <span>{t.label}</span>
+            )}
           </div>
         ))}
       </div>

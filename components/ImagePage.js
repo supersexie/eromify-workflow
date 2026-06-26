@@ -499,6 +499,12 @@ export default function ImagePage() {
                   ? "Upload an image and describe your change — type @ to summon an influencer."
                   : "Describe a scene, character, mood, or style — and watch it come to life."
             }
+            tiles={[
+              { img: "/hero/img1.png" },
+              { img: "/hero/img2.png" },
+              { img: "/hero/img3.png" },
+              { img: "/hero/img4.png" },
+            ]}
           />
         ) : (
           <div className="ip-grid ip-grid-uniform">
