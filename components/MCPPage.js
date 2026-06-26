@@ -95,18 +95,18 @@ export default function MCPPage() {
             </div>
             <div className="mcp-chat-body">
               <div className="mcp-bubble mcp-bubble-you">
-                Generate 8 IG-ready photos of <span className="mcp-mention">@lily</span> for this week — vary the outfits, moods, and lighting. Mix indoor and outdoor. 4:5 portrait.
+                Generate 4 IG-ready photos of <span className="mcp-mention">@lily</span> for this week — vary the outfits, moods, and lighting. Mix indoor and outdoor. 4:5 portrait.
               </div>
               <div className="mcp-bubble mcp-bubble-ai">
                 <span className="mcp-ai-spark">✦</span>
                 <div>
-                  On it. Generating 8 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
+                  On it. Generating 4 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
                   <div className="mcp-chat-grid">
-                    {["img1", "img2", "img3", "inf1", "inf2", "img4", "inf3", "inf4"].map((n) => (
+                    {["img1", "img2", "img3", "img4"].map((n) => (
                       <span key={n} className="mcp-chat-thumb"><img src={`/hero/${n}.png`} alt="" loading="lazy" /></span>
                     ))}
                   </div>
-                  <div className="mcp-chat-meta">8 IMAGES · 60 CREDITS · ~38S</div>
+                  <div className="mcp-chat-meta">4 IMAGES · 30 CREDITS · ~20S</div>
                 </div>
               </div>
             </div>
