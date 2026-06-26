@@ -2459,9 +2459,11 @@ body {
 @media (max-width: 600px) {
   .ip-bar-input-row { flex-wrap: wrap; align-items: center; row-gap: 8px; }
 
-  /* Image: textarea spans the full first row; the enhance-model picker and
-     Enhance button sit together on the row below it. */
+  /* Image: textarea spans the full first row; the enhance-model picker + Enhance
+     sit together on the right of the row below it (margin-left:auto on the GPT
+     picker pushes the pair to the right edge). */
   .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
+  .ip-bar-input-row .pb-enhance-model-wrap { margin-left: auto; }
 
   /* Image chips: model on its own row, so Aspect + Resolution sit beside the
      batch-size stepper on the next row. */
