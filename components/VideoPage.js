@@ -890,10 +890,11 @@ function VideoPageInner() {
               brand={model}
               sub="Describe a scene or start from an image to bring it to life."
               tiles={[
-                { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Cinematic" },
-                { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "B-roll" },
-                { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Portrait" },
-                { hue: "linear-gradient(135deg,#10b981,#0ea5e9)", label: "VFX" },
+                { video: "/hero/v1.mp4" },
+                { video: "/hero/v2.mp4" },
+                { video: "/hero/v3.mp4" },
+                { video: "/hero/v4.mp4" },
+                { video: "/hero/v5.mp4" },
               ]}
             />
           )}
