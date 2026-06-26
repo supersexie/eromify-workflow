@@ -1515,6 +1515,10 @@ body {
 /* On desktop the row groups are transparent (children flow inline); on mobile
    (below) they become explicit full-width rows. */
 .ip-chips-models, .ip-chips-settings { display: contents; }
+/* GPT enhance-model picker is rendered twice; show the desktop copy (next to
+   Enhance) by default and hide the mobile copy (in line with the model). */
+.ip-gpt-desktop { display: contents; }
+.ip-gpt-mobile { display: none; }
 /* Generate pinned to the bottom-right of the chatbox, sized like Enhance. */
 .ip-bar-generate-corner {
   margin-left: auto; height: 26px; padding: 0 12px; border-radius: 8px;
@@ -2468,6 +2472,10 @@ body {
      of the row below it. */
   .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
   .ip-bar-input-row .pb-enhance { margin-left: auto; }
+
+  /* Swap which GPT picker shows: hide the desktop copy, show the mobile copy. */
+  .ip-gpt-desktop { display: none; }
+  .ip-gpt-mobile { display: contents; }
 
   /* Chips become two fixed rows (width-independent): Flux left + GPT right on
      one line, then Aspect + Resolution + Batch on the next. Drop the chips row's
