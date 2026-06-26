@@ -853,7 +853,6 @@ function VideoPageInner() {
               </div>
 
               <div className="vp-motion-library">
-                <h2 className="vp-motion-library-title">Start by copying motion from library</h2>
                 <div className="vp-motion-library-grid">
                   {[
                     { bg: "linear-gradient(135deg,#7c3aed,#ec4899)", video: "/hero/ml1.mp4" },
