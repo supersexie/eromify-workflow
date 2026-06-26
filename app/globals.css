@@ -1454,6 +1454,21 @@ body {
 .lib-page-card:hover .lib-page-dl { opacity: 1; }
 .lib-page-dl:hover { background: var(--blue); border-color: transparent; }
 .ip-error { margin: 20px auto; max-width: 720px; }
+/* Error toast — slides in at the top, auto-dismisses after 5s (JS), click to close. */
+.ip-toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 200; max-width: min(640px, calc(100vw - 32px));
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 16px; border-radius: 12px; cursor: pointer;
+  background: rgba(40, 12, 16, 0.96); border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #fecaca; font-size: 13px; line-height: 1.45; font-weight: 500;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  animation: ip-toast-in 0.22s ease;
+}
+.ip-toast svg { flex: 0 0 auto; margin-top: 1px; color: #f87171; }
+.ip-toast span { word-break: break-word; max-height: 4.5em; overflow: hidden; }
+@keyframes ip-toast-in { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 .ip-bar {
   position: fixed; left: 0; right: 0; bottom: 0;

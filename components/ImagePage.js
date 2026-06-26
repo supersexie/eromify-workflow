@@ -237,6 +237,12 @@ export default function ImagePage() {
   // before the load effect's state update lands.
   useEffect(() => { if (loaded) saveHistory(results); }, [results, loaded]);
   const [error, setError] = useState(null);
+  // Auto-dismiss the error toast after 5s.
+  useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(t);
+  }, [error]);
 
   // Characters currently referenced in the prompt (shown as chips). The
   // MentionField handles the @autocomplete + pink inline tag itself.
@@ -469,6 +475,13 @@ export default function ImagePage() {
     <div className="ip-page">
       <TopBar right={<UserMenu />} />
 
+      {error && (
+        <div className="ip-toast" role="alert" onClick={() => setError(null)}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>{error}</span>
+        </div>
+      )}
+
       <div className="ip-body">
         <div className="ip-mode-seg">
           <button className={mode === "generate" ? "is-active" : ""} onClick={() => setMode("generate")}>Generate</button>
@@ -502,8 +515,6 @@ export default function ImagePage() {
             ))}
           </div>
         )}
-
-        {error && <div className="mc-error ip-error">{error}</div>}
       </div>
 
       <div className="ip-bar">
