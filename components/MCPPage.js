@@ -7,12 +7,6 @@ import UserMenu from "@/components/UserMenu";
 // When deployed at eromify.pro this resolves to https://eromify.pro/api/mcp.
 const MCP_URL = "https://eromify.pro/api/mcp";
 
-const INSTALL_TYPES = [
-  { id: "mcp", label: "MCP", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg> },
-  { id: "cli", label: "CLI", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg> },
-  { id: "skill", label: "Skill", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18M4 7h4M4 11h4M4 15h4M4 19h4"/></svg> },
-];
-
 const APPS = [
   { id: "claude",  label: "Claude",   ic: <svg width="14" height="14" viewBox="0 0 24 24" fill="#ec4899"><circle cx="12" cy="12" r="10"/></svg> },
   { id: "cursor",  label: "Cursor",   ic: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="6 3 20 12 6 21 6 3"/></svg> },
@@ -54,7 +48,6 @@ const TOOL_CARDS = [
 ];
 
 export default function MCPPage() {
-  const [install, setInstall] = useState("mcp");
   const [app, setApp] = useState("claude");
   const [copied, setCopied] = useState(false);
 
@@ -93,20 +86,8 @@ export default function MCPPage() {
           </div>
         </div>
 
-        {/* Tab row: install type (left) + target app (right) */}
+        {/* Tab row: target app selector */}
         <div className="mcp-tabs-row">
-          <div className="mcp-pillgroup">
-            {INSTALL_TYPES.map((t) => (
-              <button
-                key={t.id}
-                className={`mcp-pill ${install === t.id ? "is-active" : ""}`}
-                onClick={() => setInstall(t.id)}
-              >
-                {t.icon}
-                <span>{t.label}</span>
-              </button>
-            ))}
-          </div>
           <div className="mcp-pillgroup">
             {APPS.map((a) => (
               <button
@@ -122,7 +103,7 @@ export default function MCPPage() {
         </div>
 
         {/* 3-step card row */}
-        {install === "mcp" && (
+        {(
           <div className="mcp-steps">
             <div className="mcp-step">
               <div className="mcp-step-num">1</div>
@@ -158,53 +139,6 @@ export default function MCPPage() {
               <div className="mcp-step-body">{steps.step3.body}</div>
             </div>
           </div>
-        )}
-
-        {install === "cli" && (
-          <div className="mcp-cli">
-            <div className="mcp-cli-title">One-line install for CLI agents</div>
-            <div className="mcp-cli-body">
-              For Claude Code, Codex, OpenClaw or Hermes, run this in your project:
-            </div>
-            <div className="mcp-cli-code">
-              <code>npx eromify-mcp install --client {app}</code>
-              <button onClick={() => copy(`npx eromify-mcp install --client ${app}`)} title="Copy">
-                {copied ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {install === "skill" && (
-          <div className="mcp-cli">
-            <div className="mcp-cli-title">Install as an Anthropic Skill</div>
-            <div className="mcp-cli-body">
-              Download the Eromify skill bundle and drop it into your <code>~/.claude/skills/</code> directory.
-            </div>
-            <a className="mcp-cli-code" href="#" onClick={(e) => e.preventDefault()}>
-              <code>eromify-skill-v1.zip</code>
-              <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 6, color: "var(--blue)" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                Download
-              </span>
-            </a>
-          </div>
-        )}
-
-        {/* CLI hint banner under the MCP setup */}
-        {install === "mcp" && (
-          <a
-            className="mcp-cli-banner"
-            href="#"
-            onClick={(e) => { e.preventDefault(); setInstall("cli"); }}
-          >
-            If you are using Claude Code, Codex, OpenClaw, Hermes, it's better to use the CLI
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M7 7h10v10"/></svg>
-          </a>
         )}
 
         {/* Tools showcase */}
