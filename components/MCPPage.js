@@ -86,6 +86,47 @@ export default function MCPPage() {
           </div>
         </div>
 
+        {/* Connector demo — chat mockup (left) + feature cards (right) */}
+        <div className="mcp-demo">
+          <div className="mcp-chat">
+            <div className="mcp-chat-head">
+              <span className="mcp-chat-dot" /><span className="mcp-chat-dot" /><span className="mcp-chat-dot" />
+              <span className="mcp-chat-title">CLAUDE · EROMIFY CONNECTOR</span>
+            </div>
+            <div className="mcp-chat-body">
+              <div className="mcp-bubble mcp-bubble-you">
+                Generate 8 IG-ready photos of <span className="mcp-mention">@lily</span> for this week — vary the outfits, moods, and lighting. Mix indoor and outdoor. 4:5 portrait.
+              </div>
+              <div className="mcp-bubble mcp-bubble-ai">
+                <span className="mcp-ai-spark">✦</span>
+                <div>
+                  On it. Generating 8 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
+                  <div className="mcp-chat-grid">
+                    {["img1", "img2", "img3", "inf1", "inf2", "img4", "inf3", "inf4"].map((n) => (
+                      <span key={n} className="mcp-chat-thumb"><img src={`/hero/${n}.png`} alt="" loading="lazy" /></span>
+                    ))}
+                  </div>
+                  <div className="mcp-chat-meta">8 IMAGES · 60 CREDITS · ~38S</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mcp-demo-features">
+            {[
+              { n: "01", h: "Talk to your avatars by name", d: "Lily, Aria, Maya — Claude knows which influencer to use and never breaks character." },
+              { n: "02", h: "Batch generate 12 at a time", d: "One prompt. One coffee. A week of content rendered while you focus on shipping." },
+              { n: "03", h: "Spin up videos without leaving the chat", d: "Bring stills to life with Kling, Veo, and Sora — Claude routes the right model automatically." },
+            ].map((f) => (
+              <div key={f.n} className="mcp-feature">
+                <div className="mcp-feature-n">{f.n}</div>
+                <div className="mcp-feature-h">{f.h}</div>
+                <div className="mcp-feature-d">{f.d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Tab row: target app selector */}
         <div className="mcp-tabs-row">
           <div className="mcp-pillgroup">
