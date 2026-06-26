@@ -86,7 +86,7 @@ export default function MCPPage() {
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M5 12c0-4 3-7 7-7s7 3 7 7-3 7-7 7"/><path d="M5 19h7"/></svg>
               </span>
             </div>
-            <h1 className="mcp-hero-title">EROMIFY MCP FOR ANY AI</h1>
+            <h1 className="mcp-hero-title">EROMIFY MCP FOR CLAUDE</h1>
             <p className="mcp-hero-sub">
               Connect Eromify to your workflow and generate cinematic images and videos directly from your prompts.
             </p>

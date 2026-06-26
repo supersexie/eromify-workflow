@@ -13,7 +13,7 @@ const TABS = [
   { id: "upscale", label: "Upscale", path: "/upscale", match: (p) => p.startsWith("/upscale") },
   { id: "library", label: "Library", path: "/library", match: (p) => p.startsWith("/library") },
   { id: "influencers", label: "Influencers", path: "/influencers", match: (p) => p.startsWith("/influencers") },
-  { id: "mcp",    label: "MCP & CLI", path: "/mcp", match: (p) => p.startsWith("/mcp") },
+  { id: "mcp",    label: "MCP", path: "/mcp", match: (p) => p.startsWith("/mcp") },
 ];
 
 // Shared topbar tab strip — used by every product page so the brand pill,
