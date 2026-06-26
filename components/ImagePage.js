@@ -525,7 +525,7 @@ export default function ImagePage() {
               ) : (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14z" /></svg>
               )}
-              <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
+              <span>{enhancing ? "Enhancing…" : "Enhance prompt"}</span>
             </button>
           </div>
 
