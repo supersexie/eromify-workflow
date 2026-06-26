@@ -2459,9 +2459,13 @@ body {
 @media (max-width: 600px) {
   .ip-bar-input-row { flex-wrap: wrap; align-items: center; row-gap: 8px; }
 
-  /* Image: textarea spans the full first row; +, model, Enhance go below. */
+  /* Image: textarea spans the full first row; the enhance-model picker and
+     Enhance button sit together on the row below it. */
   .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
-  .ip-bar-input-row .pb-enhance { margin-left: auto; }
+
+  /* Image chips: model on its own row, so Aspect + Resolution sit beside the
+     batch-size stepper on the next row. */
+  .ip-bar-chips > .chip-wrap:first-child { flex: 1 1 100%; }
 
   /* Image: the corner Generate becomes a full-width final row (big tap area). */
   .ip-bar-generate-corner { width: 100%; justify-content: center; height: 38px; margin-left: 0; font-size: 13px; }

@@ -138,9 +138,6 @@ const SAMPLE_TILES = [
 const ENHANCE_MODELS = [
   { id: "gpt-4.1-mini", label: "GPT-4.1 mini", note: "Fast & cheap · recommended" },
   { id: "gpt-4.1", label: "GPT-4.1", note: "Smarter, better paragraphs" },
-  { id: "gpt-4o", label: "GPT-4o", note: "Multimodal flagship" },
-  { id: "gpt-5.5", label: "GPT-5.5", note: "Flagship · expensive" },
-  { id: "gpt-5.5-pro", label: "GPT-5.5 Pro", note: "Max quality · pricey" },
 ];
 const ENHANCE_PREF_KEY = "eromify:enhanceModel:v1";
 
@@ -506,9 +503,6 @@ export default function ImagePage() {
             </div>
           )}
           <div className="ip-bar-input-row">
-            <button className="ip-bar-plus" title="Add reference image">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
             <MentionField
               multiline
               dropUp
