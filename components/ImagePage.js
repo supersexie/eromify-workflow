@@ -655,7 +655,7 @@ export default function ImagePage() {
 
             {/* Batch size stepper */}
             <div className="chip-wrap">
-              <button className="ip-chip ip-stepper" onClick={() => toggle("batch")} data-tooltip="Batch Size">
+              <div className="ip-chip ip-stepper" role="button" tabIndex={0} onClick={() => toggle("batch")} data-tooltip="Batch Size">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 <button
                   className="ip-step-btn"
@@ -668,7 +668,7 @@ export default function ImagePage() {
                   disabled={batch >= 4}
                   onClick={(e) => { e.stopPropagation(); setBatch((b) => Math.min(4, b + 1)); }}
                 >+</button>
-              </button>
+              </div>
               <Popover open={openMenu === "batch"} onClose={() => setOpenMenu(null)}>
                 <div className="ip-pop-title">Batch Size</div>
                 <div className="ip-batch-hint">Generate up to 4 images at once. Each costs the same as a single generation.</div>
