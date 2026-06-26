@@ -1510,6 +1510,9 @@ body {
 .ip-bar-generate:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 .ip-bar-count { background: rgba(0,0,0,.25); padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
 .ip-bar-chips { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 0 4px; flex-wrap: wrap; }
+/* On desktop the row groups are transparent (children flow inline); on mobile
+   (below) they become explicit full-width rows. */
+.ip-chips-models, .ip-chips-settings { display: contents; }
 /* Generate pinned to the bottom-right of the chatbox, sized like Enhance. */
 .ip-bar-generate-corner {
   margin-left: auto; height: 26px; padding: 0 12px; border-radius: 8px;
@@ -2464,10 +2467,10 @@ body {
   .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
   .ip-bar-input-row .pb-enhance { margin-left: auto; }
 
-  /* Chips: model (Flux) on the left, the GPT enhance-model picker pushed to the
-     right on the SAME line (so GPT sits under Enhance, in line with Flux);
-     aspect + resolution + batch wrap to the next line. */
-  .ip-bar-chips .pb-enhance-model-wrap { margin-left: auto; }
+  /* Chips become two fixed rows (width-independent): Flux left + GPT right on
+     one line, then Aspect + Resolution + Batch on the next. */
+  .ip-chips-models { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: space-between; }
+  .ip-chips-settings { display: flex; width: 100%; gap: 8px; align-items: center; }
 
   /* Image: the corner Generate becomes a full-width final row (big tap area). */
   .ip-bar-generate-corner { width: 100%; justify-content: center; height: 38px; margin-left: 0; font-size: 13px; }

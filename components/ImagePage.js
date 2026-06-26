@@ -530,6 +530,8 @@ export default function ImagePage() {
           </div>
 
           <div className="ip-bar-chips">
+            {/* Flux model + GPT enhance-model picker — one row on mobile. */}
+            <div className="ip-chips-models">
             {/* Model picker */}
             <div className="chip-wrap">
               <Chip
@@ -601,7 +603,10 @@ export default function ImagePage() {
                 </>
               )}
             </div>
+            </div>{/* /ip-chips-models */}
 
+            {/* Aspect, Resolution, Batch — one row on mobile. */}
+            <div className="ip-chips-settings">
             {/* Aspect ratio */}
             <div className="chip-wrap">
               <Chip
@@ -677,6 +682,7 @@ export default function ImagePage() {
                 <div className="ip-batch-hint">Generate up to 4 images at once. Each costs the same as a single generation.</div>
               </Popover>
             </div>
+            </div>{/* /ip-chips-settings */}
 
             {/* Generate — pinned to the bottom-right corner of the chatbox */}
             <button className="ip-bar-generate ip-bar-generate-corner" onClick={generate} disabled={!canRun}>
