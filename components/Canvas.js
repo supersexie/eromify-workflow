@@ -84,6 +84,7 @@ function CanvasInner({ workflowId }) {
   const connectingRef = useRef(null);
   const skipNextHistRef = useRef(false);
   const lastSnapshotRef = useRef(null);
+  const loadedIdRef = useRef(null);
   const nodesRef = useRef(nodes);
   useEffect(() => { nodesRef.current = nodes; }, [nodes]);
 
@@ -121,8 +122,13 @@ function CanvasInner({ workflowId }) {
 
   useEffect(() => {
     if (!workflowId) return;
+    // Load each workflow's nodes from storage ONCE. Without this guard a stray
+    // re-run (e.g. a changed router ref) would overwrite the live in-memory
+    // nodes with the stored copy — making freshly-added nodes vanish.
+    if (loadedIdRef.current === workflowId) return;
     const wf = getWorkflow(workflowId);
     if (!wf) { router.replace("/app"); return; }
+    loadedIdRef.current = workflowId;
     setNodes(wf.nodes || []);
     setEdges(wf.edges || []);
     setName(wf.name || "Untitled Canvas");
