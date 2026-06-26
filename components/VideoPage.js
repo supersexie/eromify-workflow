@@ -841,11 +841,13 @@ function VideoPageInner() {
                 </div>
                 <div className="vp-motion-hero-tiles">
                   {[
-                    "linear-gradient(135deg,#ec4899,#a855f7)",
-                    "linear-gradient(135deg,#3b82f6,#a855f7)",
-                    "linear-gradient(135deg,#10b981,#ec4899)",
-                  ].map((bg, i) => (
-                    <div key={i} className="vp-motion-tile" style={{ background: bg, transform: `rotate(${(i - 1) * 6}deg) translateY(${i % 2 ? 8 : -8}px)` }} />
+                    { bg: "linear-gradient(135deg,#ec4899,#a855f7)", video: "/hero/v1.mp4" },
+                    { bg: "linear-gradient(135deg,#3b82f6,#a855f7)", video: "/hero/v2.mp4" },
+                    { bg: "linear-gradient(135deg,#10b981,#ec4899)", video: "/hero/v3.mp4" },
+                  ].map((t, i) => (
+                    <div key={i} className="vp-motion-tile" style={{ background: t.bg, transform: `rotate(${(i - 1) * 6}deg) translateY(${i % 2 ? 8 : -8}px)` }}>
+                      <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -878,10 +880,10 @@ function VideoPageInner() {
               brand="Video"
               sub="Upload a 3–10s clip and describe the change — restyle, relight, swap elements, or add motion."
               tiles={[
-                { hue: "linear-gradient(135deg,#6366f1,#a855f7)", label: "Restyle" },
-                { hue: "linear-gradient(135deg,#0ea5e9,#22c55e)", label: "Relight" },
-                { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Swap" },
-                { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Motion" },
+                { video: "/hero/v2.mp4" },
+                { video: "/hero/v3.mp4" },
+                { video: "/hero/v4.mp4" },
+                { video: "/hero/v5.mp4" },
               ]}
             />
           ) : (
