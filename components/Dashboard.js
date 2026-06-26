@@ -80,10 +80,20 @@ export default function Dashboard() {
           <circle className="cv-dot" cx="915" cy="205" r="4" />
           <circle className="cv-dot" cx="1135" cy="150" r="4" />
         </svg>
-        <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }} />
-        <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }} />
-        <div className="cv-tile cv-tile-3" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }} />
-        <div className="cv-tile cv-tile-4" style={{ background: "linear-gradient(135deg,#0ea5e9,#22c55e)" }} />
+        {/* Showcase tiles — left pair (1,2) + right pair (3,4). The gradient is
+            a fallback shown only if the image file is missing. */}
+        <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }}>
+          <img src="/hero/cv1.jpg" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        </div>
+        <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }}>
+          <img src="/hero/cv2.jpg" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        </div>
+        <div className="cv-tile cv-tile-3" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }}>
+          <img src="/hero/cv3.jpg" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        </div>
+        <div className="cv-tile cv-tile-4" style={{ background: "linear-gradient(135deg,#0ea5e9,#22c55e)" }}>
+          <img src="/hero/cv4.jpg" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        </div>
         <div className="cv-bubble cv-bubble-1">That's cool!</div>
         <div className="cv-bubble cv-bubble-2">🔥 Love it</div>
         <div className="cv-hero-inner">
