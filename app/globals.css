@@ -2582,3 +2582,10 @@ body {
 @media (max-width: 860px) {
   .mcp-demo { grid-template-columns: 1fr; }
 }
+
+/* Claude starburst mark inline in the MCP hero title */
+.mcp-claude-mark {
+  display: inline-block; vertical-align: -0.18em;
+  width: 1em; height: 1em; margin: 0 0.12em;
+  border-radius: 0.24em; line-height: 0;
+}

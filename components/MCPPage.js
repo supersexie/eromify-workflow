@@ -79,7 +79,20 @@ export default function MCPPage() {
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M5 12c0-4 3-7 7-7s7 3 7 7-3 7-7 7"/><path d="M5 19h7"/></svg>
               </span>
             </div>
-            <h1 className="mcp-hero-title">EROMIFY MCP FOR CLAUDE</h1>
+            <h1 className="mcp-hero-title">
+              EROMIFY MCP FOR{" "}
+              <span className="mcp-claude-mark" aria-hidden="true">
+                <svg viewBox="0 0 100 100" width="100%" height="100%">
+                  <rect x="2" y="2" width="96" height="96" rx="24" fill="#c5704f" />
+                  <g stroke="#f7efe6" strokeWidth="7" strokeLinecap="round">
+                    {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a, i) => (
+                      <line key={a} x1="50" y1="50" x2="50" y2={i % 2 ? 22 : 13} transform={`rotate(${a} 50 50)`} />
+                    ))}
+                  </g>
+                </svg>
+              </span>{" "}
+              CLAUDE
+            </h1>
             <p className="mcp-hero-sub">
               Connect Eromify to your workflow and generate cinematic images and videos directly from your prompts.
             </p>
