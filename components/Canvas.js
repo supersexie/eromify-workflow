@@ -549,6 +549,21 @@ function CanvasInner({ workflowId }) {
 
   return (
     <>
+      {/* The node canvas needs a pointer + room — on phones show a friendly
+          notice that points to the mobile-friendly studios (CSS-gated). */}
+      <div className="cv-mobile-gate">
+        <div className="cv-mobile-gate-icon">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+        </div>
+        <h2>Canvas is best on desktop</h2>
+        <p>The node canvas needs a bigger screen and a mouse. On your phone, create images and videos in the studios instead — they're built for mobile.</p>
+        <div className="cv-mobile-gate-actions">
+          <a className="is-primary" href="/image">Open Image studio</a>
+          <a className="is-ghost" href="/video">Open Video studio</a>
+          <a className="is-ghost" href="/app">Back to canvases</a>
+        </div>
+      </div>
+
       <div className="topbar">
         <div className="title-pill">
           <button className="back-btn" onClick={() => router.push("/app")} title="Back">

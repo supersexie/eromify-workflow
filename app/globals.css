@@ -2397,3 +2397,79 @@ body {
   background: var(--grad);
 }
 .mcp-tool-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* =====================================================================
+   MOBILE — Phase 1. Make the section studios (Image/Video/Upscale/Library/
+   Influencers/MCP) genuinely usable on phones. The Canvas editor stays
+   desktop-first and shows a "best on desktop" notice on small screens.
+   ===================================================================== */
+@media (max-width: 760px) {
+  /* ---- Top nav: brand + actions on row 1, tabs become a scroll strip ---- */
+  .app-topbar { flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+  .app-topbar-brand span { font-size: 13px; }
+  .app-topbar-right { gap: 10px; }
+  .nav-pill, .topbar-nav {
+    position: static; transform: none; order: 3; width: 100%;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; border-radius: 10px; padding: 4px;
+  }
+  .nav-pill::-webkit-scrollbar, .topbar-nav::-webkit-scrollbar { display: none; }
+  .nav-pill .mc-tabs, .topbar-nav .mc-tabs { flex-wrap: nowrap; }
+  .nav-pill .mc-tab, .topbar-nav .mc-tab { flex: 0 0 auto; white-space: nowrap; }
+
+  /* Canvas top bar: same scroll-strip treatment; let it grow with the strip. */
+  .topbar { position: fixed; height: auto; flex-wrap: wrap; padding: 8px 10px; gap: 6px; }
+  .topbar .title-pill { flex: 1 1 auto; min-width: 0; }
+  .topbar .title-pill input { min-width: 0; }
+
+  /* ---- Image studio ---- */
+  .ip-body { padding: 16px 14px 260px; }
+  .ip-bar { padding: 10px 12px 16px; }
+  .ip-bar-inner { padding: 10px; border-radius: 14px; }
+  .ip-grid-uniform { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .ip-mode-seg { width: 100%; }
+
+  /* ---- Video studio: stack the two-column shell into one scroll column ---- */
+  .vp-shell { display: block; overflow-y: auto; }
+  .vp-sidebar { border-right: none; border-bottom: 1px solid var(--line); max-height: none; }
+
+  /* ---- Library / Influencers / Upscale grids + heads ---- */
+  .lib-scroll { padding: 18px 14px 60px; }
+  .lib-page-head { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .lib-filter-seg { width: 100%; }
+  .lib-filter-seg button { flex: 1; justify-content: center; }
+  .inf-body { padding: 18px 14px 60px; }
+  .inf-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+
+  /* ---- Bigger touch targets ---- */
+  .mc-tab { min-height: 38px; }
+  .app-topbar-right .icon-btn, .topbar-right .icon-btn { min-width: 38px; min-height: 38px; }
+}
+
+/* Very narrow phones: 2-up galleries, full-width segments. */
+@media (max-width: 430px) {
+  .ip-grid-uniform { grid-template-columns: 1fr 1fr; }
+  .vp-motion-pair { grid-template-columns: 1fr; }
+}
+
+/* The Canvas editor needs a pointer + space — gate it on phones. The notice
+   is rendered by Canvas.js; this just lays it out. */
+.cv-mobile-gate {
+  position: fixed; inset: 0; z-index: 50;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; text-align: center; padding: 40px 28px;
+  background: var(--bg); color: var(--ink);
+}
+.cv-mobile-gate h2 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: -0.02em; }
+.cv-mobile-gate p { color: var(--muted); margin: 0; max-width: 320px; line-height: 1.55; font-size: 14px; }
+.cv-mobile-gate-icon { color: var(--blue); }
+.cv-mobile-gate-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; margin-top: 6px; }
+.cv-mobile-gate-actions a {
+  display: block; padding: 13px 18px; border-radius: 12px; font-size: 15px; font-weight: 600;
+  text-decoration: none;
+}
+.cv-mobile-gate-actions .is-primary { background: var(--blue); color: #fff; }
+.cv-mobile-gate-actions .is-ghost { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); }
+@media (max-width: 760px) {
+  .cv-mobile-gate { display: flex; }
+}

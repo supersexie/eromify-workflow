@@ -7,6 +7,14 @@ export const metadata = {
   description: "Build, customize and monetize stunning AI personas. Generate images, video, voiceovers, and scripts on one infinite canvas.",
 };
 
+// Mobile foundation: render at device width (not a zoomed-out desktop width).
+// viewport-fit=cover enables safe-area insets on notched phones.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }) {
   const page = (
     <html lang="en" suppressHydrationWarning>
