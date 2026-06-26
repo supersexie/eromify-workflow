@@ -2470,7 +2470,9 @@ body {
   .ip-bar-input-row .pb-enhance { margin-left: auto; }
 
   /* Chips become two fixed rows (width-independent): Flux left + GPT right on
-     one line, then Aspect + Resolution + Batch on the next. */
+     one line, then Aspect + Resolution + Batch on the next. Drop the chips row's
+     side padding so its edges line up with the prompt row above (Enhance). */
+  .ip-bar-chips { padding: 0; }
   .ip-chips-models { display: flex; width: 100%; gap: 8px; align-items: center; justify-content: space-between; }
   .ip-chips-settings { display: flex; width: 100%; gap: 8px; align-items: center; }
 
