@@ -136,9 +136,14 @@ export default function UpscalePage() {
         {results.length === 0 && !running ? (
           <div className="ip-hero">
             <div className="ip-hero-tiles">
-              {["linear-gradient(135deg,#ec4899,#a855f7)", "linear-gradient(135deg,#a855f7,#3b82f6)", "linear-gradient(135deg,#3b82f6,#06b6d4)", "linear-gradient(135deg,#06b6d4,#10b981)"].map((bg, i) => (
-                <div key={i} className="ip-hero-tile" style={{ background: bg, transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}>
-                  <span>{i % 2 ? "4K" : "HD"}</span>
+              {(kind === "video"
+                ? [{ bg: "linear-gradient(135deg,#ec4899,#a855f7)", video: "/hero/v2.mp4" }, { bg: "linear-gradient(135deg,#a855f7,#3b82f6)", video: "/hero/v3.mp4" }, { bg: "linear-gradient(135deg,#3b82f6,#06b6d4)", video: "/hero/v4.mp4" }, { bg: "linear-gradient(135deg,#06b6d4,#10b981)", video: "/hero/v5.mp4" }]
+                : [{ bg: "linear-gradient(135deg,#ec4899,#a855f7)", img: "/hero/img1.png" }, { bg: "linear-gradient(135deg,#a855f7,#3b82f6)", img: "/hero/img2.png" }, { bg: "linear-gradient(135deg,#3b82f6,#06b6d4)", img: "/hero/img3.png" }, { bg: "linear-gradient(135deg,#06b6d4,#10b981)", img: "/hero/img4.png" }]
+              ).map((t, i) => (
+                <div key={i} className="ip-hero-tile" style={{ background: t.bg, transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}>
+                  {t.video
+                    ? <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    : <img src={t.img} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />}
                 </div>
               ))}
             </div>
