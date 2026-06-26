@@ -819,18 +819,6 @@ function VideoPageInner() {
             </div>
           ) : sub === "motion" ? (
             <div className="vp-motion-main">
-              {/* Top tabs: History / Motion library — cosmetic for v1 */}
-              <div className="vp-main-tabs">
-                <button className="vp-main-tab">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18v12H3zM3 10h18"/></svg>
-                  History
-                </button>
-                <button className="vp-main-tab is-active">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM8 3v18"/></svg>
-                  Motion library
-                </button>
-              </div>
-
               <div className="vp-motion-hero">
                 <div className="vp-motion-hero-text">
                   <h1 className="vp-motion-h1">
