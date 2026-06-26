@@ -519,6 +519,7 @@ export default function ImagePage() {
               }
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate(); }}
             />
+            <div className="ip-enhance-group">
             <div className="chip-wrap pb-enhance-model-wrap">
               <button className="pb-enhance-model" onClick={() => toggle("enhanceModel")} title="Pick the model used by Enhance">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
@@ -552,6 +553,7 @@ export default function ImagePage() {
               )}
               <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
             </button>
+            </div>
           </div>
 
           <div className="ip-bar-chips">

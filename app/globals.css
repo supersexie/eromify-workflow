@@ -1466,6 +1466,8 @@ body {
   box-shadow: 0 10px 40px rgba(0,0,0,.45);
 }
 .ip-bar-input-row { display: flex; align-items: flex-end; gap: 8px; }
+/* GPT picker + Enhance grouped: side-by-side on desktop, stacked on mobile. */
+.ip-enhance-group { display: flex; align-items: flex-end; gap: 8px; }
 .ip-bar-plus {
   width: 32px; height: 32px; border-radius: 8px;
   background: var(--surface-2); border: 1px solid var(--line);
@@ -2459,11 +2461,14 @@ body {
 @media (max-width: 600px) {
   .ip-bar-input-row { flex-wrap: wrap; align-items: center; row-gap: 8px; }
 
-  /* Image: textarea spans the full first row; the enhance-model picker + Enhance
-     sit together on the right of the row below it (margin-left:auto on the GPT
-     picker pushes the pair to the right edge). */
+  /* Image: textarea spans the full first row; the Enhance + GPT group sits on
+     the right below it, stacked (Enhance on top, GPT picker under it). */
   .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
-  .ip-bar-input-row .pb-enhance-model-wrap { margin-left: auto; }
+  .ip-enhance-group {
+    margin-left: auto;
+    flex-direction: column-reverse; /* DOM is GPT,Enhance → reverse puts Enhance on top */
+    align-items: flex-end; gap: 8px;
+  }
 
   /* Image chips: model on its own row, so Aspect + Resolution sit beside the
      batch-size stepper on the next row. */
