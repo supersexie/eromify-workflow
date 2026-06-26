@@ -23,6 +23,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     setItems(listWorkflows());
+    // Being on the dashboard IS the canvas-section location now — clear the
+    // remembered open canvas so the Canvas nav tab returns here (not the last
+    // workflow) when you come back from another section.
+    try { localStorage.setItem("eromify:lastCanvas", ""); } catch {}
   }, []);
 
   const refresh = () => setItems(listWorkflows());
