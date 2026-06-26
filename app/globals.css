@@ -2452,6 +2452,28 @@ body {
   .vp-motion-pair { grid-template-columns: 1fr; }
 }
 
+/* ---- Prompt / upscale bar: de-clutter on phones ----
+   Desktop packs the textarea + model picker + Enhance into one row, which
+   squeezes the textarea to ~40% on a phone (it wraps to 5 lines). On mobile,
+   give the textarea its own full-width row and drop the actions below it. */
+@media (max-width: 600px) {
+  .ip-bar-input-row { flex-wrap: wrap; align-items: center; row-gap: 8px; }
+
+  /* Image: textarea spans the full first row; +, model, Enhance go below. */
+  .ip-bar-input-row .mf-wrap { flex: 1 1 100%; order: -1; }
+  .ip-bar-input-row .pb-enhance { margin-left: auto; }
+
+  /* Image: the corner Generate becomes a full-width final row (big tap area). */
+  .ip-bar-generate-corner { width: 100%; justify-content: center; height: 38px; margin-left: 0; font-size: 13px; }
+
+  /* Upscale: source thumb + label stay on row 1; Upscale button gets its own. */
+  .up-source-label { flex: 1 1 auto; min-width: 0; }
+  .ip-bar-input-row > .ip-bar-generate { flex: 1 1 100%; justify-content: center; height: 40px; }
+
+  /* A touch more room above the fixed bar so the gallery isn't hidden. */
+  .ip-body { padding-bottom: 300px; }
+}
+
 /* The Canvas editor needs a pointer + space — gate it on phones. The notice
    is rendered by Canvas.js; this just lays it out. */
 .cv-mobile-gate {
