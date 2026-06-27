@@ -61,6 +61,10 @@ const RAIL_ICONS = {
 const SIZE = { image: 304, video: 525, text: 213, audio: 304, motion: 304 };
 const HEIGHT = { image: 340, video: 320, text: 340, audio: 340, motion: 340 };
 
+// Defaults for freshly-created nodes (overridable via addNode options).
+const DEFAULT_MODEL = { image: "Nano Banana Pro", video: "Kling 2.6" };
+const DEFAULT_ASPECT = { image: "3:4", video: "9:16" };
+
 let idCounter = 0;
 const nextId = () => `n_${++idCounter}_${Math.random().toString(36).slice(2, 6)}`;
 
@@ -286,7 +290,8 @@ function CanvasInner({ workflowId }) {
   }, []);
 
   const addNode = (kind, options = {}) => {
-    const d = nodeDims(kind, options.aspect);
+    const aspect = options.aspect || DEFAULT_ASPECT[kind];
+    const d = nodeDims(kind, aspect);
     const W = d ? d.width : (SIZE[kind] || 304);
     const H = d ? d.height : (HEIGHT[kind] || 340);
     let pos = options.position;
@@ -298,9 +303,9 @@ function CanvasInner({ workflowId }) {
     }
     const id = nextId();
     const data = { kind, prompt: options.prompt || "" };
-    if (options.model) data.model = options.model;
-    else if (kind === "video") data.model = "Kling 2.6";
-    if (options.aspect) data.aspect = options.aspect;
+    const model = options.model || DEFAULT_MODEL[kind];
+    if (model) data.model = model;
+    if (aspect) data.aspect = aspect;
     const node = { id, type: "workflow", position: pos, data, width: W, height: H };
     setNodes((n) => [...n, node]);
     if (options.connectFrom) {
