@@ -2543,7 +2543,9 @@ body {
 }
 
 /* ---- Canvas hands-on tutorial ---- */
-.tut-root { position: fixed; inset: 0; z-index: 1000; }
+/* Root is click-through so spotlight steps let the user interact with the live
+   UI underneath; only the tip card / modal backdrop re-enable pointer events. */
+.tut-root { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
 .tut-overlay { position: fixed; inset: 0; pointer-events: none; } /* click-through dim */
 .tut-ring {
   stroke: var(--blue); stroke-width: 2.5;
@@ -2555,6 +2557,7 @@ body {
 .tut-modal-backdrop {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.62);
   display: flex; align-items: center; justify-content: center; padding: 24px;
+  pointer-events: auto;
 }
 
 .tut-card {
