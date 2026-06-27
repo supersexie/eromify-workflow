@@ -62,7 +62,8 @@ export const TUT_STEPS = [
   {
     mode: "spotlight",
     target: ".react-flow__handle.source",
-    placement: "bl",
+    tipTarget: ".react-flow__node",
+    placement: "left-of",
     optional: true,
     revealHandles: true,
     title: "Branch into a new node",
@@ -96,6 +97,9 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip, ne
   const active = step != null && step >= 0 && step < TUT_STEPS.length;
   const spec = active ? TUT_STEPS[step] : null;
   const rect = useTargetRect(spec?.mode === "spotlight" ? spec.target : null, active);
+  // Optional separate anchor for the tip card (e.g. position beside the node
+  // card while the spotlight hole stays on the small + handle).
+  const tipRect = useTargetRect(spec?.tipTarget || null, active);
 
   // Esc closes the tour.
   useEffect(() => {
@@ -120,7 +124,16 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip, ne
   // Tooltip position for spotlight steps.
   let tipStyle = {};
   if (!isModal && rect) {
-    if (spec.placement === "right") {
+    if (spec.placement === "left-of") {
+      // Place the card just to the left of the tip anchor (the node card),
+      // vertically aligned, clamped into the viewport. Spotlight stays on the
+      // small + handle. Falls back near the handle if the anchor isn't found.
+      const CARD_W = 340;
+      const anchor = tipRect || rect;
+      const left = Math.max(16, anchor.left - CARD_W - 20);
+      const top = Math.max(64, Math.min(anchor.top, window.innerHeight - 240));
+      tipStyle = { left, top };
+    } else if (spec.placement === "right") {
       tipStyle = { left: rect.right + 16, top: rect.top };
     } else if (spec.placement === "bl") {
       // Lower-left, just above the prompt bar — used for the prompt step so the
