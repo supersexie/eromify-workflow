@@ -2566,6 +2566,7 @@ body {
   border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
 }
 .tut-card-tip { position: fixed; pointer-events: auto; }
+.tut-card-fallback { left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .tut-card-modal { width: 400px; }
 .tut-card h3 { margin: 6px 0 8px; font-size: 17px; color: var(--ink); }
 .tut-card p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--muted); }

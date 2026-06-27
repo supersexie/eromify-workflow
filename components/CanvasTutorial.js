@@ -146,22 +146,26 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) 
               />
             )}
           </svg>
-          {rect && (
-            <div className="tut-card tut-card-tip" style={tipStyle}>
-              <div className="tut-progress">Step {step + 1} of {total}</div>
-              <h3>{spec.title}</h3>
-              <p>{spec.body}</p>
-              <div className="tut-actions">
-                <button className="tut-skip" onClick={onSkip}>Skip tour</button>
-                <div className="tut-actions-right">
-                  {step > 0 && <button className="tut-back" onClick={onBack}>Back</button>}
-                  {spec.optional
-                    ? <button className="tut-next" onClick={onNext}>Next</button>
-                    : <span className="tut-hint">Do the step to continue →</span>}
-                </div>
+          {/* When the target element isn't on screen yet (e.g. the prompt bar
+              before a node is selected), fall back to a centered card so the
+              tour is never a blank dim screen. */}
+          <div
+            className={rect ? "tut-card tut-card-tip" : "tut-card tut-card-tip tut-card-fallback"}
+            style={rect ? tipStyle : undefined}
+          >
+            <div className="tut-progress">Step {step + 1} of {total}</div>
+            <h3>{spec.title}</h3>
+            <p>{spec.body}</p>
+            <div className="tut-actions">
+              <button className="tut-skip" onClick={onSkip}>Skip tour</button>
+              <div className="tut-actions-right">
+                {step > 0 && <button className="tut-back" onClick={onBack}>Back</button>}
+                {spec.optional || !rect
+                  ? <button className="tut-next" onClick={onNext}>Next</button>
+                  : <span className="tut-hint">Do the step to continue →</span>}
               </div>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>

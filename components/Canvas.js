@@ -169,6 +169,16 @@ function CanvasInner({ workflowId }) {
     if (tutStep === 4 && runningIds.size > 0) setTutStep(5);
   }, [tutStep, runningIds]);
 
+  // The prompt / enhance / generate steps point at the prompt bar, which only
+  // mounts when a node is selected. On a canvas that already has nodes (or if
+  // the user deselected), auto-select one so the spotlight has a target instead
+  // of dimming to a blank screen.
+  useEffect(() => {
+    if ([2, 3, 4].includes(tutStep) && !selectedId && nodes.length > 0) {
+      setSelectedId(nodes[nodes.length - 1].id);
+    }
+  }, [tutStep, selectedId, nodes]);
+
   useEffect(() => {
     if (!loaded || !workflowId) return;
     clearTimeout(saveTimer.current);
