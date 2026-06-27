@@ -2,13 +2,12 @@
 import { useEffect, useRef, useState } from "react";
 import { listInfluencers } from "@/lib/influencers";
 
-const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2"];
-
 export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage, nodes = [] }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
-  const [videoModel, setVideoModel] = useState("LTX Video");
+  // Default model for multi-scene (director) videos — selector removed from UI.
+  const videoModel = "LTX Video";
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
@@ -138,16 +137,6 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
             >
               ⚡ Auto-run {autoRun ? "on" : "off"}
             </button>
-            <select
-              className="cb-model"
-              value={videoModel}
-              onChange={(e) => setVideoModel(e.target.value)}
-              title="Video model used for multi-scene (director) videos"
-            >
-              {VIDEO_MODELS.map((m) => (
-                <option key={m} value={m}>🎬 {m}</option>
-              ))}
-            </select>
           </div>
           <div className="cb-inputrow">
             <textarea
