@@ -164,17 +164,17 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (tutStep === 2 && (selectedNodeForTut?.data?.prompt || "").trim()) setTutStep(3);
   }, [tutStep, selectedNodeForTut?.data?.prompt]);
-  // Step 3 is the optional Enhance step (advanced manually via Next).
+  // Steps 3 (Enhance) and 4 (model/aspect) are optional, advanced via Next.
   useEffect(() => {
-    if (tutStep === 4 && runningIds.size > 0) setTutStep(5);
+    if (tutStep === 5 && runningIds.size > 0) setTutStep(6);
   }, [tutStep, runningIds]);
 
-  // The prompt / enhance / generate steps point at the prompt bar, which only
-  // mounts when a node is selected. On a canvas that already has nodes (or if
-  // the user deselected), auto-select one so the spotlight has a target instead
-  // of dimming to a blank screen.
+  // The prompt / enhance / model / generate steps point at the prompt bar,
+  // which only mounts when a node is selected. On a canvas that already has
+  // nodes (or if the user deselected), auto-select one so the spotlight has a
+  // target instead of dimming to a blank screen.
   useEffect(() => {
-    if ([2, 3, 4].includes(tutStep) && !selectedId && nodes.length > 0) {
+    if ([2, 3, 4, 5].includes(tutStep) && !selectedId && nodes.length > 0) {
       setSelectedId(nodes[nodes.length - 1].id);
     }
   }, [tutStep, selectedId, nodes]);

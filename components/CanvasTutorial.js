@@ -45,6 +45,14 @@ export const TUT_STEPS = [
   },
   {
     mode: "spotlight",
+    target: ".pb-chips-left",
+    placement: "top",
+    optional: true,
+    title: "Pick model & aspect ratio",
+    body: "Choose the generation model and aspect ratio (plus quality and batch size) for this node. Defaults are fine to start — tweak them, then Next.",
+  },
+  {
+    mode: "spotlight",
     target: ".ip-bar-generate",
     placement: "top",
     title: "Generate it",
