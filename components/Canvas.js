@@ -164,8 +164,9 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (tutStep === 2 && (selectedNodeForTut?.data?.prompt || "").trim()) setTutStep(3);
   }, [tutStep, selectedNodeForTut?.data?.prompt]);
+  // Step 3 is the optional Enhance step (advanced manually via Next).
   useEffect(() => {
-    if (tutStep === 3 && runningIds.size > 0) setTutStep(4);
+    if (tutStep === 4 && runningIds.size > 0) setTutStep(5);
   }, [tutStep, runningIds]);
 
   useEffect(() => {

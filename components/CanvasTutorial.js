@@ -37,6 +37,14 @@ export const TUT_STEPS = [
   },
   {
     mode: "spotlight",
+    target: ".pb-enhance",
+    placement: "top",
+    optional: true,
+    title: "Enhance your prompt (optional)",
+    body: "Tap Enhance to let AI rewrite your prompt in Eromify's house style for richer results. Optional — skip it anytime with Next.",
+  },
+  {
+    mode: "spotlight",
     target: ".ip-bar-generate",
     placement: "top",
     title: "Generate it",
@@ -147,7 +155,9 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) 
                 <button className="tut-skip" onClick={onSkip}>Skip tour</button>
                 <div className="tut-actions-right">
                   {step > 0 && <button className="tut-back" onClick={onBack}>Back</button>}
-                  <span className="tut-hint">Do the step to continue →</span>
+                  {spec.optional
+                    ? <button className="tut-next" onClick={onNext}>Next</button>
+                    : <span className="tut-hint">Do the step to continue →</span>}
                 </div>
               </div>
             </div>
