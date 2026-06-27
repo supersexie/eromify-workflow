@@ -1099,14 +1099,19 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   display: flex; align-items: center; justify-content: center;
   color: var(--muted-2); font-size: 12px; overflow: hidden;
 }
-/* Live preview collage of a workflow's generated outputs. */
-.wf-preview-grid { width: 100%; height: 100%; display: grid; gap: 2px; }
-.wf-preview-grid img,
-.wf-preview-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.wf-preview-1 { grid-template-columns: 1fr; }
-.wf-preview-2 { grid-template-columns: 1fr 1fr; }
-.wf-preview-3, .wf-preview-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.wf-preview-3 > :first-child { grid-row: span 2; }
+/* Mini-canvas preview: nodes in their real positions joined by edges. */
+.wf-preview-canvas { width: 100%; height: 100%; display: block; }
+.wf-preview-edge { stroke: var(--line-2); stroke-width: 1.25; stroke-dasharray: 3 3; opacity: .85; }
+.wf-mini-node {
+  width: 100%; height: 100%; border-radius: 14px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07); background: var(--surface-2);
+}
+.wf-mini-node img,
+.wf-mini-node video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wf-mini-ph { width: 100%; height: 100%; }
+.wf-mini-image { background: linear-gradient(135deg, rgba(236,72,153,.28), rgba(124,58,237,.20)); }
+.wf-mini-video { background: linear-gradient(135deg, rgba(124,58,237,.30), rgba(99,102,241,.20)); }
+.wf-mini-motion { background: linear-gradient(135deg, rgba(168,85,247,.28), rgba(99,102,241,.20)); }
 .wf-preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--muted-2); font-size: 12px; }
 .wf-tile-meta { padding: 12px 14px; border-top: 1px solid var(--line); }
 .wf-tile-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }

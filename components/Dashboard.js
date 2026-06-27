@@ -13,20 +13,57 @@ function relTime(ts) {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
-// Up to 4 generated outputs from a workflow, used as a live preview collage on
-// its dashboard tile. Only URL/data outputs are usable (inline base64 is
-// stripped from storage to save quota, so most are blob/fal URLs).
-function previewMedia(wf) {
-  const out = [];
-  for (const n of wf.nodes || []) {
-    const u = n.data?.output;
-    if (typeof u !== "string") continue;
-    if (!(u.startsWith("http") || u.startsWith("data:") || u.startsWith("/api/"))) continue;
-    const isVideo = n.data?.kind === "video" || /\.(mp4|webm|mov)(?:[?#]|$)/i.test(u);
-    out.push({ url: u, isVideo });
-    if (out.length >= 4) break;
+const isMediaUrl = (u) =>
+  typeof u === "string" && (u.startsWith("http") || u.startsWith("data:") || u.startsWith("/api/"));
+
+// A scaled-down render of the actual canvas: every node in its real position
+// with its output thumbnail, joined by the same left→right connector edges.
+// An SVG viewBox does the fit-to-tile scaling automatically.
+function WorkflowPreview({ wf }) {
+  const nodes = (wf.nodes || []).filter((n) => n.position);
+  if (!nodes.length) return null;
+  const dimOf = (n) => ({ w: n.width || 200, h: n.height || 240 });
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const n of nodes) {
+    const { w, h } = dimOf(n);
+    minX = Math.min(minX, n.position.x); minY = Math.min(minY, n.position.y);
+    maxX = Math.max(maxX, n.position.x + w); maxY = Math.max(maxY, n.position.y + h);
   }
-  return out;
+  const PAD = 40;
+  const vb = `${minX - PAD} ${minY - PAD} ${maxX - minX + PAD * 2} ${maxY - minY + PAD * 2}`;
+  const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  return (
+    <svg className="wf-preview-canvas" viewBox={vb} preserveAspectRatio="xMidYMid meet">
+      {(wf.edges || []).map((e, i) => {
+        const s = byId[e.source], t = byId[e.target];
+        if (!s || !t) return null;
+        const sd = dimOf(s), td = dimOf(t);
+        const sx = s.position.x + sd.w, sy = s.position.y + sd.h / 2;
+        const tx = t.position.x, ty = t.position.y + td.h / 2;
+        const dx = Math.max(30, Math.abs(tx - sx) / 2);
+        return (
+          <path key={i} className="wf-preview-edge" fill="none" vectorEffect="non-scaling-stroke"
+            d={`M ${sx} ${sy} C ${sx + dx} ${sy} ${tx - dx} ${ty} ${tx} ${ty}`} />
+        );
+      })}
+      {nodes.map((n) => {
+        const { w, h } = dimOf(n);
+        const out = n.data?.output;
+        const isVid = n.data?.kind === "video";
+        return (
+          <foreignObject key={n.id} x={n.position.x} y={n.position.y} width={w} height={h}>
+            <div className="wf-mini-node">
+              {isMediaUrl(out)
+                ? (isVid
+                    ? <video src={`${out}#t=0.1`} muted playsInline preload="metadata" />
+                    : <img src={out} alt="" />)
+                : <div className={`wf-mini-ph wf-mini-${n.data?.kind || "image"}`} />}
+            </div>
+          </foreignObject>
+        );
+      })}
+    </svg>
+  );
 }
 
 export default function Dashboard() {
@@ -155,27 +192,16 @@ export default function Dashboard() {
             </div>
             {items.map((wf) => (
               <div key={wf.id} className="wf-tile" onClick={() => router.push(`/w/${wf.id}`)}>
-                {(() => {
-                  const media = previewMedia(wf);
-                  return (
-                    <div className="wf-tile-preview">
-                      {media.length ? (
-                        <div className={`wf-preview-grid wf-preview-${media.length}`}>
-                          {media.map((m, i) => m.isVideo ? (
-                            <video key={i} src={`${m.url}#t=0.1`} muted playsInline preload="metadata" />
-                          ) : (
-                            <img key={i} src={m.url} alt="" />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="wf-preview-empty">
-                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                          <span>{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</span>
-                        </div>
-                      )}
+                <div className="wf-tile-preview">
+                  {wf.nodes.some((n) => n.position) ? (
+                    <WorkflowPreview wf={wf} />
+                  ) : (
+                    <div className="wf-preview-empty">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                      <span>{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</span>
                     </div>
-                  );
-                })()}
+                  )}
+                </div>
                 <div className="wf-tile-meta">
                   {editingId === wf.id ? (
                     <input
