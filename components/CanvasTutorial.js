@@ -46,7 +46,7 @@ export const TUT_STEPS = [
   {
     mode: "spotlight",
     target: ".pb-chips-left",
-    placement: "top",
+    placement: "tl",
     optional: true,
     title: "Pick model & aspect ratio",
     body: "Choose the generation model and aspect ratio (plus quality and batch size) for this node. Defaults are fine to start — tweak them, then Next.",
@@ -109,6 +109,11 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) 
       // card sits beside the chatbox and clear of the @influencer dropdown,
       // which opens on the right.
       tipStyle = { left: 24, bottom: window.innerHeight - rect.top + 16 };
+    } else if (spec.placement === "tl") {
+      // Top-left of the viewport — used for the model/aspect step. The prompt
+      // bar is centered, so its chip dropdowns open upward from the middle;
+      // the top-left corner stays clear of them.
+      tipStyle = { left: 24, top: 70 };
     } else if (spec.placement === "top") {
       tipStyle = { left: Math.min(rect.left, window.innerWidth - 360), bottom: window.innerHeight - rect.top + 16 };
     } else {
