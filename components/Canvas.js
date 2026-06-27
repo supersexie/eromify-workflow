@@ -176,7 +176,7 @@ function CanvasInner({ workflowId }) {
   // nodes (or if the user deselected), auto-select one so the spotlight has a
   // target instead of dimming to a blank screen.
   useEffect(() => {
-    if ([2, 3, 4, 5].includes(tutStep) && !selectedId && nodes.length > 0) {
+    if ([2, 3, 4, 5, 6].includes(tutStep) && !selectedId && nodes.length > 0) {
       setSelectedId(nodes[nodes.length - 1].id);
     }
   }, [tutStep, selectedId, nodes]);

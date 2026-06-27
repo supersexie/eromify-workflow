@@ -60,6 +60,15 @@ export const TUT_STEPS = [
     body: "Hit Generate to run this node. Your result appears right on the card.",
   },
   {
+    mode: "spotlight",
+    target: ".react-flow__handle.source",
+    placement: "bl",
+    optional: true,
+    revealHandles: true,
+    title: "Branch into a new node",
+    body: "See this + handle on the edge of your card? Click and drag it out onto empty canvas to turn this creation into a new connected Image or Video node. Click Next to finish.",
+  },
+  {
     mode: "modal",
     title: "You're all set 🎉",
     body: "Drag a node's side handles onto empty space to chain steps. Use the left rail to fit the view, open your Library, or undo. Re-open this tour anytime from the ? button.",
@@ -95,6 +104,14 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip, ne
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [active, onSkip]);
+
+  // Some node handles are only visible on hover/selection. For steps that point
+  // at one, force them visible via a body class so the spotlight isn't empty.
+  useEffect(() => {
+    const reveal = active && spec?.revealHandles;
+    document.body.classList.toggle("tut-reveal-handles", !!reveal);
+    return () => document.body.classList.remove("tut-reveal-handles");
+  }, [active, spec]);
 
   if (!active) return null;
   const isModal = spec.mode === "modal";

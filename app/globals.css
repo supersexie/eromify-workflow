@@ -177,6 +177,9 @@ body {
 }
 .react-flow__node:hover .react-flow__handle,
 .react-flow__node.selected .react-flow__handle { opacity: 1; }
+/* During the tutorial's "branch into a new node" step, reveal source handles
+   so the spotlight has something visible to point at. */
+body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .react-flow .react-flow__handle:hover {
   border-color: var(--blue); background: var(--blue-soft);
   box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
