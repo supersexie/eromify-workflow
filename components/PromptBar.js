@@ -421,7 +421,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 <path d="M12 2l1.9 4.6L18.5 8.5l-4.6 1.9L12 15l-1.9-4.6L5.5 8.5l4.6-1.9L12 2zM19 14l.95 2.05L22 17l-2.05.95L19 20l-.95-2.05L16 17l2.05-.95L19 14zM5 15l.7 1.5L7.2 17.2 5.7 17.9 5 19.4 4.3 17.9 2.8 17.2 4.3 16.5 5 15z" />
               </svg>
             )}
-            <span>{enhancing ? "Enhancing…" : "Enhance"}</span>
+            <span>{enhancing ? "Enhancing…" : "Enhance prompt"}</span>
           </button>
         )}
       </div>
