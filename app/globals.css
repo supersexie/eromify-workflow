@@ -2542,6 +2542,58 @@ body {
   .add-menu { max-width: calc(100vw - 24px); }
 }
 
+/* ---- Canvas hands-on tutorial ---- */
+.tut-root { position: fixed; inset: 0; z-index: 1000; }
+.tut-overlay { position: fixed; inset: 0; pointer-events: none; } /* click-through dim */
+.tut-ring {
+  stroke: var(--blue); stroke-width: 2.5;
+  filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.55));
+  animation: tut-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tut-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+.tut-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.62);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+
+.tut-card {
+  width: 340px; max-width: calc(100vw - 32px);
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+}
+.tut-card-tip { position: fixed; pointer-events: auto; }
+.tut-card-modal { width: 400px; }
+.tut-card h3 { margin: 6px 0 8px; font-size: 17px; color: var(--ink); }
+.tut-card p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.tut-progress {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--blue);
+}
+.tut-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 16px;
+}
+.tut-actions-right { display: flex; align-items: center; gap: 8px; }
+.tut-skip {
+  background: none; border: none; color: var(--muted-2);
+  font-size: 12.5px; cursor: pointer; padding: 6px 2px;
+}
+.tut-skip:hover { color: var(--text); }
+.tut-back {
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--text); font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: 9px; cursor: pointer;
+}
+.tut-back:hover { background: var(--line); }
+.tut-next {
+  background: var(--grad); border: none; color: #fff;
+  font-size: 13px; font-weight: 600; padding: 8px 18px;
+  border-radius: 9px; cursor: pointer;
+}
+.tut-next:hover { filter: brightness(1.08); }
+.tut-hint { font-size: 12px; color: var(--blue); font-weight: 500; }
+
 /* ---- MCP connector demo (chat mockup + feature cards) ---- */
 .mcp-demo {
   display: grid; grid-template-columns: 1.5fr 1fr; gap: 18px;

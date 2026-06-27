@@ -18,6 +18,7 @@ import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
 import Tabs from "./Tabs";
+import CanvasTutorial, { TUT_STEPS, TUTORIAL_DONE_KEY } from "./CanvasTutorial";
 import { getWorkflow, saveWorkflow, renameWorkflow, recordGeneration } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
@@ -79,6 +80,7 @@ function CanvasInner({ workflowId }) {
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
+  const [tutStep, setTutStep] = useState(null); // null = tour closed
   const saveTimer = useRef(null);
   const histTimer = useRef(null);
   const connectingRef = useRef(null);
@@ -140,6 +142,31 @@ function CanvasInner({ workflowId }) {
 
   // Hydrate the influencer cache from the server so @mentions resolve here too.
   useEffect(() => { syncInfluencers(); }, []);
+
+  // Auto-launch the hands-on tour. TESTING: always show on every canvas so it's
+  // easy to try out. (To restore first-visit-only, re-add the TUTORIAL_DONE_KEY
+  // guard below.)
+  useEffect(() => {
+    if (!loaded) return;
+    setTutStep(0);
+  }, [loaded]);
+
+  const closeTutorial = useCallback(() => {
+    setTutStep(null);
+    try { localStorage.setItem(TUTORIAL_DONE_KEY, "1"); } catch {}
+  }, []);
+
+  // Hands-on advancement: each action step completes when the user does it.
+  const selectedNodeForTut = nodes.find((n) => n.id === selectedId);
+  useEffect(() => {
+    if (tutStep === 1 && nodes.length >= 1) setTutStep(2);
+  }, [tutStep, nodes.length]);
+  useEffect(() => {
+    if (tutStep === 2 && (selectedNodeForTut?.data?.prompt || "").trim()) setTutStep(3);
+  }, [tutStep, selectedNodeForTut?.data?.prompt]);
+  useEffect(() => {
+    if (tutStep === 3 && runningIds.size > 0) setTutStep(4);
+  }, [tutStep, runningIds]);
 
   useEffect(() => {
     if (!loaded || !workflowId) return;
@@ -579,12 +606,16 @@ function CanvasInner({ workflowId }) {
 
       <div className="rail">
         <button title="Select">{RAIL_ICONS.cursor}</button>
-        <button title="Add node" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
+        <button title="Add node" data-tut="add" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
         <button title="Fit view" onClick={() => fitView({ padding: 0.3, duration: 300 })}>{RAIL_ICONS.frame}</button>
         <button title="Library" onClick={() => setLibraryOpen(true)}>{RAIL_ICONS.folder}</button>
         <div className="divider" />
         <button title="Undo (Ctrl+Z)" onClick={undo} disabled={!past.length} style={!past.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.undo}</button>
         <button title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!future.length} style={!future.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.redo}</button>
+        <div className="divider" />
+        <button title="Canvas tour" onClick={() => setTutStep(0)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        </button>
       </div>
 
       {addMenuOpen && (
@@ -692,6 +723,14 @@ function CanvasInner({ workflowId }) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z"/></svg>
         </button>
       )}
+
+      <CanvasTutorial
+        step={tutStep}
+        total={TUT_STEPS.length}
+        onNext={() => setTutStep((s) => (s >= TUT_STEPS.length - 1 ? (closeTutorial(), null) : s + 1))}
+        onBack={() => setTutStep((s) => Math.max(0, (s ?? 0) - 1))}
+        onSkip={closeTutorial}
+      />
 
       <Library open={libraryOpen} onClose={() => setLibraryOpen(false)} />
 
