@@ -147,12 +147,17 @@ function CanvasInner({ workflowId }) {
   // Hydrate the influencer cache from the server so @mentions resolve here too.
   useEffect(() => { syncInfluencers(); }, []);
 
-  // Auto-launch the hands-on tour. TESTING: always show on every canvas so it's
-  // easy to try out. (To restore first-visit-only, re-add the TUTORIAL_DONE_KEY
-  // guard below.)
+  // Auto-launch the hands-on tour only once — on the user's first canvas. Mark
+  // it shown immediately so it never auto-opens again on later canvases; the
+  // "How it works" button lets them replay it anytime.
   useEffect(() => {
     if (!loaded) return;
-    setTutStep(0);
+    try {
+      if (!localStorage.getItem(TUTORIAL_DONE_KEY)) {
+        setTutStep(0);
+        localStorage.setItem(TUTORIAL_DONE_KEY, "1");
+      }
+    } catch {}
   }, [loaded]);
 
   const closeTutorial = useCallback(() => {
@@ -614,6 +619,10 @@ function CanvasInner({ workflowId }) {
         </div>
         <div className="topbar-right">
           {savedAt && <span className="save-indicator">Saved</span>}
+          <button className="howitworks-btn" onClick={() => setTutStep(0)} title="Replay the canvas tutorial">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            How it works
+          </button>
           <button className="assistant-open-btn" onClick={() => setAssistantOpen(true)} title="Open AI Assistant">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z"/></svg>
             Assistant
@@ -630,10 +639,6 @@ function CanvasInner({ workflowId }) {
         <div className="divider" />
         <button title="Undo (Ctrl+Z)" onClick={undo} disabled={!past.length} style={!past.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.undo}</button>
         <button title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!future.length} style={!future.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.redo}</button>
-        <div className="divider" />
-        <button title="Canvas tour" onClick={() => setTutStep(0)}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-        </button>
       </div>
 
       {addMenuOpen && (
