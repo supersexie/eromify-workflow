@@ -31,7 +31,7 @@ export const TUT_STEPS = [
   {
     mode: "spotlight",
     target: ".prompt-bar",
-    placement: "top",
+    placement: "bl",
     title: "Write a prompt",
     body: "This is the prompt bar for the selected node. Describe what you want to create — tip: type @ to summon an influencer.",
   },
@@ -104,6 +104,11 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) 
   if (!isModal && rect) {
     if (spec.placement === "right") {
       tipStyle = { left: rect.right + 16, top: rect.top };
+    } else if (spec.placement === "bl") {
+      // Lower-left, just above the prompt bar — used for the prompt step so the
+      // card sits beside the chatbox and clear of the @influencer dropdown,
+      // which opens on the right.
+      tipStyle = { left: 24, bottom: window.innerHeight - rect.top + 16 };
     } else if (spec.placement === "top") {
       tipStyle = { left: Math.min(rect.left, window.innerWidth - 360), bottom: window.innerHeight - rect.top + 16 };
     } else {
