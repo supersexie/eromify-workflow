@@ -81,8 +81,6 @@ function CanvasInner({ workflowId }) {
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
   const [tutStep, setTutStep] = useState(null); // null = tour closed
-  const promptDwellStart = useRef(null);
-  const promptAdvanceTimer = useRef(null);
   const saveTimer = useRef(null);
   const histTimer = useRef(null);
   const connectingRef = useRef(null);
@@ -163,33 +161,11 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (tutStep === 1 && nodes.length >= 1) setTutStep(2);
   }, [tutStep, nodes.length]);
-  // Step 2 (write a prompt): don't advance on the first keystroke. Give the
-  // user a minimum dwell (~12s) and only move on once they pause typing, so a
-  // single letter can't yank the step away mid-sentence.
-  useEffect(() => {
-    const MIN_DWELL = 12000; // at least this long on the step once they start
-    const IDLE = 2500;       // advance this long after they stop typing
-    if (tutStep !== 2) {
-      promptDwellStart.current = null;
-      clearTimeout(promptAdvanceTimer.current);
-      return;
-    }
-    const text = (selectedNodeForTut?.data?.prompt || "").trim();
-    if (!text) {
-      promptDwellStart.current = null;
-      clearTimeout(promptAdvanceTimer.current);
-      return;
-    }
-    if (promptDwellStart.current == null) promptDwellStart.current = Date.now();
-    clearTimeout(promptAdvanceTimer.current);
-    const elapsed = Date.now() - promptDwellStart.current;
-    const wait = Math.max(IDLE, MIN_DWELL - elapsed);
-    promptAdvanceTimer.current = setTimeout(() => {
-      const cur = (nodesRef.current.find((n) => n.id === selectedId)?.data?.prompt || "").trim();
-      if (cur) setTutStep(3);
-    }, wait);
-    return () => clearTimeout(promptAdvanceTimer.current);
-  }, [tutStep, selectedNodeForTut?.data?.prompt, selectedId]);
+  // Step 2 (write a prompt) advances when the user clicks Next, which is only
+  // enabled once they've actually typed a prompt.
+  const tutNextEnabled = tutStep === 2
+    ? !!(selectedNodeForTut?.data?.prompt || "").trim()
+    : true;
   // Steps 3 (Enhance) and 4 (model/aspect) are optional, advanced via Next.
   useEffect(() => {
     if (tutStep === 5 && runningIds.size > 0) setTutStep(6);
@@ -764,6 +740,7 @@ function CanvasInner({ workflowId }) {
       <CanvasTutorial
         step={tutStep}
         total={TUT_STEPS.length}
+        nextEnabled={tutNextEnabled}
         onNext={() => setTutStep((s) => (s >= TUT_STEPS.length - 1 ? (closeTutorial(), null) : s + 1))}
         onBack={() => setTutStep((s) => Math.max(0, (s ?? 0) - 1))}
         onSkip={closeTutorial}

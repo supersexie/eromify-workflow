@@ -32,8 +32,9 @@ export const TUT_STEPS = [
     mode: "spotlight",
     target: ".prompt-bar",
     placement: "bl",
+    optional: true,
     title: "Write a prompt",
-    body: "This is the prompt bar for the selected node. Describe what you want to create — tip: type @ to summon an influencer.",
+    body: "This is the prompt bar for the selected node. Describe what you want to create — tip: type @ to summon an influencer. Click Next when you're done.",
   },
   {
     mode: "spotlight",
@@ -82,7 +83,7 @@ function useTargetRect(selector, active) {
   return rect;
 }
 
-export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) {
+export default function CanvasTutorial({ step, total, onNext, onBack, onSkip, nextEnabled = true }) {
   const active = step != null && step >= 0 && step < TUT_STEPS.length;
   const spec = active ? TUT_STEPS[step] : null;
   const rect = useTargetRect(spec?.mode === "spotlight" ? spec.target : null, active);
@@ -179,7 +180,7 @@ export default function CanvasTutorial({ step, total, onNext, onBack, onSkip }) 
               <div className="tut-actions-right">
                 {step > 0 && <button className="tut-back" onClick={onBack}>Back</button>}
                 {spec.optional || !rect
-                  ? <button className="tut-next" onClick={onNext}>Next</button>
+                  ? <button className="tut-next" onClick={onNext} disabled={!nextEnabled}>Next</button>
                   : <span className="tut-hint">Do the step to continue →</span>}
               </div>
             </div>
