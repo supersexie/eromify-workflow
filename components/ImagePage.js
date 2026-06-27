@@ -253,7 +253,8 @@ export default function ImagePage() {
   // Generate | Edit mode. Edit takes an uploaded source image + prompt and
   // routes through fal's edit endpoints (image_urls), supporting @mention refs.
   const [mode, setMode] = useState("generate");
-  const [editSource, setEditSource] = useState(null); // data URI
+  const [editSource, setEditSource] = useState(null); // data URI (scene/body)
+  const [faceSource, setFaceSource] = useState(null); // data URI (face reference)
   const [enhancing, setEnhancing] = useState(false);
   const [lightbox, setLightbox] = useState(null); // { url, prompt, i, ... } | null
   // Close the lightbox on Escape.
@@ -308,13 +309,26 @@ export default function ImagePage() {
     r.readAsDataURL(file);
   };
 
+  // Face Swap: an alternative to @mentioning an influencer — upload a face
+  // photo directly as the identity reference. (No aspect snap; the scene image
+  // drives the output ratio.)
+  const faceFileRef = useRef(null);
+  const onPickFace = async (file) => {
+    if (!file) return;
+    setError(null);
+    const r = new FileReader();
+    r.onload = () => setFaceSource(r.result);
+    r.readAsDataURL(file);
+  };
+
   const toggle = (k) => setOpenMenu((m) => (m === k ? null : k));
-  // Face Swap requires a source image + exactly one @influencer; the prompt is
-  // optional (a baked-in template does the heavy lifting).
+  // Face Swap requires a scene image + a face reference (either an uploaded
+  // face photo or exactly one @influencer); the prompt is optional (a baked-in
+  // template does the heavy lifting).
   const canRun = pending.length === 0 && (
     mode === "generate" ? !!prompt.trim() :
     mode === "edit"     ? (!!prompt.trim() && !!editSource) :
-    /* swap */            (!!editSource && mentioned.length === 1)
+    /* swap */            (!!editSource && (!!faceSource || mentioned.length === 1))
   );
   const currentModel = ALL_MODELS.find((m) => m.id === model);
 
@@ -375,11 +389,19 @@ export default function ImagePage() {
     // "the first image" as the scene/composition to preserve. Influencer
     // photos follow as the identity references.
     const includeSource = (mode === "edit" || mode === "swap") && editSource;
+    // Identity references follow the scene. For swap, an uploaded face photo
+    // takes priority as the "second image", then any @mentioned influencers.
+    const faceRefs = [
+      ...(mode === "swap" && faceSource ? [faceSource] : []),
+      ...characters.map((c) => c.image),
+    ];
     const images = [
       ...(includeSource ? [editSource] : []),
-      ...characters.map((c) => c.image),
+      ...faceRefs,
     ].filter(Boolean);
-    const caption = original || (mode === "swap" ? `Face swap with @${characters[0]?.handle}` : "");
+    const caption = original || (mode === "swap"
+      ? (characters[0]?.handle ? `Face swap with @${characters[0].handle}` : "Face swap")
+      : "");
 
     // Build the model prompt per mode. Edit+@mention and Swap get explicit
     // ordering instructions because the generic IDENTITY_CLAUSE doesn't tell
@@ -547,15 +569,29 @@ export default function ImagePage() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
                 )}
               </button>
+              {/* Face Swap: dedicated face-reference upload (alternative to @mention) */}
+              {mode === "swap" && (
+                <>
+                  <input ref={faceFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickFace(e.target.files?.[0]); e.target.value = ""; }} />
+                  <button className="ip-edit-src" onClick={() => faceFileRef.current?.click()} title="Upload a face reference (the face to put into the scene)">
+                    {faceSource ? <img src={faceSource} alt="face reference" /> : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a7 7 0 0 1 13 0"/></svg>
+                    )}
+                  </button>
+                </>
+              )}
               <span className="ip-edit-src-label">
                 {mode === "swap"
                   ? (editSource
-                      ? (mentioned.length === 1
-                          ? `Swapping the face in this image with @${mentioned[0].handle}`
-                          : "Now @-mention an influencer below — her face goes in.")
+                      ? (faceSource
+                          ? "Face reference attached — generate to swap it in"
+                          : (mentioned.length === 1
+                              ? `Swapping the face in this image with @${mentioned[0].handle}`
+                              : "Add a face image, or @-mention an influencer below."))
                       : "Upload a photo — we'll keep its pose, body, and composition.")
                   : (editSource ? "Image to edit — describe your change below" : "Upload an image to edit")}
-                {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove">✕</button>}
+                {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove scene image">✕</button>}
+                {mode === "swap" && faceSource && <button className="up-source-clear" onClick={() => setFaceSource(null)} title="Remove face reference">✕</button>}
               </span>
             </div>
           )}
@@ -569,7 +605,7 @@ export default function ImagePage() {
               onChange={setPrompt}
               placeholder={
                 mode === "swap"
-                  ? "Optional extra guidance — e.g. 'studio lighting' (or leave blank)"
+                  ? "Add image for face reference or type @ to summon your influencer"
                   : mode === "edit"
                     ? "Describe the change — type @ to summon an influencer"
                     : "Describe the scene — type @ to summon an influencer"
