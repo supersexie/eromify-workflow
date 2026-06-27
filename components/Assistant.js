@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { listInfluencers } from "@/lib/influencers";
 
 const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2"];
 
-export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage }) {
+export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage, nodes = [] }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
@@ -29,10 +30,25 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
     setSending(true);
     setHistory((h) => [...h, { role: "user", content: text }]);
     try {
+      // Give the assistant full situational awareness: the user's saved
+      // influencers (so it can answer "who is @ash") and a compact summary of
+      // every canvas node (so it can explain failures, suggest models, etc.).
+      const influencers = listInfluencers().map((i) => ({
+        handle: i.handle, name: i.name, description: i.description || "",
+      }));
+      const canvas = (nodes || []).map((n, i) => ({
+        i,
+        kind: n.data?.kind,
+        model: n.data?.model || null,
+        aspect: n.data?.aspect || null,
+        status: n.data?.status || (n.data?.output ? "done" : "empty"),
+        error: n.data?.error || null,
+        prompt: (n.data?.prompt || "").slice(0, 200) || null,
+      }));
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage } }),
+        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -85,16 +101,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
             <div className="cb-welcome">
               <div className="cb-welcome-icon">✦</div>
               <h3>How can I help?</h3>
-              <p>Describe what you want and I'll create the right node and generate it.</p>
-              <div className="cb-suggestions">
-                {[
-                  "Generate an image of a sunset over mountains",
-                  "Write a tagline for a coffee brand",
-                  "Make a 30-second kids rhyme video about colors",
-                ].map((s) => (
-                  <button key={s} className="cb-suggestion" onClick={() => setInput(s)}>{s}</button>
-                ))}
-              </div>
+              <p>Describe what you want and I'll create the right node and generate it — or ask me anything about your influencers, your canvas, or which model fits a task.</p>
             </div>
           )}
 

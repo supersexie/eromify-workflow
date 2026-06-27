@@ -762,6 +762,7 @@ function CanvasInner({ workflowId }) {
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
         hasSelectedImage={!!selectedImageUrl}
+        nodes={nodes}
         onCreateAndMaybeRun={({ kind, prompt }, autoRun, useSelected) => {
           // "turn this image into a video" → seed a video node from the selected image
           if (kind === "video" && useSelected && selectedImageUrl && selectedId) {

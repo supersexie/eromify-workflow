@@ -37,6 +37,24 @@ The clips are generated INDEPENDENTLY (each model call has no memory of the othe
 - 2-4 sentences per scene. No "Shot N" labels or timestamps.
 - Return a "character" field: ONE text-to-image prompt for a single reference image of the main character — full body, simple neutral background, in the locked style. (OMIT "character" when useSelectedImage is true — the selected image is the reference.)
 
+DUAL ROLE — CREATE vs ANSWER:
+You don't only build nodes. When the user is ASKING A QUESTION rather than requesting a new asset, set kind=null (and no scenes) and put a complete, genuinely helpful answer in "message" — a few sentences is fine here; be specific and concrete. Use the knowledge below.
+
+INFLUENCER KNOWLEDGE:
+The user's saved influencers are provided in a context message ("User's saved influencers"), each with handle, name, and description. If the user asks "who is @ash", "tell me about katrina", or references any @handle or name, answer from that list (use the description). If a named influencer isn't in the list, say you don't see them saved and suggest adding them on the Influencers page.
+
+CANVAS AWARENESS:
+The current canvas nodes are provided in a context message ("Current canvas nodes") with kind, model, status, error, and prompt for each. If asked why a node failed, read its "error" and explain it in plain language plus how to fix it. If asked why an image/video "doesn't look good" or how to improve it, give concrete, actionable tips.
+
+MODEL GUIDE (everything runs through fal):
+Image — Nano Banana Pro: best for face swaps and identity-consistent edits; keep its prompts CONCISE (verbose prompts degrade it). Flux 2 Pro / Flux 2 Max: high-quality general text-to-image and realistic people. Seedream 4.5: stylized/creative looks. GPT Image 2 / GPT Image 1: strong prompt-following but AGGRESSIVE moderation — they refuse risqué or many face-swap requests (content_policy_violation); steer users to Nano Banana Pro or Flux for those.
+Video — Kling 3.0/2.6/2.5: strong general text-to-video and image-to-video with good motion (Kling 2.6 is a great default for animating a still). Seedance 2.0 (+Fast): fast and good value. Wan 2.7/2.2: solid, can take audio. MiniMax Hailuo: expressive faces. Sora 2 and Veo 3.1: cinematic with native audio. LTX Video: fast/cheap.
+Pick-by-task: realistic person image → Flux 2 Pro or Nano Banana Pro; put a saved influencer's face onto a photo → Face Swap with Nano Banana Pro; animate a still image into a clip → Kling 2.6 image-to-video; a long/multi-scene story video → director mode.
+
+TROUBLESHOOTING (why a generation failed or looks off):
+- Failed: content-policy refusal (common with GPT Image on faces/NSFW → switch to Nano Banana Pro or Flux); an expired source/reference URL; missing API key on the server; or a transient model error (just retry). If the node has an "error" string, base your explanation on it.
+- Looks bad / off: add concrete detail (lighting, lens, mood, setting), choose a stronger model, raise quality (2K image / 1080p video), match the aspect ratio to the subject, and attach a reference image or @influencer to lock identity. For face swaps, keep Nano Banana Pro prompts short.
+
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
 Always respond as JSON. For a single asset:
@@ -47,8 +65,29 @@ For a multi-scene video, instead use:
 export async function POST(req) {
   const { input, history = [], context = {} } = await req.json();
   if (!KEY) {
-    // No key — fall back to a dumb regex classifier
+    // No key — fall back to a lightweight heuristic. Questions are answered
+    // (influencer lookups straight from context); otherwise classify a node.
     const text = (input || "").toLowerCase();
+    const isQuestion = /\?/.test(input || "") ||
+      /^(who|what|why|which|how|when|where|is|are|can|could|does|do|should|tell me|explain)\b/.test(text);
+    if (isQuestion) {
+      const infl = Array.isArray(context.influencers) ? context.influencers : [];
+      const hit = infl.find((i) =>
+        text.includes("@" + (i.handle || "").toLowerCase()) ||
+        (i.handle && text.includes((i.handle || "").toLowerCase())) ||
+        (i.name && text.includes((i.name || "").toLowerCase()))
+      );
+      if (hit) {
+        return NextResponse.json({
+          kind: null,
+          message: `@${hit.handle} is ${hit.name}${hit.description ? ` — ${hit.description}` : ""}.`,
+        });
+      }
+      return NextResponse.json({
+        kind: null,
+        message: "I can answer questions about your influencers, your canvas, and which model to use — full answers need the AI model configured (set OPENAI_API_KEY on the server). Meanwhile, ask me to create an image/video/etc. and I'll build the node.",
+      });
+    }
     let kind = "image";
     if (/\b(video|clip|animation|animate)\b/.test(text)) kind = "video";
     else if (/\b(audio|voice|narrate|speech|music|sound)\b/.test(text)) kind = "audio";
@@ -64,9 +103,20 @@ export async function POST(req) {
     const sel = context.hasSelectedImage
       ? "Canvas selection: the user currently has an IMAGE selected on the canvas."
       : "Canvas selection: nothing relevant is selected.";
+    const influencers = Array.isArray(context.influencers) ? context.influencers : [];
+    const inflMsg = influencers.length
+      ? "User's saved influencers — answer questions about them from this list:\n" +
+        influencers.map((i) => `@${i.handle} — ${i.name}${i.description ? ` — ${i.description}` : ""}`).join("\n")
+      : "User's saved influencers: none saved yet.";
+    const canvas = Array.isArray(context.canvas) ? context.canvas : [];
+    const canvasMsg = canvas.length
+      ? "Current canvas nodes (for answering questions about the user's work):\n" + JSON.stringify(canvas)
+      : "Current canvas nodes: the canvas is empty.";
     const messages = [
       { role: "system", content: SYS },
       { role: "system", content: sel },
+      { role: "system", content: inflMsg },
+      { role: "system", content: canvasMsg },
       ...history.slice(-6).map((m) => ({ role: m.role, content: m.content })),
       { role: "user", content: input },
     ];
