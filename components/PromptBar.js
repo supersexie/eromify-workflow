@@ -579,7 +579,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           )}
         </div>
 
-        <button className="ip-bar-generate ip-bar-generate-corner" onClick={onRun} disabled={running}>
+        <button className={`ip-bar-generate ip-bar-generate-corner${running ? " is-running" : ""}`} onClick={onRun} disabled={running}>
           {running ? (
             <>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>

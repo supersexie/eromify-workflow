@@ -1553,6 +1553,9 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 }
 .ip-bar-generate:hover:not(:disabled) { filter: brightness(1.1); }
 .ip-bar-generate:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+/* While actively generating the button is disabled, but it's WORKING, not
+   forbidden — show a progress cursor and keep it looking active. */
+.ip-bar-generate.is-running:disabled { cursor: progress; opacity: .9; }
 .ip-bar-count { background: rgba(0,0,0,.25); padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
 .ip-bar-chips { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 0 4px; flex-wrap: wrap; }
 /* On desktop the row groups are transparent (children flow inline); on mobile
