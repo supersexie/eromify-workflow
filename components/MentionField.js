@@ -54,14 +54,23 @@ export default function MentionField({
   };
 
   // Auto-grow a multiline field to fit its content (so long prompts are fully
-  // visible) up to maxHeight, after which it scrolls. Runs on every value change.
+  // visible) up to maxHeight, after which it scrolls. When empty, grow to fit
+  // the (possibly wrapping) placeholder too, so a long hint shows in full
+  // instead of being clipped behind a scrollbar. Runs on every value change.
   useEffect(() => {
     if (!multiline) return;
     const el = fieldRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, maxHeight) + "px";
-  }, [value, multiline, maxHeight]);
+    let sh = el.scrollHeight;
+    if (!value && placeholder) {
+      // Measure the placeholder by briefly rendering it as the value.
+      el.value = placeholder;
+      sh = el.scrollHeight;
+      el.value = "";
+    }
+    el.style.height = Math.min(sh, maxHeight) + "px";
+  }, [value, multiline, maxHeight, placeholder]);
 
   const syncScroll = () => {
     if (overlayRef.current && fieldRef.current) {

@@ -569,33 +569,34 @@ export default function ImagePage() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
                 )}
               </button>
-              {/* Face Swap: dedicated face-reference upload (alternative to @mention) */}
-              {mode === "swap" && (
-                <>
-                  <input ref={faceFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickFace(e.target.files?.[0]); e.target.value = ""; }} />
-                  <button className="ip-edit-src" onClick={() => faceFileRef.current?.click()} title="Upload a face reference (the face to put into the scene)">
-                    {faceSource ? <img src={faceSource} alt="face reference" /> : (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a7 7 0 0 1 13 0"/></svg>
-                    )}
-                  </button>
-                </>
-              )}
               <span className="ip-edit-src-label">
                 {mode === "swap"
                   ? (editSource
                       ? (faceSource
-                          ? "Face reference attached — generate to swap it in"
+                          ? "Scene + face reference ready — generate to swap"
                           : (mentioned.length === 1
                               ? `Swapping the face in this image with @${mentioned[0].handle}`
-                              : "Add a face image, or @-mention an influencer below."))
+                              : "Add a face image below, or @-mention an influencer."))
                       : "Upload a photo — we'll keep its pose, body, and composition.")
                   : (editSource ? "Image to edit — describe your change below" : "Upload an image to edit")}
                 {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove scene image">✕</button>}
-                {mode === "swap" && faceSource && <button className="up-source-clear" onClick={() => setFaceSource(null)} title="Remove face reference">✕</button>}
               </span>
             </div>
           )}
           <div className="ip-bar-input-row">
+            {/* Face Swap: face-reference upload sits at the left of the prompt
+                input (directly under the scene image button above). */}
+            {mode === "swap" && (
+              <div className="ip-face-ref">
+                <input ref={faceFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickFace(e.target.files?.[0]); e.target.value = ""; }} />
+                <button className="ip-edit-src" onClick={() => faceFileRef.current?.click()} title="Upload a face reference (the face to put into the scene)">
+                  {faceSource ? <img src={faceSource} alt="face reference" /> : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M5.5 21a7 7 0 0 1 13 0"/></svg>
+                  )}
+                </button>
+                {faceSource && <button className="up-source-clear" onClick={() => setFaceSource(null)} title="Remove face reference">✕</button>}
+              </div>
+            )}
             <MentionField
               multiline
               dropUp

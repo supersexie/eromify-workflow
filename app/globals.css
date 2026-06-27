@@ -1521,6 +1521,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 }
 .ip-mode-seg button.is-active { background: var(--grad); color: #fff; }
 .ip-edit-src-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 0 4px; }
+.ip-face-ref { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .ip-edit-src {
   flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; overflow: hidden;
   background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
