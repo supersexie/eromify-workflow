@@ -133,9 +133,27 @@ export default function WorkflowNode({ id, data, selected }) {
     e.target.value = "";
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      const url = reader.result;
-      setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, output: url, status: "done", uploadedName: file.name } } : n)));
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      // Show the uploaded media immediately for instant feedback.
+      setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, output: dataUrl, status: "done", uploadedName: file.name } } : n)));
+      // Then host it on Blob and swap in the permanent URL — inline data: blobs
+      // get stripped from localStorage to save quota, so without this the
+      // upload vanishes when the canvas is reopened.
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: dataUrl, prefix: file.type.startsWith("video") ? "canvas-vid" : "canvas-img" }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (res.ok && j.url) {
+          setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, output: j.url } } : n)));
+        }
+      } catch {
+        // Hosting failed (e.g. no Blob token) — keep the inline preview; it
+        // works this session but may not survive a reload.
+      }
     };
     reader.readAsDataURL(file);
   };
