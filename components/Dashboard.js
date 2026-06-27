@@ -13,6 +13,22 @@ function relTime(ts) {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
+// Up to 4 generated outputs from a workflow, used as a live preview collage on
+// its dashboard tile. Only URL/data outputs are usable (inline base64 is
+// stripped from storage to save quota, so most are blob/fal URLs).
+function previewMedia(wf) {
+  const out = [];
+  for (const n of wf.nodes || []) {
+    const u = n.data?.output;
+    if (typeof u !== "string") continue;
+    if (!(u.startsWith("http") || u.startsWith("data:") || u.startsWith("/api/"))) continue;
+    const isVideo = n.data?.kind === "video" || /\.(mp4|webm|mov)(?:[?#]|$)/i.test(u);
+    out.push({ url: u, isVideo });
+    if (out.length >= 4) break;
+  }
+  return out;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const [items, setItems] = useState([]);
@@ -139,9 +155,27 @@ export default function Dashboard() {
             </div>
             {items.map((wf) => (
               <div key={wf.id} className="wf-tile" onClick={() => router.push(`/w/${wf.id}`)}>
-                <div className="wf-tile-preview">
-                  <span>{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</span>
-                </div>
+                {(() => {
+                  const media = previewMedia(wf);
+                  return (
+                    <div className="wf-tile-preview">
+                      {media.length ? (
+                        <div className={`wf-preview-grid wf-preview-${media.length}`}>
+                          {media.map((m, i) => m.isVideo ? (
+                            <video key={i} src={`${m.url}#t=0.1`} muted playsInline preload="metadata" />
+                          ) : (
+                            <img key={i} src={m.url} alt="" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="wf-preview-empty">
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                          <span>{wf.nodes.length} node{wf.nodes.length === 1 ? "" : "s"}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div className="wf-tile-meta">
                   {editingId === wf.id ? (
                     <input

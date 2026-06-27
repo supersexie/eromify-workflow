@@ -834,7 +834,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 }
 
 /* ---- Dashboard ---- */
-.dash { min-height: 100vh; overflow: auto; }
+.dash { height: 100vh; overflow-y: auto; }
 
 /* ---- New Claude-style dashboard: left canvas list + right prompt area ---- */
 .dash-shell {
@@ -1097,8 +1097,17 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
     radial-gradient(circle at 70% 60%, rgba(124,58,237,.10), transparent 60%),
     var(--surface-2);
   display: flex; align-items: center; justify-content: center;
-  color: var(--muted-2); font-size: 12px;
+  color: var(--muted-2); font-size: 12px; overflow: hidden;
 }
+/* Live preview collage of a workflow's generated outputs. */
+.wf-preview-grid { width: 100%; height: 100%; display: grid; gap: 2px; }
+.wf-preview-grid img,
+.wf-preview-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wf-preview-1 { grid-template-columns: 1fr; }
+.wf-preview-2 { grid-template-columns: 1fr 1fr; }
+.wf-preview-3, .wf-preview-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.wf-preview-3 > :first-child { grid-row: span 2; }
+.wf-preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--muted-2); font-size: 12px; }
 .wf-tile-meta { padding: 12px 14px; border-top: 1px solid var(--line); }
 .wf-tile-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--ink); }
 .wf-tile-time { font-size: 11px; color: var(--muted-2); }
