@@ -1495,7 +1495,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   border-radius: 16px; padding: 12px;
   box-shadow: 0 10px 40px rgba(0,0,0,.45);
 }
-.ip-bar-input-row { display: flex; align-items: flex-end; gap: 8px; }
+.ip-bar-input-row { display: flex; align-items: flex-end; gap: 8px; padding: 0 4px; }
 .ip-bar-plus {
   width: 32px; height: 32px; border-radius: 8px;
   background: var(--surface-2); border: 1px solid var(--line);
@@ -1520,7 +1520,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
 }
 .ip-mode-seg button.is-active { background: var(--grad); color: #fff; }
-.ip-edit-src-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 0 4px; }
+.ip-edit-src-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 0 4px; }
 .ip-face-ref { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
 .ip-edit-src {
   flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; overflow: hidden;
