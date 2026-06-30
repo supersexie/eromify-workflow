@@ -4,7 +4,7 @@ import { uploadDataUrl } from "@/lib/genstore";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 // Image upscalers — all take image_url; factorKey is the param name each uses
 // for the scale multiplier (omit for fixed-scale models like AuraSR).

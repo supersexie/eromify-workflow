@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const maxDuration = 30;
 
 const GEMINI = process.env.GEMINI_API_KEY;
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 const VEO_MODELS = {
   "Veo 3.1 Fast": "veo-3.1-fast-generate-preview",

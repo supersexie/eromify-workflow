@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 // Stitch multiple clips into one via fal's ffmpeg compose API (async queue).
 // Each clip is placed sequentially on a single video track.

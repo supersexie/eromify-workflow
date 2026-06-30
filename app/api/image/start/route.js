@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 // is plenty for the POST that kicks off the queued job.
 export const maxDuration = 60;
 
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 // Flux 2 family on fal accepts ONLY this preset enum for image_size — not
 // arbitrary {width,height}, not an aspect_ratio string. So we snap the user's

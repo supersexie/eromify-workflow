@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 export async function POST(req) {
   const { statusUrl, responseUrl } = await req.json();

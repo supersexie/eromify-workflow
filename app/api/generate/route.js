@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const KEY = process.env.OPENAI_API_KEY;
-const FAL = process.env.FAL_KEY;
+const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 const ELEVEN = process.env.ELEVENLABS_API_KEY;
 const OAI = "https://api.openai.com/v1";
 
