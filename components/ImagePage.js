@@ -253,7 +253,8 @@ export default function ImagePage() {
   // Generate | Edit mode. Edit takes an uploaded source image + prompt and
   // routes through fal's edit endpoints (image_urls), supporting @mention refs.
   const [mode, setMode] = useState("generate");
-  const [editSource, setEditSource] = useState(null); // data URI (scene/body)
+  const [editSource, setEditSource] = useState(null); // data URI (swap scene/body)
+  const [editImages, setEditImages] = useState([]); // edit mode: one or more source images
   const [faceSource, setFaceSource] = useState(null); // data URI (face reference)
   const [enhancing, setEnhancing] = useState(false);
   const [lightbox, setLightbox] = useState(null); // { url, prompt, i, ... } | null
@@ -277,7 +278,7 @@ export default function ImagePage() {
     try {
       // In edit mode the uploaded image locks the subject, so the API uses its
       // "describe only the change" prompt instead of the house style.
-      const hasSourceImage = (mode === "edit" || mode === "swap") && !!editSource;
+      const hasSourceImage = (mode === "edit" && editImages.length > 0) || (mode === "swap" && !!editSource);
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -309,6 +310,30 @@ export default function ImagePage() {
     r.readAsDataURL(file);
   };
 
+  // Edit mode: add one or more source images (fal edit endpoints take an
+  // image_urls array). Snaps the output aspect to the first image added.
+  const onAddEditImages = (files) => {
+    const list = Array.from(files || []).filter((f) => f.type.startsWith("image/"));
+    if (!list.length) return;
+    setError(null);
+    let needsSnap = editImages.length === 0;
+    list.forEach((file) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const dataUrl = r.result;
+        setEditImages((cur) => [...cur, dataUrl]);
+        if (needsSnap) {
+          needsSnap = false;
+          const img = new Image();
+          img.onload = () => { const a = closestAspect(img.naturalWidth, img.naturalHeight); if (a) setAspect(a); };
+          img.src = dataUrl;
+        }
+      };
+      r.readAsDataURL(file);
+    });
+  };
+  const removeEditImage = (i) => setEditImages((cur) => cur.filter((_, idx) => idx !== i));
+
   // Face Swap: an alternative to @mentioning an influencer — upload a face
   // photo directly as the identity reference. (No aspect snap; the scene image
   // drives the output ratio.)
@@ -327,7 +352,7 @@ export default function ImagePage() {
   // template does the heavy lifting).
   const canRun = pending.length === 0 && (
     mode === "generate" ? !!prompt.trim() :
-    mode === "edit"     ? (!!prompt.trim() && !!editSource) :
+    mode === "edit"     ? (!!prompt.trim() && editImages.length > 0) :
     /* swap */            (!!editSource && (!!faceSource || mentioned.length === 1))
   );
   const currentModel = ALL_MODELS.find((m) => m.id === model);
@@ -385,20 +410,20 @@ export default function ImagePage() {
     setError(null);
     const original = prompt.trim();
     const { prompt: resolved, characters } = resolveMentions(original);
-    // Source image goes FIRST in image_urls so prompt templates can refer to
-    // "the first image" as the scene/composition to preserve. Influencer
-    // photos follow as the identity references.
-    const includeSource = (mode === "edit" || mode === "swap") && editSource;
-    // Identity references follow the scene. For swap, an uploaded face photo
-    // takes priority as the "second image", then any @mentioned influencers.
-    const faceRefs = [
-      ...(mode === "swap" && faceSource ? [faceSource] : []),
-      ...characters.map((c) => c.image),
-    ];
-    const images = [
-      ...(includeSource ? [editSource] : []),
-      ...faceRefs,
-    ].filter(Boolean);
+    // Source image(s) go FIRST in image_urls so prompt templates can refer to
+    // "the first image" as the scene/composition. Influencer photos follow as
+    // identity references.
+    const charImages = characters.map((c) => c.image).filter(Boolean);
+    let images;
+    if (mode === "edit") {
+      // Edit supports multiple uploaded source images.
+      images = [...editImages, ...charImages];
+    } else if (mode === "swap") {
+      // Scene first, then an uploaded face (priority) / @mentioned influencer.
+      images = [editSource, ...(faceSource ? [faceSource] : []), ...charImages].filter(Boolean);
+    } else {
+      images = charImages; // generate mode (e.g. @mention likeness)
+    }
     const caption = original || (mode === "swap"
       ? (characters[0]?.handle ? `Face swap with @${characters[0].handle}` : "Face swap")
       : "");
@@ -560,25 +585,45 @@ export default function ImagePage() {
               ))}
             </div>
           )}
-          {/* Edit mode: the source image being edited */}
-          {(mode === "edit" || mode === "swap") && (
+          {/* Edit mode: one or more source images to edit */}
+          {mode === "edit" && (
+            <div className="ip-edit-src-row">
+              <input ref={editFileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={(e) => { onAddEditImages(e.target.files); e.target.value = ""; }} />
+              <div className="ip-edit-thumbs">
+                {editImages.map((src, i) => (
+                  <div key={i} className="ip-edit-thumb">
+                    <img src={src} alt={`source ${i + 1}`} />
+                    <button className="ip-edit-thumb-x" onClick={() => removeEditImage(i)} title="Remove">✕</button>
+                  </div>
+                ))}
+                <button className="ip-edit-src ip-edit-add" onClick={() => editFileRef.current?.click()} title="Add image(s) to edit">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+              <span className="ip-edit-src-label">
+                {editImages.length
+                  ? `${editImages.length} image${editImages.length > 1 ? "s" : ""} to edit — describe your change below`
+                  : "Upload one or more images to edit"}
+              </span>
+            </div>
+          )}
+          {/* Face Swap: single scene image */}
+          {mode === "swap" && (
             <div className="ip-edit-src-row">
               <input ref={editFileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { onPickEdit(e.target.files?.[0]); e.target.value = ""; }} />
-              <button className="ip-edit-src" onClick={() => editFileRef.current?.click()} title={mode === "swap" ? "Upload the scene image (the body, pose, and composition we'll keep)" : "Upload image to edit"}>
+              <button className="ip-edit-src" onClick={() => editFileRef.current?.click()} title="Upload the scene image (the body, pose, and composition we'll keep)">
                 {editSource ? <img src={editSource} alt="source" /> : (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
                 )}
               </button>
               <span className="ip-edit-src-label">
-                {mode === "swap"
-                  ? (editSource
-                      ? (faceSource
-                          ? "Scene + face reference ready — generate to swap"
-                          : (mentioned.length === 1
-                              ? `Swapping the face in this image with @${mentioned[0].handle}`
-                              : "Add a face image below, or @-mention an influencer."))
-                      : "Upload a photo — we'll keep its pose, body, and composition.")
-                  : (editSource ? "Image to edit — describe your change below" : "Upload an image to edit")}
+                {editSource
+                  ? (faceSource
+                      ? "Scene + face reference ready — generate to swap"
+                      : (mentioned.length === 1
+                          ? `Swapping the face in this image with @${mentioned[0].handle}`
+                          : "Add a face image below, or @-mention an influencer."))
+                  : "Upload a photo — we'll keep its pose, body, and composition."}
                 {editSource && <button className="up-source-clear" onClick={() => setEditSource(null)} title="Remove scene image">✕</button>}
               </span>
             </div>
