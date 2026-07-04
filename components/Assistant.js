@@ -46,14 +46,20 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
         prompt: (n.data?.prompt || "").slice(0, 200) || null,
         output: isUrl(n.data?.output) ? n.data.output : null,
       }));
-      // Up to 2 finished images Romy can literally look at (vision critique):
-      // the selected one first, then the most recent finished image node.
+      // ONE image Romy can literally look at (vision critique): the selected
+      // image, else the most recent finished image node. Sending two made her
+      // hedge across both ("for the first image… for the second image…") when
+      // the user said "the image".
       const resultImages = [];
-      if (isUrl(selectedImageUrl)) resultImages.push(selectedImageUrl);
-      for (let i = canvas.length - 1; i >= 0 && resultImages.length < 2; i--) {
-        const c = canvas[i];
-        if (c.kind === "image" && c.output && !resultImages.includes(c.output)) resultImages.push(c.output);
+      if (isUrl(selectedImageUrl)) {
+        resultImages.push(selectedImageUrl);
+      } else {
+        for (let i = canvas.length - 1; i >= 0; i--) {
+          const c = canvas[i];
+          if (c.kind === "image" && c.output) { resultImages.push(c.output); break; }
+        }
       }
+      const resultImageIsSelected = isUrl(selectedImageUrl);
       // History hygiene: drop degenerate fallback replies (feeding them back
       // makes the model mimic its own junk), and annotate action turns so the
       // model remembers WHAT it created, not just what it said.
@@ -71,7 +77,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history: chatHistory, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas, resultImages } }),
+        body: JSON.stringify({ input: text, history: chatHistory, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas, resultImages, resultImageIsSelected } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);

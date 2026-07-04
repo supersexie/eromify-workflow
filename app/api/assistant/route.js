@@ -56,8 +56,10 @@ Image — Nano Banana Pro: best for face swaps and identity-consistent edits; ke
 Video — Kling 3.0/2.6/2.5: strong general text-to-video and image-to-video with good motion (Kling 2.6 is a great default for animating a still). Seedance 2.0 (+Fast): fast and good value. Wan 2.7/2.2: solid, can take audio. MiniMax Hailuo: expressive faces. Sora 2 and Veo 3.1: cinematic with native audio. LTX Video: fast/cheap.
 Pick-by-task: realistic person image → Flux 2 Pro or Nano Banana Pro; put a saved influencer's face onto a photo → Face Swap with Nano Banana Pro; animate a still image into a clip → Kling 2.6 image-to-video; a long/multi-scene story video → director mode.
 
-VISUAL CRITIQUE (you can SEE the user's results):
-When the user's message has image(s) attached, those are their generated results — the currently selected canvas image first. If they ask why it looks bad, how to improve it, or for a critique, actually LOOK at the image and give specific, honest feedback: composition and framing, lighting direction/softness, skin texture (plastic vs natural), color grading, anatomy or artifact problems, background clutter, crop. Then give ONE concrete improved prompt they can paste, and (if it helps) a model/quality/aspect suggestion. Keep kind=null for critiques — only create a node if they explicitly ask you to regenerate it.
+VISUAL CRITIQUE (you can SEE the user's result):
+When the user's message has an image attached, that is THE image they mean — the label next to it says whether it's their selected image. Critique that one image only; never discuss a "first image" and "second image".
+Be CONCRETE, not generic. Every point must cite something actually visible in the attached image — name the real colors, pose, framing, light direction, and flaws you observe ("the window light blows out her left cheek", "the crop cuts at the knees", "the couch dominates the lower third"). Generic checklist advice like "ensure lighting is soft and evenly distributed" is a FAILURE — if you catch yourself writing advice that would apply to any photo, look again and describe this one.
+Cover what matters: composition/framing, lighting direction and softness, skin texture (plastic vs natural), color grading, anatomy/artifact problems, background clutter, crop. Then give ONE concrete improved prompt they can paste, and (if it helps) a model/quality/aspect suggestion. Keep kind=null for critiques — only create a node if they explicitly ask you to regenerate it.
 
 PROMPT COACHING (teach by example, keep it practical):
 A strong image prompt = subject (who, age-range, hair, build) + outfit/fabric + setting/props + lighting (source, direction, warmth) + camera (framing, lens feel, depth of field) + style/realism qualifiers.
@@ -128,15 +130,21 @@ export async function POST(req) {
     const canvasMsg = canvas.length
       ? "Current canvas nodes (for answering questions about the user's work):\n" + JSON.stringify(canvas)
       : "Current canvas nodes: the canvas is empty.";
-    // Attach the user's generated result image(s) so Romy can visually
-    // critique them (gpt-4o is multimodal). detail:"low" keeps it cheap.
+    // Attach the user's generated result image so Romy can visually critique
+    // it (gpt-4o is multimodal). ONE image, labeled, at high detail — low
+    // detail (512px) can't show skin texture/sharpness, which produced
+    // generic textbook advice instead of real observations.
     const resultImages = (Array.isArray(context.resultImages) ? context.resultImages : [])
       .filter((u) => typeof u === "string" && /^https?:/i.test(u))
-      .slice(0, 2);
+      .slice(0, 1);
+    const imageLabel = context.resultImageIsSelected
+      ? "(Attached: the image currently SELECTED on the canvas — this is the image the user means by 'this image'.)"
+      : "(Attached: the user's most recent generated image — the image they are most likely referring to.)";
     const userContent = resultImages.length
       ? [
           { type: "text", text: input },
-          ...resultImages.map((u) => ({ type: "image_url", image_url: { url: u, detail: "low" } })),
+          { type: "text", text: imageLabel },
+          ...resultImages.map((u) => ({ type: "image_url", image_url: { url: u, detail: "high" } })),
         ]
       : input;
     const messages = [
