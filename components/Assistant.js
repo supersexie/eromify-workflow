@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { listInfluencers } from "@/lib/influencers";
 
-export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage, nodes = [] }) {
+export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage, selectedImageUrl = null, nodes = [] }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
@@ -35,6 +35,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
       const influencers = listInfluencers().map((i) => ({
         handle: i.handle, name: i.name, description: i.description || "",
       }));
+      const isUrl = (u) => typeof u === "string" && /^https?:/i.test(u);
       const canvas = (nodes || []).map((n, i) => ({
         i,
         kind: n.data?.kind,
@@ -43,11 +44,20 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
         status: n.data?.status || (n.data?.output ? "done" : "empty"),
         error: n.data?.error || null,
         prompt: (n.data?.prompt || "").slice(0, 200) || null,
+        output: isUrl(n.data?.output) ? n.data.output : null,
       }));
+      // Up to 2 finished images Romy can literally look at (vision critique):
+      // the selected one first, then the most recent finished image node.
+      const resultImages = [];
+      if (isUrl(selectedImageUrl)) resultImages.push(selectedImageUrl);
+      for (let i = canvas.length - 1; i >= 0 && resultImages.length < 2; i--) {
+        const c = canvas[i];
+        if (c.kind === "image" && c.output && !resultImages.includes(c.output)) resultImages.push(c.output);
+      }
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas } }),
+        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas, resultImages } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -85,7 +95,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
       <div className="cb-modal">
         <div className="cb-head">
           <div className="cb-head-title">
-            <span className="cb-spark">✦</span> AI Assistant
+            <span className="cb-spark">✦</span> Romy
           </div>
           <div className="cb-head-actions">
             {history.length > 0 && (
@@ -99,8 +109,8 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
           {history.length === 0 && (
             <div className="cb-welcome">
               <div className="cb-welcome-icon">✦</div>
-              <h3>How can I help?</h3>
-              <p>Describe what you want and I'll create the right node and generate it — or ask me anything about your influencers, your canvas, or which model fits a task.</p>
+              <h3>Hey, I'm Romy ✦</h3>
+              <p>Tell me what to create and I'll build and run the right node — or ask me anything: who your influencers are, which model fits a task, or why a result looks off. Select an image and I can look at it and tell you exactly how to make it better.</p>
             </div>
           )}
 

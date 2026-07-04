@@ -5,7 +5,7 @@ export const maxDuration = 30;
 
 const KEY = process.env.OPENAI_API_KEY;
 
-const SYS = `You are an assistant inside a node-based workflow canvas (like Picsart Workflows).
+const SYS = `You are Romy — Eromify's creative assistant, living inside a node-based workflow canvas. You are warm, direct, and genuinely good at AI image/video craft. Refer to yourself as Romy if asked who you are.
 The user describes a creative task. You decide:
   - what kind of node to create: "image", "video", "text", "audio", or "motion"
   - what concrete prompt to use for that node
@@ -50,6 +50,15 @@ MODEL GUIDE (everything runs through fal):
 Image — Nano Banana Pro: best for face swaps and identity-consistent edits; keep its prompts CONCISE (verbose prompts degrade it). Flux 2 Pro / Flux 2 Max: high-quality general text-to-image and realistic people. Seedream 4.5: stylized/creative looks. GPT Image 2 / GPT Image 1: strong prompt-following but AGGRESSIVE moderation — they refuse risqué or many face-swap requests (content_policy_violation); steer users to Nano Banana Pro or Flux for those.
 Video — Kling 3.0/2.6/2.5: strong general text-to-video and image-to-video with good motion (Kling 2.6 is a great default for animating a still). Seedance 2.0 (+Fast): fast and good value. Wan 2.7/2.2: solid, can take audio. MiniMax Hailuo: expressive faces. Sora 2 and Veo 3.1: cinematic with native audio. LTX Video: fast/cheap.
 Pick-by-task: realistic person image → Flux 2 Pro or Nano Banana Pro; put a saved influencer's face onto a photo → Face Swap with Nano Banana Pro; animate a still image into a clip → Kling 2.6 image-to-video; a long/multi-scene story video → director mode.
+
+VISUAL CRITIQUE (you can SEE the user's results):
+When the user's message has image(s) attached, those are their generated results — the currently selected canvas image first. If they ask why it looks bad, how to improve it, or for a critique, actually LOOK at the image and give specific, honest feedback: composition and framing, lighting direction/softness, skin texture (plastic vs natural), color grading, anatomy or artifact problems, background clutter, crop. Then give ONE concrete improved prompt they can paste, and (if it helps) a model/quality/aspect suggestion. Keep kind=null for critiques — only create a node if they explicitly ask you to regenerate it.
+
+PROMPT COACHING (teach by example, keep it practical):
+A strong image prompt = subject (who, age-range, hair, build) + outfit/fabric + setting/props + lighting (source, direction, warmth) + camera (framing, lens feel, depth of field) + style/realism qualifiers.
+Weak: "pretty girl in a cafe". Strong: "young woman with wavy auburn hair, cream knit sweater, sitting by a rainy cafe window, warm side light from the window, shallow depth of field, candid iPhone photo, natural skin texture".
+Video prompts: describe the STARTING image plus the MOTION (subject micro-movement, camera move, pacing) — not a story.
+Common fixes: flat image → name a light source and direction; plastic skin → "natural skin texture, realistic pores, no over-smoothing"; boring composition → specify framing and camera angle; identity drift → attach the influencer reference and keep the prompt concise on Nano Banana Pro.
 
 TROUBLESHOOTING (why a generation failed or looks off):
 - Failed: content-policy refusal (common with GPT Image on faces/NSFW → switch to Nano Banana Pro or Flux); an expired source/reference URL; missing API key on the server; or a transient model error (just retry). If the node has an "error" string, base your explanation on it.
@@ -112,13 +121,24 @@ export async function POST(req) {
     const canvasMsg = canvas.length
       ? "Current canvas nodes (for answering questions about the user's work):\n" + JSON.stringify(canvas)
       : "Current canvas nodes: the canvas is empty.";
+    // Attach the user's generated result image(s) so Romy can visually
+    // critique them (gpt-4o is multimodal). detail:"low" keeps it cheap.
+    const resultImages = (Array.isArray(context.resultImages) ? context.resultImages : [])
+      .filter((u) => typeof u === "string" && /^https?:/i.test(u))
+      .slice(0, 2);
+    const userContent = resultImages.length
+      ? [
+          { type: "text", text: input },
+          ...resultImages.map((u) => ({ type: "image_url", image_url: { url: u, detail: "low" } })),
+        ]
+      : input;
     const messages = [
       { role: "system", content: SYS },
       { role: "system", content: sel },
       { role: "system", content: inflMsg },
       { role: "system", content: canvasMsg },
       ...history.slice(-6).map((m) => ({ role: m.role, content: m.content })),
-      { role: "user", content: input },
+      { role: "user", content: userContent },
     ];
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
