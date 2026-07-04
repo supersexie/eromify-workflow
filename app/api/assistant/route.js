@@ -71,6 +71,8 @@ TROUBLESHOOTING (why a generation failed or looks off):
 
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
+"message" is REQUIRED in EVERY response and must never be empty — it's the only text the user sees. If the request is confusing or has typos (e.g. mixed-up words like "turn this video into image"), say what you think they meant and ask, in "message".
+
 Always respond as JSON. For a single asset:
 { "kind": "image"|"video"|"text"|"audio"|"motion"|null, "prompt": "...", "useSelectedImage": false, "message": "short reply (1-2 sentences)" }
 For a multi-scene video, instead use:
@@ -166,13 +168,20 @@ export async function POST(req) {
       ? parsed.scenes.filter((s) => typeof s === "string" && s.trim()).slice(0, 6)
       : null;
     const useSelectedImage = parsed.useSelectedImage === true && context.hasSelectedImage === true;
+    // The model occasionally omits "message" — never surface a bare "Done."
+    // for a question it didn't actually answer.
+    const message = (typeof parsed.message === "string" && parsed.message.trim())
+      ? parsed.message
+      : (parsed.kind
+          ? `On it — creating your ${parsed.kind} node now.`
+          : "Sorry, I lost my train of thought there — could you rephrase that?");
     return NextResponse.json({
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
       scenes: scenes && scenes.length >= 2 ? scenes : null,
       character: useSelectedImage ? null : (typeof parsed.character === "string" ? parsed.character : null),
       useSelectedImage,
-      message: parsed.message || "Done.",
+      message,
     });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
