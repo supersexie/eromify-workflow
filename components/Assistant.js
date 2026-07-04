@@ -5,7 +5,10 @@ import { listInfluencers } from "@/lib/influencers";
 export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage, selectedImageUrl = null, nodes = [] }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
-  const [autoRun, setAutoRun] = useState(true);
+  // Nodes created on an explicit user command run immediately — the server's
+  // question-vs-command rule is the safeguard against unwanted generations
+  // (questions never create nodes), so no auto-run toggle is needed.
+  const autoRun = true;
   // Default model for multi-scene (director) videos — selector removed from UI.
   const videoModel = "LTX Video";
   const [sending, setSending] = useState(false);
@@ -159,15 +162,6 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
         </div>
 
         <div className="cb-inputbar">
-          <div className="cb-autorun-row">
-            <button
-              className={`cb-autorun ${autoRun ? "on" : ""}`}
-              onClick={() => setAutoRun((v) => !v)}
-              title="When on, generated nodes run automatically"
-            >
-              ⚡ Auto-run {autoRun ? "on" : "off"}
-            </button>
-          </div>
           <div className="cb-inputrow">
             <textarea
               ref={inputRef}
