@@ -144,35 +144,48 @@ export async function POST(req) {
       { role: "system", content: sel },
       { role: "system", content: inflMsg },
       { role: "system", content: canvasMsg },
-      ...history.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+      // 12 messages = 6 exchanges of context (was 6/3 — users noticed it
+      // "forgetting" the conversation).
+      ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
       { role: "user", content: userContent },
     ];
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages,
-        response_format: { type: "json_object" },
-        max_tokens: 2000,
-      }),
-    });
-    if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
-    const data = await res.json();
-    const raw = data.choices?.[0]?.message?.content || "{}";
-    const parsed = JSON.parse(raw);
+    const callModel = async (msgs) => {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: msgs,
+          response_format: { type: "json_object" },
+          max_tokens: 2000,
+        }),
+      });
+      if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
+      const data = await res.json();
+      try { return JSON.parse(data.choices?.[0]?.message?.content || "{}"); } catch { return {}; }
+    };
+    // Salvage the reply if the model names the field wrong ("reply"/"answer"…).
+    const pickMessage = (p) => [p.message, p.reply, p.answer, p.response, p.text]
+      .find((v) => typeof v === "string" && v.trim()) || null;
+
+    let parsed = await callModel(messages);
+    let pickedMessage = pickMessage(parsed);
+    if (!pickedMessage) {
+      // One corrective retry — the model occasionally omits "message" (or
+      // returns malformed JSON), which used to surface as a bare fallback.
+      parsed = await callModel([
+        ...messages,
+        { role: "system", content: 'Your previous output omitted the required "message" field. Respond to the user\'s last message again, as JSON, with a complete non-empty "message".' },
+      ]);
+      pickedMessage = pickMessage(parsed);
+    }
     const scenes = Array.isArray(parsed.scenes)
       ? parsed.scenes.filter((s) => typeof s === "string" && s.trim()).slice(0, 6)
       : null;
     const useSelectedImage = parsed.useSelectedImage === true && context.hasSelectedImage === true;
-    // The model occasionally omits "message" — never surface a bare "Done."
-    // for a question it didn't actually answer.
-    const message = (typeof parsed.message === "string" && parsed.message.trim())
-      ? parsed.message
-      : (parsed.kind
+    // Last-resort fallback — only if BOTH attempts produced no usable message.
+    const message = pickedMessage
+      || (parsed.kind
           ? `On it — creating your ${parsed.kind} node now.`
           : "Sorry, I lost my train of thought there — could you rephrase that?");
     return NextResponse.json({

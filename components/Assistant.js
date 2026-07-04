@@ -54,10 +54,24 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
         const c = canvas[i];
         if (c.kind === "image" && c.output && !resultImages.includes(c.output)) resultImages.push(c.output);
       }
+      // History hygiene: drop degenerate fallback replies (feeding them back
+      // makes the model mimic its own junk), and annotate action turns so the
+      // model remembers WHAT it created, not just what it said.
+      const DEGENERATE = [/^Done\.$/, /^Sorry, I lost my train of thought/, /^⚠/];
+      const chatHistory = history
+        .filter((m) => !(m.role === "assistant" && DEGENERATE.some((r) => r.test(m.content || ""))))
+        .map((m) => ({
+          role: m.role,
+          content: m.role === "assistant" && m.action
+            ? `${m.content} ${m.action.director
+                ? `[created a ${m.action.count}-scene director video]`
+                : `[created a ${m.action.kind} node${m.action.prompt ? ` with prompt: "${m.action.prompt.slice(0, 100)}"` : ""}]`}`
+            : m.content,
+        }));
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas, resultImages } }),
+        body: JSON.stringify({ input: text, history: chatHistory, context: { hasSelectedImage: !!hasSelectedImage, influencers, canvas, resultImages } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
