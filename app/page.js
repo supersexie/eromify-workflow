@@ -149,7 +149,7 @@ const css = `
   .mm-btn-white:hover { background:#e5e5e5; }
 
   /* badge */
-  .mm-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; background:rgba(37,99,235,.14); border:1px solid rgba(37,99,235,.35); color:#60a5fa; }
+  .mm-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:999px; font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); color:#fff; }
   .mm-badge-dot { width:6px; height:6px; border-radius:50%; background:#3b82f6; box-shadow:0 0 6px #3b82f6; }
 
   /* hero */
@@ -157,7 +157,7 @@ const css = `
   .mm-hero-glow { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 900px 500px at 50% 10%, rgba(37,99,235,.22) 0%, transparent 70%); }
   .mm-hero-glow2 { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 600px 400px at 80% 60%, rgba(37,99,235,.1) 0%, transparent 65%); }
   .mm-h1 { font-size:clamp(40px,5.5vw,72px); line-height:1.08; letter-spacing:-0.02em; font-weight:700; margin:24px auto 0; max-width:1100px; color:#fff; }
-  .mm-grad { color:#3b82f6; }
+  .mm-grad { color:#fff; }
   .mm-sub { color:#9a9a9a; font-size:clamp(16px,2vw,20px); max-width:580px; margin:22px auto 0; line-height:1.6; }
   .mm-hero-cta { margin-top:38px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap; }
   .mm-proof { margin-top:28px; display:flex; align-items:center; justify-content:center; gap:12px; color:#7a7a7a; font-size:14px; font-weight:500; }
@@ -196,7 +196,7 @@ const css = `
   .mm-tool-icon { width:48px; height:48px; border-radius:13px; display:grid; place-items:center; font-size:22px; margin-bottom:16px; flex-shrink:0; background:#2563eb; }
   .mm-tool-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
   .mm-tool-title { font-size:20px; font-weight:800; color:#fff; }
-  .mm-tool-tag { font-size:11px; font-weight:700; color:#60a5fa; background:rgba(37,99,235,.14); border:1px solid rgba(37,99,235,.3); padding:3px 9px; border-radius:999px; }
+  .mm-tool-tag { font-size:11px; font-weight:700; color:#fff; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); padding:3px 9px; border-radius:999px; }
   .mm-tool-desc { color:#8a8a8a; font-size:15px; line-height:1.6; flex:1; }
 
   /* features */
@@ -206,7 +206,7 @@ const css = `
   .mm-feat-item:hover { background:rgba(37,99,235,.06); }
   .mm-feat-active { border-left-color:#3b82f6; background:rgba(37,99,235,.1); }
   .mm-feat-h { font-size:20px; font-weight:800; color:#fff; }
-  .mm-feat-active .mm-feat-h { color:#60a5fa; }
+  .mm-feat-active .mm-feat-h { color:#fff; }
   .mm-feat-p { color:#8a8a8a; font-size:15px; line-height:1.55; margin-top:6px; }
   .mm-feat-art { aspect-ratio:16/9; border-radius:22px; background:#0a0a0a; border:1.5px solid rgba(37,99,235,.35); box-shadow:0 0 60px rgba(37,99,235,.15), 0 0 0 4px rgba(37,99,235,.08); display:grid; place-items:center; overflow:hidden; position:relative; }
   .mm-feat-art-inner { font-size:80px; opacity:.7; color:#3b82f6; }
@@ -224,9 +224,9 @@ const css = `
   .mm-mcp-title { font-size:18px; font-weight:800; margin:0 0 8px; color:#fff; }
   .mm-mcp-body { color:#8a8a8a; font-size:14.5px; line-height:1.55; margin:0; }
   .mm-mcp-url { display:flex; align-items:center; gap:10px; margin-top:14px; background:#000; border:1px solid rgba(255,255,255,.14); border-radius:10px; padding:10px 12px; }
-  .mm-mcp-url-text { flex:1; min-width:0; color:#60a5fa; font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; overflow-x:auto; white-space:nowrap; }
-  .mm-mcp-copy { flex:0 0 auto; background:rgba(37,99,235,.2); border:1px solid rgba(37,99,235,.4); color:#60a5fa; border-radius:7px; padding:5px 10px; font-size:12px; cursor:pointer; font-family:inherit; font-weight:700; }
-  .mm-mcp-copy:hover { background:rgba(37,99,235,.35); }
+  .mm-mcp-url-text { flex:1; min-width:0; color:#fff; font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; overflow-x:auto; white-space:nowrap; }
+  .mm-mcp-copy { flex:0 0 auto; background:#2563eb; border:1px solid #2563eb; color:#fff; border-radius:7px; padding:5px 10px; font-size:12px; cursor:pointer; font-family:inherit; font-weight:700; }
+  .mm-mcp-copy:hover { background:#1d4ed8; }
 
   /* FAQ */
   .mm-faq { max-width:820px; margin:52px auto 0; display:flex; flex-direction:column; gap:12px; }
@@ -440,9 +440,9 @@ export default function LandingPage() {
             </div>
             <div className="mm-feat-art">
               <div className="mm-feat-art-inner">✦</div>
-              <div style={{ position: "absolute", top: 20, left: 20, background: "rgba(37,99,235,.15)", border: "1px solid rgba(37,99,235,.3)", borderRadius: 12, padding: "10px 16px", fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>Image Node</div>
-              <div style={{ position: "absolute", top: 20, right: 20, background: "rgba(37,99,235,.15)", border: "1px solid rgba(37,99,235,.3)", borderRadius: 12, padding: "10px 16px", fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>Video Node</div>
-              <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(37,99,235,.15)", border: "1px solid rgba(37,99,235,.3)", borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, color: "#60a5fa", whiteSpace: "nowrap" }}>✦ Romy AI</div>
+              <div style={{ position: "absolute", top: 20, left: 20, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 12, padding: "10px 16px", fontSize: 13, fontWeight: 700, color: "#fff" }}>Image Node</div>
+              <div style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 12, padding: "10px 16px", fontSize: 13, fontWeight: 700, color: "#fff" }}>Video Node</div>
+              <div style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 12, padding: "10px 20px", fontSize: 13, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>✦ Romy AI</div>
             </div>
           </div>
         </section>
