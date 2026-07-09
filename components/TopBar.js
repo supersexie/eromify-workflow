@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import Tabs from "@/components/Tabs";
 
 // Shared top bar for every section page: small brand on the left, a centered
@@ -7,10 +8,10 @@ import Tabs from "@/components/Tabs";
 export default function TopBar({ right }) {
   return (
     <div className="app-topbar">
-      <div className="app-topbar-brand">
+      <Link href="/" className="app-topbar-brand">
         <div className="logo">m</div>
         <span>Magic Mint</span>
-      </div>
+      </Link>
       <div className="nav-pill">
         <Tabs showBrand={false} />
       </div>

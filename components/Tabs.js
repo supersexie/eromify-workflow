@@ -1,5 +1,6 @@
 "use client";
 import { Suspense } from "react";
+import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 // Motion Control now lives as a sub-tab inside Video — the dedicated /motion
@@ -23,7 +24,7 @@ const TABS = [
 // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 export default function Tabs({ showBrand = true }) {
   return (
-    <Suspense fallback={<div className="mc-tabs">{showBrand && <div className="title-pill"><div className="logo">m</div><span>Magic Mint</span></div>}</div>}>
+    <Suspense fallback={<div className="mc-tabs">{showBrand && <Link href="/" className="title-pill"><div className="logo">m</div><span>Magic Mint</span></Link>}</div>}>
       <TabsInner showBrand={showBrand} />
     </Suspense>
   );
@@ -36,10 +37,10 @@ function TabsInner({ showBrand = true }) {
   return (
     <div className="mc-tabs">
       {showBrand && (
-        <div className="title-pill">
-          <div className="logo">e</div>
+        <Link href="/" className="title-pill">
+          <div className="logo">m</div>
           <span>Magic Mint</span>
-        </div>
+        </Link>
       )}
       {TABS.map((t) => {
         const active = t.match(pathname, search);

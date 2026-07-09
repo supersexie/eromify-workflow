@@ -64,6 +64,7 @@ body {
   background: var(--surface); border: 1px solid var(--line);
   padding: 8px 14px; border-radius: 10px;
   font-size: 14px; box-shadow: var(--shadow-sm);
+  text-decoration: none; color: inherit;
 }
 .logo {
   width: 22px; height: 22px; border-radius: 6px;
@@ -973,7 +974,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   position: relative; display: flex; align-items: center; justify-content: space-between;
   padding: 14px 24px; border-bottom: 1px solid var(--line);
 }
-.app-topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.app-topbar-brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; }
 .app-topbar-right { display: flex; align-items: center; gap: 14px; }
 .nav-pill {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
