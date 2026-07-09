@@ -410,7 +410,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             className="pb-enhance"
             onClick={enhance}
             disabled={enhancing || !((data.prompt || "").trim())}
-            title="Enhance prompt with Eromify style"
+            title="Enhance prompt with Magic Mint style"
           >
             {enhancing ? (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin">

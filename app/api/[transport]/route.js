@@ -209,7 +209,7 @@ const handler = createMcpHandler(
       async () => {
         let list = [];
         try { list = await getInfluencers("public"); } catch {}
-        if (!list.length) return { content: [{ type: "text", text: "No influencers saved yet. Create one in the Eromify app's Influencers tab, then reference it with @handle." }] };
+        if (!list.length) return { content: [{ type: "text", text: "No influencers saved yet. Create one in the Magic Mint app's Influencers tab, then reference it with @handle." }] };
         const lines = list.map((i) => `@${i.handle} — ${i.name}${i.description ? ` (${i.description})` : ""}`).join("\n");
         return { content: [{ type: "text", text: `Saved influencers:\n${lines}\n\nUse e.g. "generate an image of @${list[0].handle} on a beach".` }] };
       }

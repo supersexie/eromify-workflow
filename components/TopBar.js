@@ -8,8 +8,8 @@ export default function TopBar({ right }) {
   return (
     <div className="app-topbar">
       <div className="app-topbar-brand">
-        <div className="logo">e</div>
-        <span>Eromify</span>
+        <div className="logo">m</div>
+        <span>Magic Mint</span>
       </div>
       <div className="nav-pill">
         <Tabs showBrand={false} />
