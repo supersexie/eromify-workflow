@@ -6,7 +6,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 // route is gone. The Motion Control tab routes to /video?sub=motion which the
 // Video page reads on mount to select that sub-tab.
 const TABS = [
-  { id: "canvas", label: "Canvas", path: "/app", match: (p) => p === "/app" || p.startsWith("/w/") },
+  { id: "canvas", label: "Magic Canvas", path: "/app", match: (p) => p === "/app" || p.startsWith("/w/") },
   { id: "image",  label: "Image",  path: "/image", match: (p) => p.startsWith("/image") },
   { id: "video",  label: "Video",  path: "/video", match: (p, s) => p.startsWith("/video") && s.get("sub") !== "motion" },
   { id: "motion", label: "Motion Control", path: "/video?sub=motion", match: (p, s) => (p.startsWith("/video") && s.get("sub") === "motion") || p.startsWith("/motion") },
