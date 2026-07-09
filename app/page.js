@@ -156,7 +156,7 @@ const css = `
   .mm-hero { position:relative; text-align:center; padding:150px 24px 60px; overflow:hidden; }
   .mm-hero-glow { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 900px 500px at 50% 10%, rgba(168,85,247,.22) 0%, transparent 70%); }
   .mm-hero-glow2 { position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 600px 400px at 80% 60%, rgba(236,72,153,.12) 0%, transparent 65%); }
-  .mm-h1 { font-size:clamp(48px,7vw,96px); line-height:1.0; letter-spacing:-0.04em; font-weight:900; margin:24px auto 0; max-width:1100px; }
+  .mm-h1 { font-size:clamp(40px,5.5vw,72px); line-height:1.08; letter-spacing:-0.02em; font-weight:700; margin:24px auto 0; max-width:1100px; }
   .mm-grad { background:linear-gradient(90deg,#c084fc 0%,#f472b6 50%,#2dd4bf 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
   .mm-sub { color:#8b7fa8; font-size:clamp(16px,2vw,20px); max-width:580px; margin:22px auto 0; line-height:1.6; }
   .mm-hero-cta { margin-top:38px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap; }
