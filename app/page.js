@@ -99,7 +99,32 @@ const FAQS = [
 
 // ─── styles ──────────────────────────────────────────────────────────────────
 const css = `
-  .mm-page { background:#060610; color:#f1f0ff; min-height:100vh; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; letter-spacing:-0.01em; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 400;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Regular.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 500;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Medium.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 600;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Semibold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 700;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Bold.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 800;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Heavy.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "SF Pro Display"; font-style: normal; font-weight: 900;
+    font-display: swap; src: url("/fonts/SF-Pro-Display-Heavy.woff2") format("woff2");
+  }
+
+  .mm-page { background:#060610; color:#f1f0ff; min-height:100vh; font-family:"SF Pro Display","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; letter-spacing:-0.01em; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
   .mm-page * { box-sizing:border-box; }
 
   /* nav */
