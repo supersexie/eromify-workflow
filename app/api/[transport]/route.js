@@ -11,7 +11,7 @@ const UI_URI = "ui://eromify/media-v1.html";
 
 const BASE = (
   process.env.EROMIFY_BASE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://eromify.pro")
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://magicmint.pro")
 ).replace(/\/$/, "");
 
 // Wrap a generated media URL in our same-origin proxy so the widget iframe can load it

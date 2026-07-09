@@ -4,8 +4,8 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 
 // MCP connector URL — served by our Next.js MCP route at /api/[transport].
-// When deployed at eromify.pro this resolves to https://eromify.pro/api/mcp.
-const MCP_URL = "https://eromify.pro/api/mcp";
+// When deployed at magicmint.pro this resolves to https://magicmint.pro/api/mcp.
+const MCP_URL = "https://magicmint.pro/api/mcp";
 
 const APPS = [
   { id: "claude",  label: "Claude",   ic: <svg width="14" height="14" viewBox="0 0 24 24" fill="#ec4899"><circle cx="12" cy="12" r="10"/></svg> },

@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "if(location.hostname==='eromify.pro'){location.replace('https://www.eromify.pro'+location.pathname+location.search+location.hash);}",
+              "if(location.hostname==='magicmint.pro'){location.replace('https://www.magicmint.pro'+location.pathname+location.search+location.hash);}",
           }}
         />
       </head>
