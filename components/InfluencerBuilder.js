@@ -6,17 +6,24 @@ import { normHandle, saveInfluencerRemote } from "@/lib/influencers";
 // like a real photo instead of the glossy over-smoothed "AI slop" look.
 const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural skin texture with realistic pores and subtle imperfections, soft natural lighting, shallow depth of field, candid and photogenic, authentic not over-produced, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
 
+// Every generation is biased toward conventionally attractive results — no
+// asking for it per-vibe, it's baked into the base prompt every time.
+const BEAUTY_CLAUSE = "strikingly beautiful, conventionally attractive facial features, symmetrical face, clear glowing healthy skin, well-proportioned features, camera-ready model-tier good looks";
+
 // Curated "vibes" carry the creative direction so a beginner never has to
 // write a prompt themselves — each one is a hand-tuned descriptor block.
+// `style: "anime"` opts a vibe out of the photoreal HOUSE_STYLE pipeline.
 const VIBES = [
-  { id: "glam", label: "Glam Baddie", emoji: "💋", blurb: "Glossy makeup, sultry confidence", prompt: "glamorous instagram-baddie makeup with defined contour, glossy lips, sharp eyeliner, confident sultry expression, form-fitting fashionable outfit, moody upscale setting" },
-  { id: "girl-next-door", label: "Girl Next Door", emoji: "🌼", blurb: "Fresh, natural, warm smile", prompt: "fresh natural makeup, warm genuine smile, casual cozy outfit like an oversized sweater or sundress, soft daylight, cozy home or cafe setting" },
-  { id: "fitness", label: "Fitness Icon", emoji: "💪", blurb: "Athletic, toned, gym-ready", prompt: "toned athletic physique, form-fitting activewear or gym set, confident energetic pose, gym or outdoor fitness setting, healthy glow" },
-  { id: "luxury", label: "Luxury Elegant", emoji: "💎", blurb: "Editorial, designer, refined", prompt: "elegant refined makeup, designer fashion outfit, poised editorial pose, upscale luxury setting like a penthouse or fine hotel lobby" },
-  { id: "street", label: "Streetwear Cool", emoji: "🖤", blurb: "Urban, edgy, effortless", prompt: "edgy streetwear outfit, urban city backdrop, confident effortless pose, natural makeup with a cool undertone, graffiti or city street setting" },
-  { id: "boho", label: "Boho Free Spirit", emoji: "🌿", blurb: "Beachy, natural light, flowy", prompt: "boho flowy fashion, sun-kissed natural makeup, beach or golden-hour outdoor setting, relaxed carefree pose" },
-  { id: "kbeauty", label: "K-Beauty Glow", emoji: "✨", blurb: "Glass skin, soft glam", prompt: "korean-beauty inspired soft glam makeup, dewy glass skin, cute pastel or minimalist outfit, clean bright studio or cafe setting" },
-  { id: "business", label: "Business Chic", emoji: "💼", blurb: "Polished, confident, professional", prompt: "polished professional makeup, tailored blazer or business-chic outfit, confident composed expression, modern office or city skyline setting" },
+  { id: "teacher", label: "Teacher / Professor", emoji: "📚", blurb: "Smart, warm, academic-chic", prompt: "academic-chic outfit like a fitted blazer or cardigan, chic reading glasses, warm approachable smile, intelligent confident posture, classroom or campus library setting" },
+  { id: "nurse", label: "Nurse", emoji: "💉", blurb: "Caring, clean, classic scrubs", prompt: "cute fitted nurse scrubs or a classic nurse uniform, caring warm expression, clean bright hospital or clinic setting, soft professional lighting" },
+  { id: "golf", label: "Golf Baddie", emoji: "⛳", blurb: "Country-club fashion, poised", prompt: "golf-course fashion like a fitted polo and pleated skirt, visor or cap, confident poised stance, sunny golf course or country club backdrop" },
+  { id: "supertall", label: "Supertall Baddie", emoji: "📏", blurb: "Statuesque, editorial, striking", prompt: "tall statuesque model physique with elongated silhouette, long legs emphasized by the framing, high-fashion runway-style outfit, confident editorial pose, upscale city or studio backdrop" },
+  { id: "gamer", label: "Gamer Girl", emoji: "🎮", blurb: "Cozy setup, playful energy", prompt: "cute gamer aesthetic with an oversized hoodie or graphic tee, gaming headset around the neck, cozy RGB-lit gaming setup in the background, playful confident expression" },
+  { id: "egirl", label: "E-Girl", emoji: "🖤", blurb: "Colorful makeup, grunge edge", prompt: "e-girl aesthetic with colorful eyeshadow and blush, striped or grunge-inspired outfit, choker or chain accessories, moody colorful lighting, urban bedroom or city setting" },
+  { id: "gymbaddie", label: "Gym Baddie", emoji: "🏋️", blurb: "Toned, confident, gym-fit", prompt: "form-fitting gym set or leggings and sports bra, toned athletic physique, confident gym mirror-selfie or workout pose, modern gym setting" },
+  { id: "tradwife", label: "Trad Wife", emoji: "🌾", blurb: "Wholesome, vintage, homely", prompt: "wholesome vintage-inspired outfit like a modest floral dress or apron, soft natural makeup, warm homely kitchen or farmhouse setting, gentle nurturing expression" },
+  { id: "waifu", label: "Anime Waifu", emoji: "✨", blurb: "Vibrant anime character art", style: "anime", prompt: "vibrant anime character design, expressive large eyes, stylish anime outfit, colorful anime background, cel-shaded lighting" },
+  { id: "goth", label: "Goth", emoji: "🦇", blurb: "Dark fashion, dramatic makeup", prompt: "dark gothic fashion with black lace or leather, dramatic dark eye makeup, pale striking features, moody atmospheric setting like a dark alley or gothic architecture" },
 ];
 
 const ETHNICITIES = [
@@ -48,7 +55,7 @@ const BODY_TYPES = [
 
 const BLANK_PICKS = {
   gender: "female",
-  vibe: "glam",
+  vibe: "teacher",
   ethnicity: "any",
   age: "mid20s",
   hairColor: "Brunette",
@@ -112,7 +119,12 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
     const genderNoun = picks.gender === "male" ? "man" : "woman";
     const ageDesc = picks.gender === "male" ? age.m : age.f;
     const ethPart = eth.adj ? `${eth.adj} ` : "";
-    return `Photorealistic portrait of a ${ethPart}${genderNoun} ${ageDesc}, with ${picks.hairColor.toLowerCase()} ${picks.hairStyle.toLowerCase()} hair and ${picks.eyeColor.toLowerCase()} eyes, ${body.desc}. ${vibe.prompt}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
+    const subject = `a ${ethPart}${genderNoun} ${ageDesc}, with ${picks.hairColor.toLowerCase()} ${picks.hairStyle.toLowerCase()} hair and ${picks.eyeColor.toLowerCase()} eyes, ${body.desc}`;
+
+    if (vibe.style === "anime") {
+      return `Anime-style character portrait of ${subject}. ${vibe.prompt}. ${BEAUTY_CLAUSE}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
+    }
+    return `Photorealistic portrait of ${subject}. ${vibe.prompt}. ${BEAUTY_CLAUSE}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
   }, [picks]);
 
   const runBatch = useCallback(() => {
