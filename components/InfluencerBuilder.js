@@ -142,6 +142,16 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
   const goGenerate = () => { setStep(3); runBatch(); };
   const regenerate = () => runBatch();
 
+  // Retry a single failed slot in place — no need to redo all 4 for one
+  // transient fal.ai error (rate limit, queue hiccup, moderation flag, etc).
+  const retrySlot = (i) => {
+    const prompt = composePrompt();
+    setSlots((s) => s.map((sl, j) => (j === i ? { status: "pending" } : sl)));
+    generateOne(prompt)
+      .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
+      .catch((e) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl))));
+  };
+
   const openLightbox = (i) => { if (slots[i]?.status === "done") setLightboxIdx(i); };
   const closeLightbox = () => setLightboxIdx(null);
 
@@ -158,10 +168,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
     setSlots((s) => s.map((sl, j) => (j === i ? { status: "pending" } : sl)));
     generateOne(prompt, "2:3")
       .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
-      .catch((e) => {
-        setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl)));
-        closeLightbox();
-      });
+      .catch((e) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl))));
   };
 
   const canContinueFromPick = !!selectedUrl;
@@ -304,12 +311,17 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
               {slots.map((s, i) => (
                 <button
                   key={i}
-                  className={`bld-gen-card ${selectedUrl === s.url ? "is-selected" : ""}`}
-                  disabled={s.status !== "done"}
-                  onClick={() => openLightbox(i)}
+                  className={`bld-gen-card ${selectedUrl === s.url ? "is-selected" : ""} ${s.status === "error" ? "is-error" : ""}`}
+                  disabled={s.status === "pending"}
+                  onClick={() => (s.status === "error" ? retrySlot(i) : openLightbox(i))}
                 >
                   {s.status === "pending" && <span className="inf-spinner" />}
-                  {s.status === "error" && <span className="bld-gen-error">Failed</span>}
+                  {s.status === "error" && (
+                    <span className="bld-gen-error">
+                      <span className="bld-gen-error-msg">{s.error || "Generation failed"}</span>
+                      <span className="bld-gen-error-retry">Tap to retry</span>
+                    </span>
+                  )}
                   {s.status === "done" && (
                     <>
                       <img src={s.url} alt={`Option ${i + 1}`} />
@@ -367,11 +379,16 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
           <div className="bld-lightbox-frame">
             {lightboxSlot.status === "pending" && <span className="inf-spinner bld-lightbox-spinner" />}
             {lightboxSlot.status === "done" && <img src={lightboxSlot.url} alt="Preview" />}
-            {lightboxSlot.status === "error" && <span className="bld-gen-error">Generation failed</span>}
+            {lightboxSlot.status === "error" && (
+              <span className="bld-gen-error">
+                <span className="bld-gen-error-msg">{lightboxSlot.error || "Generation failed"}</span>
+                <span className="bld-gen-error-retry">Try again below</span>
+              </span>
+            )}
           </div>
           <div className="bld-lightbox-actions">
             <button className="nw-cancel" onClick={generateFullBody} disabled={lightboxSlot.status === "pending"}>
-              Generate full body shot
+              {lightboxSlot.status === "error" ? "Retry full body shot" : "Generate full body shot"}
             </button>
             <button className="primary-btn" onClick={useThisPhoto} disabled={lightboxSlot.status !== "done"}>
               Use this photo
