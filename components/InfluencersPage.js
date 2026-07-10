@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import SectionHero from "@/components/SectionHero";
+import InfluencerBuilder from "@/components/InfluencerBuilder";
 import { listInfluencers, syncInfluencers, saveInfluencerRemote, deleteInfluencerRemote, normHandle } from "@/lib/influencers";
 
 // Downscale an uploaded image to a small JPEG data URL so it uploads fast and
@@ -35,6 +36,7 @@ export default function InfluencersPage() {
   const [items, setItems] = useState(null); // null = still loading
   const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [building, setBuilding] = useState(false);
 
   // Render the local cache instantly (loading only if there's no cache), then
   // reconcile with the server. A fail-safe timeout guarantees we never sit on
@@ -85,12 +87,21 @@ export default function InfluencersPage() {
   const canSave = editing && !!editing.image && !!normHandle(editing.handle);
   const list = items || [];
 
+  const onBuilt = async (saved) => {
+    setBuilding(false);
+    setItems(await syncInfluencers());
+  };
+
   return (
     <div className="ip-page">
       <TopBar right={<>
-        <button className="primary-btn" onClick={openNew}>
+        <button className="primary-btn bld-launch" onClick={() => setBuilding(true)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8" /></svg>
+          Build with AI
+        </button>
+        <button className="nw-cancel" onClick={openNew}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-          New influencer
+          Upload photo
         </button>
         <UserMenu />
       </>} />
@@ -99,7 +110,7 @@ export default function InfluencersPage() {
       <SectionHero
         title="Build your"
         brand="Influencers"
-        sub="Create a character once, then summon her anywhere with @handle — type “@ash on a beach” in any Image, Video, or Canvas prompt and her likeness is used automatically."
+        sub="No AI slop — pick a vibe, dial in the look, and get a super realistic influencer in under a minute. Then summon her anywhere with @handle."
         tiles={[
           { img: "/hero/inf1.png" },
           { img: "/hero/inf2.png" },
@@ -120,9 +131,14 @@ export default function InfluencersPage() {
           </div>
         ) : (
           <div className="inf-grid">
+            <button className="inf-card inf-card-new bld-launch-card" onClick={() => setBuilding(true)}>
+              <div className="inf-card-new-plus">✦</div>
+              <div>Build with AI</div>
+              <div className="bld-launch-card-sub">Beginner-friendly, no prompting</div>
+            </button>
             <button className="inf-card inf-card-new" onClick={openNew}>
               <div className="inf-card-new-plus">+</div>
-              <div>New influencer</div>
+              <div>Upload your own photo</div>
             </button>
             {list.map((inf) => (
               <div key={inf.id} className="inf-card" onClick={() => openEdit(inf)}>
@@ -147,6 +163,8 @@ export default function InfluencersPage() {
         )}
       </div>
       </div>
+
+      {building && <InfluencerBuilder onClose={() => setBuilding(false)} onCreated={onBuilt} />}
 
       {editing && (
         <div className="nw-backdrop" onClick={() => setEditing(null)}>
