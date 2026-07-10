@@ -1771,15 +1771,48 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .bld-gen-error { font-size: 12px; color: #fca5a5; font-weight: 600; padding: 0 8px; text-align: center; }
+.bld-gen-expand {
+  position: absolute; bottom: 8px; right: 8px; width: 26px; height: 26px; border-radius: 7px;
+  background: rgba(0,0,0,.55); color: #fff; backdrop-filter: blur(6px);
+  display: grid; place-items: center; opacity: 0; transition: opacity .15s ease;
+}
+.bld-gen-card:hover .bld-gen-expand { opacity: 1; }
 
 .bld-final { display: flex; gap: 18px; align-items: flex-start; margin: 4px 0 8px; }
 .bld-final-photo { width: 150px; height: 188px; border-radius: 12px; object-fit: cover; flex: 0 0 auto; }
+
+/* ---- Influencer Builder lightbox (full preview + full-body regen) ---- */
+.bld-lightbox-backdrop {
+  position: fixed; inset: 0; z-index: 1200;
+  background: rgba(0,0,0,.82); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.bld-lightbox {
+  position: relative; width: 100%; max-width: 420px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.bld-lightbox-close {
+  position: absolute; top: -44px; right: 0; width: 34px; height: 34px; border-radius: 9px;
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
+  display: grid; place-items: center; cursor: pointer;
+}
+.bld-lightbox-close:hover { color: var(--ink); border-color: var(--line-2); }
+.bld-lightbox-frame {
+  width: 100%; max-height: 72vh; min-height: 200px; border-radius: 18px; overflow: hidden;
+  background: var(--surface-2); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+}
+.bld-lightbox-frame img { max-width: 100%; max-height: 72vh; object-fit: contain; display: block; }
+.bld-lightbox-spinner { width: 28px; height: 28px; border-width: 3px; }
+.bld-lightbox-actions { display: flex; gap: 10px; width: 100%; }
+.bld-lightbox-actions button { flex: 1; justify-content: center; }
 
 @media (max-width: 720px) {
   .bld-vibe-grid { grid-template-columns: repeat(2, 1fr); }
   .bld-gen-grid { grid-template-columns: repeat(2, 1fr); }
   .bld-final { flex-direction: column; }
   .bld-final-photo { width: 100%; height: 220px; }
+  .bld-lightbox-actions { flex-direction: column; }
 }
 
 /* ---- @mention autocomplete + attached-character chips ---- */

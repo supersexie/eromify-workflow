@@ -75,17 +75,21 @@ async function pollUntilDone(job) {
   throw new Error("Generation timed out");
 }
 
-async function generateOne(prompt) {
+async function generateOne(prompt, aspect = "4:5") {
   const startRes = await fetch("/api/image/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, model: "Nano Banana Pro", aspect: "4:5", quality: "1K" }),
+    body: JSON.stringify({ prompt, model: "Nano Banana Pro", aspect, quality: "1K" }),
   });
   const start = await startRes.json().catch(() => ({ error: `HTTP ${startRes.status}` }));
   if (!startRes.ok) throw new Error(start.error || `HTTP ${startRes.status}`);
   if (start.output) return start.output;
   return pollUntilDone(start);
 }
+
+// Appended to the base prompt when the user asks for a full-body regeneration
+// from the lightbox — taller framing so the whole outfit and pose are visible.
+const FULL_BODY_CLAUSE = "full-body shot from head to toe, standing pose, entire body and outfit fully visible in frame including feet, shot further back";
 
 const STEP_TITLES = ["Pick a vibe", "Fine-tune the look", "Choose your favorite", "Name & save"];
 
@@ -96,6 +100,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
   const [selectedUrl, setSelectedUrl] = useState(null);
   const [handle, setHandle] = useState("");
   const [saving, setSaving] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(null); // index into slots being previewed full-size
 
   const set = (k, v) => setPicks((p) => ({ ...p, [k]: v }));
 
@@ -125,6 +130,28 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
   const goGenerate = () => { setStep(3); runBatch(); };
   const regenerate = () => runBatch();
 
+  const openLightbox = (i) => { if (slots[i]?.status === "done") setLightboxIdx(i); };
+  const closeLightbox = () => setLightboxIdx(null);
+
+  const useThisPhoto = () => {
+    if (lightboxIdx == null) return;
+    const s = slots[lightboxIdx];
+    if (s?.status === "done") { setSelectedUrl(s.url); closeLightbox(); }
+  };
+
+  const generateFullBody = () => {
+    if (lightboxIdx == null) return;
+    const i = lightboxIdx;
+    const prompt = `${composePrompt()} ${FULL_BODY_CLAUSE}`;
+    setSlots((s) => s.map((sl, j) => (j === i ? { status: "pending" } : sl)));
+    generateOne(prompt, "2:3")
+      .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
+      .catch((e) => {
+        setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl)));
+        closeLightbox();
+      });
+  };
+
   const canContinueFromPick = !!selectedUrl;
   const canSave = selectedUrl && normHandle(handle) && !saving;
 
@@ -146,8 +173,10 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
 
   const pendingCount = slots.filter((s) => s.status === "pending").length;
   const anyDone = slots.some((s) => s.status === "done");
+  const lightboxSlot = lightboxIdx != null ? slots[lightboxIdx] : null;
 
   return (
+    <>
     <div className="nw-backdrop bld-backdrop" onClick={onClose}>
       <div className="bld-modal" onClick={(e) => e.stopPropagation()}>
         <div className="bld-head">
@@ -265,7 +294,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
                   key={i}
                   className={`bld-gen-card ${selectedUrl === s.url ? "is-selected" : ""}`}
                   disabled={s.status !== "done"}
-                  onClick={() => setSelectedUrl(s.url)}
+                  onClick={() => openLightbox(i)}
                 >
                   {s.status === "pending" && <span className="inf-spinner" />}
                   {s.status === "error" && <span className="bld-gen-error">Failed</span>}
@@ -273,6 +302,9 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
                     <>
                       <img src={s.url} alt={`Option ${i + 1}`} />
                       {selectedUrl === s.url && <span className="bld-gen-check">✓</span>}
+                      <span className="bld-gen-expand">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+                      </span>
                     </>
                   )}
                 </button>
@@ -313,5 +345,29 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
         )}
       </div>
     </div>
+
+    {lightboxSlot && (
+      <div className="bld-lightbox-backdrop" onClick={closeLightbox}>
+        <div className="bld-lightbox" onClick={(e) => e.stopPropagation()}>
+          <button className="bld-lightbox-close" onClick={closeLightbox} title="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+          <div className="bld-lightbox-frame">
+            {lightboxSlot.status === "pending" && <span className="inf-spinner bld-lightbox-spinner" />}
+            {lightboxSlot.status === "done" && <img src={lightboxSlot.url} alt="Preview" />}
+            {lightboxSlot.status === "error" && <span className="bld-gen-error">Generation failed</span>}
+          </div>
+          <div className="bld-lightbox-actions">
+            <button className="nw-cancel" onClick={generateFullBody} disabled={lightboxSlot.status === "pending"}>
+              Generate full body shot
+            </button>
+            <button className="primary-btn" onClick={useThisPhoto} disabled={lightboxSlot.status !== "done"}>
+              Use this photo
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
