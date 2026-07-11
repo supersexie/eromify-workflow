@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { moderatePrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, queueForReview } from "@/lib/moderation";
+import { moderatePrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, moderateTextOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -159,8 +159,8 @@ function mockFallback(kind, prompt) {
 export async function POST(req) {
   const { kind, prompt, model, images, voice, userId } = await req.json();
 
-  // --- Moderation gate 1: prompt screening ---
-  if (kind === "image") {
+  // --- Moderation gate 1: prompt screening (image AND text prompts) ---
+  if (kind === "image" || kind === "text") {
     const promptVerdict = await moderatePrompt(prompt);
     if (promptVerdict.verdict === "block") {
       await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "generate" });
@@ -170,8 +170,10 @@ export async function POST(req) {
       await queueForReview({ userId, prompt, verdict: "review", reason: promptVerdict.reason, stage: "generate" });
       return NextResponse.json({ error: "This request has been flagged for review." }, { status: 202 });
     }
+  }
 
-    // --- Moderation gate 2: reference-image guard ---
+  // --- Moderation gate 2: reference-image guard (image only) ---
+  if (kind === "image") {
     const explicit = isExplicitPrompt(prompt);
     const hasImages = Array.isArray(images) && images.length > 0;
     if (hasImages && explicit) {
@@ -210,6 +212,12 @@ export async function POST(req) {
       }
     } else if (kind === "text") {
       output = KEY ? await genText(prompt) : mockFallback(kind, prompt);
+      // --- Moderation gate 3 (text): screen the generated text before return ---
+      const textCheck = await moderateTextOutput(output);
+      if (!textCheck.ok) {
+        await queueForReview({ userId, prompt, verdict: "block", reason: textCheck.reason, stage: "generate-text-output", text: output });
+        return NextResponse.json({ error: "Generated text violates content policy." }, { status: 403 });
+      }
     } else if (kind === "audio") {
       output = (ELEVEN || KEY) ? await genAudio(prompt, voice) : mockFallback(kind, prompt);
     } else {
