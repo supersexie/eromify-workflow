@@ -7,14 +7,14 @@ import { normHandle, saveInfluencerRemote } from "@/lib/influencers";
 // rather than plain/candid, so the beauty clause below actually lands. We keep
 // fine skin texture (anti-plastic) but drop the "imperfections/candid/not
 // over-produced" language that was pulling results toward girl-next-door plain.
-const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural fine skin texture, flattering soft hero lighting, shallow depth of field, polished and photogenic, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
+const HOUSE_STYLE = "hyper-realistic candid amateur-style photograph, natural realistic snapshot, natural fine skin texture, flattering soft hero lighting, shallow depth of field, polished and photogenic, the photo fills the entire frame with NO phone, NO smartphone, NO screen, NO device, NO app interface and NO UI visible, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
 
 // Every generation is biased HARD toward maximally attractive results — baked
 // into the base prompt every time so a beginner never has to ask. Gender-aware
 // so the "male" option doesn't get "most beautiful woman" descriptors.
 // NOTE: no body-shape words here — physique is driven solely by the chosen
 // BODY_TYPES descriptor, so "curvy" isn't overridden by a forced "toned" body.
-const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical sculpted face, high defined contoured cheekbones, plump glossy lips, captivating mesmerizing eyes with long fluttery lashes, radiant sun-kissed glowing skin, perfectly styled voluminous glossy hair, flawless glam professional makeup, sultry confident gaze, glamorous and instantly head-turning, top-tier Instagram model aesthetic, professional beauty-photoshoot quality";
+const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning looks, sharp striking sculpted face with high chiseled cheekbones and an angular defined jawline, hooded sultry bedroom eyes, plump glossy lips, long fluttery lashes, radiant sun-kissed glowing skin, perfectly styled voluminous glossy hair, flawless glam makeup, smoldering seductive confident gaze, alluring femme-fatale vixen look, glamorous and instantly head-turning, top-tier Instagram model aesthetic, professional beauty-photoshoot quality";
 const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, magnetic and instantly head-turning, top-tier male-model aesthetic";
 
 // Nudges every vibe's outfit to hug the figure so the chosen body type actually
@@ -62,7 +62,7 @@ const EYE_COLORS = ["Brown", "Blue", "Green", "Hazel", "Grey"];
 const BODY_TYPES = [
   { id: "slim", label: "Slim", desc: "slim slender figure, lean build, long legs, gentle subtle curves" },
   { id: "athletic", label: "Athletic", desc: "fit athletic toned body, defined figure, flat toned stomach, sporty physique" },
-  { id: "curvy", label: "Curvy", desc: "voluptuous curvy hourglass figure, full curves, small cinched waist, wide hips, full bust, thick shapely thighs, thicc body" },
+  { id: "curvy", label: "Curvy", desc: "extremely voluptuous curvy hourglass bombshell figure, dramatic exaggerated feminine curves, tiny cinched waist, very wide hips, large full bust, thick curvy shapely thighs, thicc body" },
   { id: "average", label: "Average", desc: "natural balanced everyday figure, softly feminine proportions" },
 ];
 
