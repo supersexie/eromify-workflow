@@ -312,6 +312,33 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .wf-card:hover .wf-card-download-corner { opacity: 1; }
 .wf-card-download-corner:hover { background: var(--blue); border-color: transparent; }
 
+/* ToS click-through gate (CCBill requirement — accept before generating). */
+.tos-gate-backdrop {
+  position: fixed; inset: 0; z-index: 4000;
+  background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.tos-gate {
+  width: 100%; max-width: 460px; background: #0e0e10;
+  border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 18px;
+  padding: 28px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  color: #fff; font-family: inherit;
+}
+.tos-gate-title { font-size: 22px; font-weight: 800; margin: 0 0 10px; }
+.tos-gate-lead { color: #b7b7bd; font-size: 14.5px; line-height: 1.55; margin: 0 0 16px; }
+.tos-gate-link { color: #7aa2ff; text-decoration: underline; }
+.tos-gate-rules { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px 16px; font-size: 13.5px; color: #cfcfd4; }
+.tos-gate-rules p { margin: 0 0 8px; }
+.tos-gate-rules ul { margin: 0 0 8px; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; line-height: 1.45; }
+.tos-gate-rules strong { color: #fff; }
+.tos-gate-fine { font-size: 12px; color: #8a8a90; margin: 8px 0 0; }
+.tos-gate-btn {
+  margin-top: 18px; width: 100%; padding: 13px; border: none; cursor: pointer;
+  background: var(--blue, #2563eb); color: #fff; font-weight: 700; font-size: 15px;
+  border-radius: 12px; font-family: inherit; transition: background .15s;
+}
+.tos-gate-btn:hover { background: #1d4ed8; }
+
 /* AI-generated content disclosure badge (CCBill requirement). Reused on the
    canvas node, image/video studio results, and library thumbnails. */
 .ai-gen-badge {

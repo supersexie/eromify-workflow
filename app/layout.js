@@ -1,6 +1,7 @@
 import "@xyflow/react/dist/style.css";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import TosGate from "@/components/TosGate";
 
 export const metadata = {
   title: "Magic Mint — The Node-Based Canvas for AI Influencer Content",
@@ -29,7 +30,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<TosGate /></body>
     </html>
   );
   // Only wrap with Clerk once keys exist, so the site stays up until then.
