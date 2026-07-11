@@ -2,13 +2,16 @@
 import { useCallback, useState } from "react";
 import { normHandle, saveInfluencerRemote } from "@/lib/influencers";
 
-// Same realism guide the Enhance endpoint uses — keeps builder output looking
-// like a real photo instead of the glossy over-smoothed "AI slop" look.
-const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural skin texture with realistic pores and subtle imperfections, soft natural lighting, shallow depth of field, candid and photogenic, authentic not over-produced, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
+// Realism guide — keeps output looking like a real photo, not the glossy
+// over-smoothed "AI slop" look. Tuned to stay FLATTERING (soft, hero lighting)
+// rather than plain/candid, so the beauty clause below actually lands. We keep
+// fine skin texture (anti-plastic) but drop the "imperfections/candid/not
+// over-produced" language that was pulling results toward girl-next-door plain.
+const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural fine skin texture, flattering soft hero lighting, shallow depth of field, polished and photogenic, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
 
-// Every generation is biased toward conventionally attractive results — no
-// asking for it per-vibe, it's baked into the base prompt every time.
-const BEAUTY_CLAUSE = "strikingly beautiful, conventionally attractive facial features, symmetrical face, clear glowing healthy skin, well-proportioned features, camera-ready model-tier good looks";
+// Every generation is biased HARD toward conventionally attractive results —
+// baked into the base prompt every time so a beginner never has to ask.
+const BEAUTY_CLAUSE = "stunningly beautiful, supermodel-level good looks, extremely attractive and glamorous, flawless symmetrical face, high cheekbones, full lips, captivating expressive eyes, radiant glowing skin, well-proportioned model features, tasteful flattering makeup, instantly head-turning, top-tier instagram model aesthetic";
 
 // Curated "vibes" carry the creative direction so a beginner never has to
 // write a prompt themselves — each one is a hand-tuned descriptor block.
