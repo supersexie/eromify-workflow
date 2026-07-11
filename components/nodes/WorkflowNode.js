@@ -195,6 +195,8 @@ export default function WorkflowNode({ id, data, selected }) {
             ) : (
               <img src={data.output} alt="output" className="wf-card-output" />
             )}
+            {/* AI-content disclosure label (CCBill requirement). */}
+            <span className="ai-gen-badge">AI Generated</span>
             <button
               type="button"
               className="wf-card-download-corner"

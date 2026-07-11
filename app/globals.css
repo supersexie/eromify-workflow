@@ -312,6 +312,16 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .wf-card:hover .wf-card-download-corner { opacity: 1; }
 .wf-card-download-corner:hover { background: var(--blue); border-color: transparent; }
 
+/* AI-generated content disclosure badge (CCBill requirement). Reused on the
+   canvas node, image/video studio results, and library thumbnails. */
+.ai-gen-badge {
+  position: absolute; bottom: 8px; left: 8px; z-index: 3;
+  font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: #fff; background: rgba(0, 0, 0, 0.62);
+  padding: 3px 7px; border-radius: 6px; pointer-events: none;
+  backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 /* Type picker popover (drop-to-create) */
 .type-picker {
   position: fixed; z-index: 1100;

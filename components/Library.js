@@ -85,6 +85,7 @@ export default function Library({ open, onClose }) {
             <div className="lib-grid">
               {items.map((it, i) => (
                 <a key={i} className="lib-block" href={it.url} target="_blank" rel="noreferrer">
+                  {(it.kind === "image" || it.kind === "video") && <span className="ai-gen-badge">AI Generated</span>}
                   {it.kind === "image" && <img src={it.url} alt="" loading="lazy" decoding="async" />}
                   {it.kind === "video" && (
                     <video

@@ -799,6 +799,7 @@ function VideoPageInner() {
                     onMouseEnter={(e) => { e.currentTarget.play().catch(() => {}); }}
                     onMouseLeave={(e) => { e.currentTarget.pause(); }}
                   />
+                  <span className="ai-gen-badge">AI Generated</span>
                   <button
                     className="ip-card-dl"
                     onClick={() => downloadVideo(r.url, `eromify-${(r.prompt || "video").slice(0, 32).replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.mp4`)}

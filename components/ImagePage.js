@@ -566,6 +566,7 @@ export default function ImagePage() {
             {results.map((r, i) => (
               <button key={(r.ts || 0) + "-" + i} className="ip-card" onClick={() => setLightbox({ ...r, i })} title="Open">
                 <img src={r.url} alt={r.prompt} />
+                <span className="ai-gen-badge">AI Generated</span>
               </button>
             ))}
           </div>
