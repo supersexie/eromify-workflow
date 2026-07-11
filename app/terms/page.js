@@ -7,7 +7,7 @@ export const metadata = { title: "Terms of Service — Magic Mint" };
 // before launch (the deepfake-prohibition clause below is required by CCBill).
 export default function TermsPage() {
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "64px 24px", color: "#e8e8ea", fontFamily: "system-ui, sans-serif", lineHeight: 1.6 }}>
+    <main style={{ position: "fixed", inset: 0, overflowY: "auto", maxWidth: 760, margin: "0 auto", padding: "64px 24px", color: "#e8e8ea", fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', lineHeight: 1.6 }}>
       <Link href="/" style={{ color: "#7aa2ff", fontSize: 14 }}>← Magic Mint</Link>
       <h1 style={{ fontSize: 32, marginTop: 16 }}>Terms of Service</h1>
       <p style={{ color: "#c9a227", background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.3)", padding: "10px 14px", borderRadius: 8, fontSize: 14 }}>
