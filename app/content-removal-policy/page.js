@@ -21,7 +21,7 @@ export default function ContentRemovalPolicy() {
       </ul>
 
       <h2>3. How to request removal</h2>
-      <p>Email <strong>removals@magicmint.pro</strong> (placeholder — set a monitored inbox) with:</p>
+      <p>Email <strong>support@eromify.com</strong> with:</p>
       <ul>
         <li>A link to or description of the specific content</li>
         <li>Your relationship to the content (depicted person, rights holder, reporter)</li>

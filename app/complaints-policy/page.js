@@ -16,8 +16,8 @@ export default function ComplaintsPolicy() {
       <h2>2. Dedicated complaints contact</h2>
       <p style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "14px 16px" }}>
         <strong>Complaints contact (not general support):</strong><br />
-        Email: <strong>complaints@magicmint.pro</strong> (placeholder — set a dedicated, monitored inbox)<br />
-        This inbox is reviewed separately from <em>support@</em> / “Contact Us”.
+        Email: <strong>complaints@eromify.com</strong><br />
+        This inbox is reviewed separately from <em>support@eromify.com</em> / “Contact Us”.
       </p>
 
       <h2>3. What you can complain about</h2>

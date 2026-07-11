@@ -57,7 +57,7 @@ export default function ContentModerationPolicy() {
       </p>
 
       <h2>7. Contact</h2>
-      <p>Moderation questions: <strong>moderation@magicmint.pro</strong> (placeholder — set a monitored inbox).</p>
+      <p>Moderation questions: <strong>support@eromify.com</strong>.</p>
     </LegalPage>
   );
 }
