@@ -84,16 +84,16 @@ const FEATS = [
   },
   {
     title: "One-click enhance",
-    body: "The Enhance button rewrites your rough prompt into a production-ready shot description using Magic Mint's house style.",
+    body: "The Enhance button rewrites your rough prompt into a production-ready shot description using Eromify's house style.",
   },
 ];
 
 // ─── FAQ ─────────────────────────────────────────────────────────────────────
 const FAQS = [
-  { q: "What is Magic Mint?", a: "Magic Mint is an AI influencer content platform. You create AI personas (@handles) and use our canvas, image studio, and video studio to generate content for them at scale." },
+  { q: "What is Eromify?", a: "Eromify is an AI influencer content platform. You create AI personas (@handles) and use our canvas, image studio, and video studio to generate content for them at scale." },
   { q: "What AI models do you use?", a: "We support Flux, Seedream, Nano Banana, GPT Image (images), and Kling v2, Veo, LTX, Wan, Hailuo, MiniMax (video). New models are added as they release." },
   { q: "What is the Magic Canvas?", a: "The Magic Canvas is a node-based workflow editor. You drag image, video, text, and audio nodes onto the canvas, connect them, and run entire creative pipelines in one place." },
-  { q: "Can I use Magic Mint from Claude or Cursor?", a: "Yes. The MCP connector lets you generate images and videos directly from any MCP-compatible tool — just paste the connector URL and start prompting." },
+  { q: "Can I use Eromify from Claude or Cursor?", a: "Yes. The MCP connector lets you generate images and videos directly from any MCP-compatible tool — just paste the connector URL and start prompting." },
   { q: "Do you offer a free plan?", a: "You can sign up and explore the canvas for free. Generating AI media requires a paid plan to cover model costs." },
 ];
 
@@ -294,7 +294,7 @@ export default function LandingPage() {
   }, []);
 
   const copyMcp = async () => {
-    try { await navigator.clipboard.writeText("https://magicmint.pro/api/mcp"); } catch {}
+    try { await navigator.clipboard.writeText("https://eromify.pro/api/mcp"); } catch {}
     const el = mcpUrlRef.current;
     if (el) { el.textContent = "Copied!"; setTimeout(() => { el.textContent = "Copy"; }, 1500); }
   };
@@ -317,7 +317,7 @@ export default function LandingPage() {
           <nav className="mm-nav">
             <Link href="/" className="mm-brand">
               <div className="mm-logo">m</div>
-              <span className="mm-brand-name">Magic Mint</span>
+              <span className="mm-brand-name">Eromify</span>
             </Link>
             <div className="mm-nav-links">
               <a href="#tools">Tools</a>
@@ -370,7 +370,7 @@ export default function LandingPage() {
                       <div className="mm-tile-avatar" style={{ background: "rgba(37,99,235,.35)" }}>{t.emoji}</div>
                       <span className="mm-tile-name">@{t.label.toLowerCase()}</span>
                     </div>
-                    <div className="mm-tile-title">AI-generated · Magic Mint</div>
+                    <div className="mm-tile-title">AI-generated · Eromify</div>
                   </div>
                 </div>
                 <div className="mm-views">{t.views} views</div>
@@ -453,7 +453,7 @@ export default function LandingPage() {
         <section className="mm-section mm-center" id="mcp">
           <div className="mm-badge"><span className="mm-badge-dot" />MCP Connector</div>
           <h2 className="mm-h2">Generate from Claude,<br />Cursor & More</h2>
-          <p className="mm-lead">Connect Magic Mint to any MCP-compatible AI tool and generate images and videos without leaving your workflow.</p>
+          <p className="mm-lead">Connect Eromify to any MCP-compatible AI tool and generate images and videos without leaving your workflow.</p>
           <div className="mm-mcp-grid">
             <div className="mm-mcp-step">
               <div className="mm-mcp-num">1</div>
@@ -462,10 +462,10 @@ export default function LandingPage() {
             </div>
             <div className="mm-mcp-step">
               <div className="mm-mcp-num">2</div>
-              <p className="mm-mcp-title">Add the Magic Mint connector</p>
-              <p className="mm-mcp-body">Name it <strong style={{ color: "#f1f0ff" }}>Magic Mint</strong> and paste the URL:</p>
+              <p className="mm-mcp-title">Add the Eromify connector</p>
+              <p className="mm-mcp-body">Name it <strong style={{ color: "#f1f0ff" }}>Eromify</strong> and paste the URL:</p>
               <div className="mm-mcp-url">
-                <span className="mm-mcp-url-text">https://magicmint.pro/api/mcp</span>
+                <span className="mm-mcp-url-text">https://eromify.pro/api/mcp</span>
                 <button className="mm-mcp-copy" onClick={copyMcp} ref={mcpUrlRef}>Copy</button>
               </div>
             </div>
@@ -505,10 +505,10 @@ export default function LandingPage() {
           <div className="mm-cta-inner">
             <div className="mm-badge" style={{ display: "inline-flex", background: "rgba(255,255,255,.1)", borderColor: "rgba(255,255,255,.2)", color: "#fff" }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6", boxShadow: "0 0 6px #3b82f6" }} />
-              Magic Mint
+              Eromify
             </div>
             <h2 className="mm-cta-h">Launch Your AI Influencer Today</h2>
-            <p className="mm-cta-sub">Join thousands of creators already making viral content with Magic Mint.</p>
+            <p className="mm-cta-sub">Join thousands of creators already making viral content with Eromify.</p>
             <div className="mm-cta-btns">
               <Link href={signUpHref} className="mm-btn mm-btn-lg mm-btn-white">Start for Free <Arrow /></Link>
               <Link href="/pricing" className="mm-btn mm-btn-lg mm-btn-ghost">See Pricing <Arrow /></Link>
@@ -522,7 +522,7 @@ export default function LandingPage() {
             <div>
               <Link href="/" className="mm-brand" style={{ display: "inline-flex" }}>
                 <div className="mm-logo">m</div>
-                <span className="mm-brand-name">Magic Mint</span>
+                <span className="mm-brand-name">Eromify</span>
               </Link>
               <p className="mm-foot-blurb">The node-based AI creative canvas. Generate and connect images, video, audio, and text for your AI influencers.</p>
             </div>
@@ -551,7 +551,7 @@ export default function LandingPage() {
               <Link href="/third-party-consent">3rd Party Consent</Link>
             </div>
           </div>
-          <div className="mm-foot-bar">Magic Mint · All rights reserved · © 2026</div>
+          <div className="mm-foot-bar">Eromify · All rights reserved · © 2026</div>
         </footer>
 
       </div>

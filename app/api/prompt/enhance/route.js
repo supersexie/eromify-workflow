@@ -11,7 +11,7 @@ const KEY = process.env.OPENAI_API_KEY;
 // "girl in Brazil" lands on a Rio beach, not a bedroom.
 const HOUSE_STYLE = `hyper-realistic UGC-style photo shot on a modern phone, natural skin texture with realistic pores and subtle imperfections, soft natural lighting, shallow depth of field, candid and photogenic, authentic not over-produced, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render`;
 
-const SYS_IMAGE = `You are a prompt engineer for an AI image model on an AI-influencer platform called Magic Mint.
+const SYS_IMAGE = `You are a prompt engineer for an AI image model on an AI-influencer platform called Eromify.
 The user gives you a SHORT, often messy prompt (a few words). You return ONE rewritten, detailed prompt ready to send to the image model.
 
 EROMIFY REALISM STYLE (a quality/look guide for PERSON subjects — it controls HOW the photo looks, never WHERE or what she wears):
@@ -28,7 +28,7 @@ Rules:
 - Aim for 60-120 words.
 - Stay tasteful — describe outfits as a fashion shoot would, never explicit content.`;
 
-const SYS_VIDEO = `You are a prompt engineer for an AI video model on an AI-influencer platform called Magic Mint.
+const SYS_VIDEO = `You are a prompt engineer for an AI video model on an AI-influencer platform called Eromify.
 The user gives you a SHORT, often messy prompt. You return ONE rewritten, detailed video prompt ready to send to the model.
 
 EROMIFY REALISM STYLE for PERSON subjects (a quality/look guide — controls HOW it looks, never WHERE or what she wears):

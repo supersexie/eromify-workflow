@@ -1,13 +1,13 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Content Moderation Policy — Magic Mint" };
+export const metadata = { title: "Content Moderation Policy — Eromify" };
 
 export default function ContentModerationPolicy() {
   return (
     <LegalPage title="Content Moderation & Boarding Policy">
       <h2>1. Overview</h2>
       <p>
-        Magic Mint operates an AI content-generation platform. This policy describes the
+        Eromify operates an AI content-generation platform. This policy describes the
         controls we use to prevent the generation and distribution of illegal, prohibited,
         or card-brand-violating content, in line with CCBill's AI Generated Content
         Merchant guidelines.

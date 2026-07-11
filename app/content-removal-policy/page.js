@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Content Removal Policy — Magic Mint" };
+export const metadata = { title: "Content Removal Policy — Eromify" };
 
 export default function ContentRemovalPolicy() {
   return (
@@ -9,7 +9,7 @@ export default function ContentRemovalPolicy() {
       <p>
         This policy explains how anyone — including a person depicted in content, a rights
         holder, or a member of the public — can request the removal of content generated or
-        hosted on Magic Mint, and how we respond.
+        hosted on Eromify, and how we respond.
       </p>
 
       <h2>2. What we remove</h2>

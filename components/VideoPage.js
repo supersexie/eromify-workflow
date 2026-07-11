@@ -508,7 +508,7 @@ function VideoPageInner() {
           <div className="vp-prompt-block">
             <div className="vp-prompt-labelrow">
               <div className="vp-prompt-label">Prompt</div>
-              <button className="pb-enhance pb-enhance-sm" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Magic Mint style">
+              <button className="pb-enhance pb-enhance-sm" onClick={enhancePrompt} disabled={enhancing || !prompt.trim()} title="Enhance prompt with Eromify style">
                 {enhancing ? (
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
                 ) : (

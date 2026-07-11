@@ -5,7 +5,7 @@ export const maxDuration = 30;
 
 const KEY = process.env.OPENAI_API_KEY;
 
-const SYS_IMAGE = `You are a vision-to-prompt rewriter for Magic Mint, an AI-influencer image platform.
+const SYS_IMAGE = `You are a vision-to-prompt rewriter for Eromify, an AI-influencer image platform.
 
 The user uploads an image. You return ONE detailed text prompt that, fed into a top image model (Flux 2, Seedream, Nano Banana), would reproduce a very similar image.
 
@@ -24,7 +24,7 @@ Output rules:
 - Stay tasteful — describe loungewear/swimwear as a fashion shoot would.
 - Do NOT describe identifiable real people by name. Describe their visual attributes only.`;
 
-const SYS_VIDEO = `You are a vision-to-prompt rewriter for Magic Mint video generation.
+const SYS_VIDEO = `You are a vision-to-prompt rewriter for Eromify video generation.
 
 The user uploads an image. You return ONE detailed video prompt that uses this image as the starting frame and animates it convincingly.
 

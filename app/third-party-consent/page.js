@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "3rd Party Consent Agreement — Magic Mint" };
+export const metadata = { title: "3rd Party Consent Agreement — Eromify" };
 
 export default function ThirdPartyConsent() {
   return (
@@ -14,7 +14,7 @@ export default function ThirdPartyConsent() {
 
       <h2>2. Default position — real-person likeness is blocked</h2>
       <p>
-        Magic Mint's systems are designed to <strong>block</strong> the use of a real person's
+        Eromify's systems are designed to <strong>block</strong> the use of a real person's
         photo or likeness to generate sexual or explicit content. Our reference-image checks
         reject uploads that are not confirmed to be AI-generated. You may not attempt to
         circumvent these controls.
@@ -33,7 +33,7 @@ export default function ThirdPartyConsent() {
 
       <h2>4. Record retention &amp; production</h2>
       <p>
-        You must maintain these records and provide them to Magic Mint <strong>within five (5)
+        You must maintain these records and provide them to Eromify <strong>within five (5)
         business days</strong> of a request. Failure to provide satisfactory documentation will
         result in immediate removal of the content and may result in suspension or termination.
       </p>
