@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { classifyOutput, queueForReview } from "@/lib/moderation";
+import { classifyVideoOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -7,15 +7,12 @@ export const maxDuration = 30;
 const GEMINI = process.env.GEMINI_API_KEY;
 const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
-// Video output classification gap: Hive's classifier here analyzes the URL
-// as an image request, which — depending on Hive's own handling — may only
-// look at a single frame/thumbnail rather than the full video. This is a
-// known limitation, not a full video-moderation solution; see MODERATION.md.
-// It's still applied because it's better than no post-generation check at
-// all, particularly for i2v/motion-control jobs (see video/start's
-// reference-image guard for the main pre-generation defense).
+// classifyVideoOutput checks EVERY frame Hive samples from the video (worst
+// case), not just the first frame — so a violation that only appears partway
+// through the clip is still caught. (Pre-generation defenses — prompt screen +
+// reference-image guard in video/start — remain the primary gates.)
 async function checkVideoOutput(url, userId) {
-  const verdict = await classifyOutput(url);
+  const verdict = await classifyVideoOutput(url);
   if (verdict.verdict === "block") {
     await queueForReview({ userId, verdict: "block", reason: "output_classifier_block", scores: verdict.scores, mediaRef: url, stage: "video/status" });
     return NextResponse.json({ error: "Generated content violates policy and was not returned." }, { status: 403 });
