@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LegalPage from "@/components/LegalPage";
 
 export const metadata = { title: "Acceptable Use Policy — Magic Mint" };
 
@@ -7,13 +8,7 @@ export const metadata = { title: "Acceptable Use Policy — Magic Mint" };
 // list mirrors CCBill's AI Generated Content guidelines (page 3).
 export default function AcceptableUsePage() {
   return (
-    <main style={{ position: "fixed", inset: 0, overflowY: "auto", maxWidth: 760, margin: "0 auto", padding: "64px 24px", color: "#e8e8ea", fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', lineHeight: 1.6 }}>
-      <Link href="/" style={{ color: "#7aa2ff", fontSize: 14 }}>← Magic Mint</Link>
-      <h1 style={{ fontSize: 32, marginTop: 16 }}>Acceptable Use Policy</h1>
-      <p style={{ color: "#c9a227", background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.3)", padding: "10px 14px", borderRadius: 8, fontSize: 14 }}>
-        Draft placeholder — must be replaced with final, counsel-reviewed policy before launch.
-      </p>
-
+    <LegalPage title="Acceptable Use Policy">
       <p>You may not use Magic Mint to generate, request, or distribute content in relation to any of the following:</p>
       <ul>
         <li>Deepfakes, or the likeness of a real identifiable person in a sexual/explicit context without consent</li>
@@ -32,6 +27,6 @@ export default function AcceptableUsePage() {
         <li>Copyright-infringing material</li>
       </ul>
       <p>See our <Link href="/terms" style={{ color: "#7aa2ff" }}>Terms of Service</Link> for enforcement and reporting.</p>
-    </main>
+    </LegalPage>
   );
 }

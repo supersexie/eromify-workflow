@@ -1,19 +1,14 @@
 import Link from "next/link";
+import LegalPage from "@/components/LegalPage";
 
 export const metadata = { title: "Terms of Service — Magic Mint" };
 
-// PLACEHOLDER — this is scaffolding so the ToS acceptance gate and footer links
-// resolve. Replace the body with final Terms of Service reviewed by counsel
-// before launch (the deepfake-prohibition clause below is required by CCBill).
+// PLACEHOLDER — scaffolding so the ToS gate and footer links resolve. Replace
+// with final Terms reviewed by counsel before launch (the deepfake-prohibition
+// clause below is required by CCBill).
 export default function TermsPage() {
   return (
-    <main style={{ position: "fixed", inset: 0, overflowY: "auto", maxWidth: 760, margin: "0 auto", padding: "64px 24px", color: "#e8e8ea", fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif', lineHeight: 1.6 }}>
-      <Link href="/" style={{ color: "#7aa2ff", fontSize: 14 }}>← Magic Mint</Link>
-      <h1 style={{ fontSize: 32, marginTop: 16 }}>Terms of Service</h1>
-      <p style={{ color: "#c9a227", background: "rgba(201,162,39,0.1)", border: "1px solid rgba(201,162,39,0.3)", padding: "10px 14px", borderRadius: 8, fontSize: 14 }}>
-        Draft placeholder — must be replaced with final, counsel-reviewed Terms before launch.
-      </p>
-
+    <LegalPage title="Terms of Service">
       <h2>1. Eligibility</h2>
       <p>You must be at least 18 years old to use Magic Mint. By using the service you represent that you are 18 or older.</p>
 
@@ -40,6 +35,6 @@ export default function TermsPage() {
         the appropriate authorities (including the NCMEC CyberTipline for suspected child sexual
         abuse material).
       </p>
-    </main>
+    </LegalPage>
   );
 }
