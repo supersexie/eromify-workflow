@@ -17,6 +17,10 @@ const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, nat
 const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical sculpted face, high defined contoured cheekbones, plump glossy lips, captivating mesmerizing eyes with long fluttery lashes, radiant sun-kissed glowing skin, perfectly styled voluminous glossy hair, flawless glam professional makeup, sultry confident gaze, glamorous and instantly head-turning, top-tier Instagram model aesthetic, professional beauty-photoshoot quality";
 const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, magnetic and instantly head-turning, top-tier male-model aesthetic";
 
+// Nudges every vibe's outfit to hug the figure so the chosen body type actually
+// reads through the clothing (a blazer/scrubs otherwise hide the shape).
+const FIT_CLAUSE = "wearing a figure-flattering, well-fitted version of the outfit that hugs and shows off her curves and silhouette";
+
 // Curated "vibes" carry the creative direction so a beginner never has to
 // write a prompt themselves — each one is a hand-tuned descriptor block.
 // `style: "anime"` opts a vibe out of the photoreal HOUSE_STYLE pipeline.
@@ -138,11 +142,14 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
     // strong weight in the prompt.
     const beauty = picks.gender === "male" ? BEAUTY_CLAUSE_M : BEAUTY_CLAUSE_F;
     const frame = FRAMING[framing] || FRAMING.knee;
+    const fit = picks.gender === "male"
+      ? "wearing a well-fitted, flattering version of the outfit"
+      : FIT_CLAUSE;
 
     if (vibe.style === "anime") {
-      return `Anime-style character illustration of ${subject} — ${beauty}. ${vibe.prompt}. ${frame}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
+      return `Anime-style character illustration of ${subject} — ${beauty}. ${vibe.prompt}. ${fit}. ${frame}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
     }
-    return `Photorealistic photo of ${subject} — ${beauty}. ${vibe.prompt}. ${frame}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
+    return `Photorealistic photo of ${subject} — ${beauty}. ${vibe.prompt}. ${fit}. ${frame}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
   }, [picks]);
 
   const runBatch = useCallback(() => {
