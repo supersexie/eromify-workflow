@@ -248,7 +248,7 @@ const css = `
 
   /* footer */
   .mm-footer { border-top:1px solid rgba(255,255,255,.1); background:#000; }
-  .mm-foot-top { max-width:1240px; margin:0 auto; padding:56px 24px; display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; }
+  .mm-foot-top { max-width:1240px; margin:0 auto; padding:56px 24px; display:grid; grid-template-columns:1.4fr 1fr 1fr 1.2fr; gap:40px; }
   .mm-foot-col h4 { font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:#5a5a5a; margin:0 0 18px; }
   .mm-foot-col a { display:block; color:#9a9a9a; text-decoration:none; font-size:14.5px; font-weight:500; margin-bottom:12px; transition:color .15s; }
   .mm-foot-col a:hover { color:#fff; }
@@ -539,6 +539,16 @@ export default function LandingPage() {
               <Link href="/image">Image Studio</Link>
               <Link href="/video">Video Studio</Link>
               <Link href="/influencers">Influencers</Link>
+            </div>
+            <div className="mm-foot-col">
+              <h4>Legal &amp; Safety</h4>
+              <Link href="/terms">Terms of Service</Link>
+              <Link href="/acceptable-use">Acceptable Use Policy</Link>
+              <Link href="/content-moderation-policy">Content Moderation Policy</Link>
+              <Link href="/content-removal-policy">Content Removal Policy</Link>
+              <Link href="/complaints-policy">Complaints Policy</Link>
+              <Link href="/content-creator-agreement">Content Creator Agreement</Link>
+              <Link href="/third-party-consent">3rd Party Consent</Link>
             </div>
           </div>
           <div className="mm-foot-bar">Magic Mint · All rights reserved · © 2026</div>
