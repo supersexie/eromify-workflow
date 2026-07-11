@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { screenPrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -156,7 +157,36 @@ function mockFallback(kind, prompt) {
 }
 
 export async function POST(req) {
-  const { kind, prompt, model, images, voice } = await req.json();
+  const { kind, prompt, model, images, voice, userId } = await req.json();
+
+  // --- Moderation gate 1: prompt screening ---
+  if (kind === "image") {
+    const promptVerdict = screenPrompt(prompt);
+    if (promptVerdict.verdict === "block") {
+      await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "generate" });
+      return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });
+    }
+    if (promptVerdict.verdict === "review") {
+      await queueForReview({ userId, prompt, verdict: "review", reason: promptVerdict.reason, stage: "generate" });
+      return NextResponse.json({ error: "This request has been flagged for review." }, { status: 202 });
+    }
+
+    // --- Moderation gate 2: reference-image guard ---
+    const explicit = isExplicitPrompt(prompt);
+    const hasImages = Array.isArray(images) && images.length > 0;
+    if (hasImages && explicit) {
+      for (const im of images) {
+        const refVerdict = await checkReferenceImage(im, explicit);
+        if (refVerdict.verdict === "block") {
+          await queueForReview({ userId, prompt, verdict: "block", reason: refVerdict.reason, stage: "generate" });
+          return NextResponse.json(
+            { error: "Explicit generation from a real-face reference image is not permitted." },
+            { status: 403 }
+          );
+        }
+      }
+    }
+  }
 
   try {
     let output;
@@ -165,6 +195,19 @@ export async function POST(req) {
       if (FAL) output = await genImageFal(prompt, model, images);
       else if (KEY) output = await genImage(prompt, model);
       else output = mockFallback(kind, prompt);
+
+      // --- Moderation gate 3: classify the output before returning it ---
+      if (typeof output === "string" && output.startsWith("http")) {
+        const outputVerdict = await classifyOutput(output);
+        if (outputVerdict.verdict === "block") {
+          await queueForReview({ userId, prompt, verdict: "block", reason: "output_classifier_block", scores: outputVerdict.scores, mediaRef: output, stage: "generate" });
+          return NextResponse.json({ error: "Generated content violates policy and was not returned." }, { status: 403 });
+        }
+        if (outputVerdict.verdict === "review") {
+          await queueForReview({ userId, prompt, verdict: "review", reason: "output_classifier_review", scores: outputVerdict.scores, mediaRef: output, stage: "generate" });
+          return NextResponse.json({ error: "Generated content has been flagged for review." }, { status: 202 });
+        }
+      }
     } else if (kind === "text") {
       output = KEY ? await genText(prompt) : mockFallback(kind, prompt);
     } else if (kind === "audio") {

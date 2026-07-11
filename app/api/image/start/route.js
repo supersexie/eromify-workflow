@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { pickImageEndpoint } from "@/lib/falImage";
 import { uploadDataUrl } from "@/lib/genstore";
+import { screenPrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 // 60s is Vercel Hobby's max. fal returns a request_id near-instantly, so this
@@ -89,8 +90,34 @@ function applySizeParams(input, model, aspect, quality) {
 // key is no longer needed for image generation (vision endpoints like
 // /api/prompt/from-image still use it).
 export async function POST(req) {
-  const { prompt, model, images, aspect, quality } = await req.json();
+  const { prompt, model, images, aspect, quality, userId } = await req.json();
   const hasImages = Array.isArray(images) && images.length > 0;
+
+  // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
+  const promptVerdict = screenPrompt(prompt);
+  if (promptVerdict.verdict === "block") {
+    await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "image/start" });
+    return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });
+  }
+  if (promptVerdict.verdict === "review") {
+    await queueForReview({ userId, prompt, verdict: "review", reason: promptVerdict.reason, stage: "image/start" });
+    return NextResponse.json({ error: "This request has been flagged for review." }, { status: 202 });
+  }
+
+  // --- Moderation gate 2: reference-image guard (real face + explicit request) ---
+  const explicit = isExplicitPrompt(prompt);
+  if (hasImages && explicit) {
+    for (const im of images) {
+      const refVerdict = await checkReferenceImage(im, explicit);
+      if (refVerdict.verdict === "block") {
+        await queueForReview({ userId, prompt, verdict: "block", reason: refVerdict.reason, stage: "image/start" });
+        return NextResponse.json(
+          { error: "Explicit generation from a real-face reference image is not permitted." },
+          { status: 403 }
+        );
+      }
+    }
+  }
 
   if (!FAL) {
     return NextResponse.json({

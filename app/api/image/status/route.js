@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { classifyOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -6,7 +7,7 @@ export const maxDuration = 30;
 const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 export async function POST(req) {
-  const { statusUrl, responseUrl } = await req.json();
+  const { statusUrl, responseUrl, userId } = await req.json();
   if (!FAL || !statusUrl) return NextResponse.json({ error: "Missing fal handle" }, { status: 400 });
   try {
     const st = await fetch(statusUrl, { headers: { Authorization: `Key ${FAL}` } });
@@ -27,6 +28,18 @@ export async function POST(req) {
     const result = await r.json();
     const url = result.images?.[0]?.url || result.image?.url;
     if (!url) throw new Error(`No image URL in fal result: ${JSON.stringify(result).slice(0, 200)}`);
+
+    // --- Moderation gate 3: classify the output before it's ever returned ---
+    const outputVerdict = await classifyOutput(url);
+    if (outputVerdict.verdict === "block") {
+      await queueForReview({ userId, verdict: "block", reason: "output_classifier_block", scores: outputVerdict.scores, mediaRef: url, stage: "image/status" });
+      return NextResponse.json({ error: "Generated content violates policy and was not returned." }, { status: 403 });
+    }
+    if (outputVerdict.verdict === "review") {
+      await queueForReview({ userId, verdict: "review", reason: "output_classifier_review", scores: outputVerdict.scores, mediaRef: url, stage: "image/status" });
+      return NextResponse.json({ error: "Generated content has been flagged for review." }, { status: 202 });
+    }
+
     return NextResponse.json({ done: true, output: url });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
