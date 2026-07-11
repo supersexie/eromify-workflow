@@ -335,9 +335,9 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .tos-gate-btn {
   margin-top: 18px; width: 100%; padding: 13px; border: none; cursor: pointer;
   background: var(--blue, #2563eb); color: #fff; font-weight: 700; font-size: 15px;
-  border-radius: 12px; font-family: inherit; transition: background .15s;
+  border-radius: 12px; font-family: inherit; transition: background .15s, color .15s;
 }
-.tos-gate-btn:hover { background: #1d4ed8; }
+.tos-gate-btn:hover, .tos-gate-btn:active { background: #fff; color: #000; }
 
 /* AI-generated content disclosure badge (CCBill requirement). Reused on the
    canvas node, image/video studio results, and library thumbnails. */

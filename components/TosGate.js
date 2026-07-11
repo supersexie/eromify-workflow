@@ -11,12 +11,17 @@ import Link from "next/link";
 // re-acceptance after a material policy change.
 const ACCEPT_KEY = "mm_tos_accepted_v1";
 
-// Routes that must NOT be gated (marketing + auth). Everything else — the
-// canvas, image/video studios, influencers, etc. — is gated.
-const PUBLIC_PREFIXES = ["/pricing", "/sign-in", "/sign-up"];
+// Only the in-app / generation routes are gated — so users can freely read the
+// Terms, Acceptable Use, and all policy pages (and the landing/pricing/auth
+// pages) WITHOUT the gate blocking them. The gate only appears once they enter
+// the studio to actually generate.
+const GATED_PREFIXES = [
+  "/app", "/w", "/image", "/video", "/motion", "/upscale",
+  "/library", "/influencers", "/mcp",
+];
 function isGatedPath(pathname) {
-  if (!pathname || pathname === "/") return false;
-  return !PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (!pathname) return false;
+  return GATED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 export default function TosGate() {
