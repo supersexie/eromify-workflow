@@ -14,7 +14,7 @@ const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, nat
 // so the "male" option doesn't get "most beautiful woman" descriptors.
 // NOTE: no body-shape words here — physique is driven solely by the chosen
 // BODY_TYPES descriptor, so "curvy" isn't overridden by a forced "toned" body.
-const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical face, high defined cheekbones, full lips, captivating mesmerizing eyes, radiant flawless glowing skin, perfectly styled voluminous glossy hair, perfect flawless professional makeup, glamorous and instantly head-turning, top-tier Instagram model aesthetic";
+const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical sculpted face, high defined contoured cheekbones, plump glossy lips, captivating mesmerizing eyes with long fluttery lashes, radiant sun-kissed glowing skin, perfectly styled voluminous glossy hair, flawless glam professional makeup, sultry confident gaze, glamorous and instantly head-turning, top-tier Instagram model aesthetic, professional beauty-photoshoot quality";
 const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, magnetic and instantly head-turning, top-tier male-model aesthetic";
 
 // Curated "vibes" carry the creative direction so a beginner never has to
