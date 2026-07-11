@@ -7,7 +7,7 @@ export const maxDuration = 30;
 const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
 export async function POST(req) {
-  const { statusUrl, responseUrl, userId } = await req.json();
+  const { statusUrl, responseUrl, userId, debugModeration } = await req.json();
   if (!FAL || !statusUrl) return NextResponse.json({ error: "Missing fal handle" }, { status: 400 });
   try {
     const st = await fetch(statusUrl, { headers: { Authorization: `Key ${FAL}` } });
@@ -31,16 +31,17 @@ export async function POST(req) {
 
     // --- Moderation gate 3: classify the output before it's ever returned ---
     const outputVerdict = await classifyOutput(url);
+    const debug = debugModeration ? { moderationDebug: outputVerdict } : {};
     if (outputVerdict.verdict === "block") {
       await queueForReview({ userId, verdict: "block", reason: "output_classifier_block", scores: outputVerdict.scores, mediaRef: url, stage: "image/status" });
-      return NextResponse.json({ error: "Generated content violates policy and was not returned." }, { status: 403 });
+      return NextResponse.json({ error: "Generated content violates policy and was not returned.", ...debug }, { status: 403 });
     }
     if (outputVerdict.verdict === "review") {
       await queueForReview({ userId, verdict: "review", reason: "output_classifier_review", scores: outputVerdict.scores, mediaRef: url, stage: "image/status" });
-      return NextResponse.json({ error: "Generated content has been flagged for review." }, { status: 202 });
+      return NextResponse.json({ error: "Generated content has been flagged for review.", ...debug }, { status: 202 });
     }
 
-    return NextResponse.json({ done: true, output: url });
+    return NextResponse.json({ done: true, output: url, ...debug });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
