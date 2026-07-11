@@ -99,9 +99,14 @@ async function generateOne(prompt, aspect = "4:5") {
   return pollUntilDone(start);
 }
 
-// Appended to the base prompt when the user asks for a full-body regeneration
-// from the lightbox — taller framing so the whole outfit and pose are visible.
-const FULL_BODY_CLAUSE = "full-body shot from head to toe, standing pose, entire body and outfit fully visible in frame including feet, shot further back";
+// Framing presets. Default builder output is KNEE-UP (shows the full outfit
+// and figure, not just a headshot); the lightbox "full body" regen uses `full`.
+const FRAMING = {
+  knee: "three-quarter-length shot framed from the top of the head down to just below the knees, her full outfit and figure clearly visible, standing or lightly posed",
+  full: "full-body shot from head to toe, standing pose, entire body and outfit fully visible in frame including feet, shot further back",
+};
+// Taller aspect ratio so the knee-up / full framings actually fit vertically.
+const BATCH_ASPECT = "3:4";
 
 const STEP_TITLES = ["Pick a vibe", "Fine-tune the look", "Choose your favorite", "Name & save"];
 
@@ -116,7 +121,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
 
   const set = (k, v) => setPicks((p) => ({ ...p, [k]: v }));
 
-  const composePrompt = useCallback(() => {
+  const composePrompt = useCallback((framing = "knee") => {
     const vibe = VIBES.find((v) => v.id === picks.vibe) || VIBES[0];
     const eth = ETHNICITIES.find((e) => e.id === picks.ethnicity) || ETHNICITIES[0];
     const age = AGES.find((a) => a.id === picks.age) || AGES[1];
@@ -128,20 +133,21 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
     // Gender-aware beauty bias, placed right after the subject so it carries
     // strong weight in the prompt.
     const beauty = picks.gender === "male" ? BEAUTY_CLAUSE_M : BEAUTY_CLAUSE_F;
+    const frame = FRAMING[framing] || FRAMING.knee;
 
     if (vibe.style === "anime") {
-      return `Anime-style character portrait of ${subject} — ${beauty}. ${vibe.prompt}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
+      return `Anime-style character illustration of ${subject} — ${beauty}. ${vibe.prompt}. ${frame}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
     }
-    return `Photorealistic portrait of ${subject} — ${beauty}. ${vibe.prompt}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
+    return `Photorealistic photo of ${subject} — ${beauty}. ${vibe.prompt}. ${frame}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
   }, [picks]);
 
   const runBatch = useCallback(() => {
     const prompt = composePrompt();
-    const initial = Array.from({ length: 4 }, () => ({ status: "pending" }));
+    const initial = Array.from({ length: 2 }, () => ({ status: "pending" }));
     setSlots(initial);
     setSelectedUrl(null);
     initial.forEach((_, i) => {
-      generateOne(prompt)
+      generateOne(prompt, BATCH_ASPECT)
         .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
         .catch((e) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl))));
     });
@@ -150,12 +156,12 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
   const goGenerate = () => { setStep(3); runBatch(); };
   const regenerate = () => runBatch();
 
-  // Retry a single failed slot in place — no need to redo all 4 for one
+  // Retry a single failed slot in place — no need to redo the batch for one
   // transient fal.ai error (rate limit, queue hiccup, moderation flag, etc).
   const retrySlot = (i) => {
     const prompt = composePrompt();
     setSlots((s) => s.map((sl, j) => (j === i ? { status: "pending" } : sl)));
-    generateOne(prompt)
+    generateOne(prompt, BATCH_ASPECT)
       .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
       .catch((e) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "error", error: e.message } : sl))));
   };
@@ -172,7 +178,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
   const generateFullBody = () => {
     if (lightboxIdx == null) return;
     const i = lightboxIdx;
-    const prompt = `${composePrompt()} ${FULL_BODY_CLAUSE}`;
+    const prompt = composePrompt("full");
     setSlots((s) => s.map((sl, j) => (j === i ? { status: "pending" } : sl)));
     generateOne(prompt, "2:3")
       .then((url) => setSlots((s) => s.map((sl, j) => (j === i ? { status: "done", url } : sl))))
@@ -304,7 +310,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
 
             <div className="nw-actions">
               <button className="nw-cancel" onClick={() => setStep(1)}>Back</button>
-              <button className="primary-btn" onClick={goGenerate}>Generate 4 looks</button>
+              <button className="primary-btn" onClick={goGenerate}>Generate 2 looks</button>
             </div>
           </div>
         )}
@@ -313,7 +319,7 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
         {step === 3 && (
           <div className="bld-body">
             <p className="nw-sub">
-              {pendingCount > 0 ? `Generating your influencer… ${4 - pendingCount}/4 done` : "Tap your favorite to continue."}
+              {pendingCount > 0 ? `Generating your influencer… ${2 - pendingCount}/2 done` : "Tap your favorite to continue."}
             </p>
             <div className="bld-gen-grid">
               {slots.map((s, i) => (
