@@ -90,7 +90,7 @@ function applySizeParams(input, model, aspect, quality) {
 // key is no longer needed for image generation (vision endpoints like
 // /api/prompt/from-image still use it).
 export async function POST(req) {
-  const { prompt, model, images, aspect, quality, userId } = await req.json();
+  const { prompt, model, images, aspect, quality, userId, debugModeration } = await req.json();
   const hasImages = Array.isArray(images) && images.length > 0;
 
   // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
@@ -112,9 +112,17 @@ export async function POST(req) {
       if (refVerdict.verdict === "block") {
         await queueForReview({ userId, prompt, verdict: "block", reason: refVerdict.reason, stage: "image/start" });
         return NextResponse.json(
-          { error: "Explicit generation from a real-face reference image is not permitted." },
+          {
+            error: "Explicit generation from a real-face reference image is not permitted.",
+            ...(debugModeration ? { moderationDebug: refVerdict } : {}),
+          },
           { status: 403 }
         );
+      }
+      if (debugModeration) {
+        // Surface the allow-verdict AI score too, so a verification run can
+        // confirm the AI-detection model actually authenticated and scored.
+        return NextResponse.json({ debugRefCheck: refVerdict });
       }
     }
   }
