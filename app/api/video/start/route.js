@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { uploadDataUrl } from "@/lib/genstore";
-import { screenPrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
+import { moderatePrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -110,7 +110,7 @@ export async function POST(req) {
   // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
   // Applies to every branch below (t2v/i2v, edit, motion) — the prompt is the
   // one signal common to all of them.
-  const promptVerdict = screenPrompt(prompt);
+  const promptVerdict = await moderatePrompt(prompt);
   if (promptVerdict.verdict === "block") {
     await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "video/start" });
     return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });

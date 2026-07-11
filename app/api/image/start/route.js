@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { pickImageEndpoint } from "@/lib/falImage";
 import { uploadDataUrl } from "@/lib/genstore";
-import { screenPrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
+import { moderatePrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 // 60s is Vercel Hobby's max. fal returns a request_id near-instantly, so this
@@ -93,8 +93,8 @@ export async function POST(req) {
   const { prompt, model, images, aspect, quality, userId, debugModeration } = await req.json();
   const hasImages = Array.isArray(images) && images.length > 0;
 
-  // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
-  const promptVerdict = screenPrompt(prompt);
+  // --- Moderation gate 1: prompt screening (local keywords + Hive text) ---
+  const promptVerdict = await moderatePrompt(prompt);
   if (promptVerdict.verdict === "block") {
     await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "image/start" });
     return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });

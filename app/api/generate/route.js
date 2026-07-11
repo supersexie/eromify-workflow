@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { screenPrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, queueForReview } from "@/lib/moderation";
+import { moderatePrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -161,7 +161,7 @@ export async function POST(req) {
 
   // --- Moderation gate 1: prompt screening ---
   if (kind === "image") {
-    const promptVerdict = screenPrompt(prompt);
+    const promptVerdict = await moderatePrompt(prompt);
     if (promptVerdict.verdict === "block") {
       await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "generate" });
       return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });
