@@ -9,9 +9,11 @@ import { normHandle, saveInfluencerRemote } from "@/lib/influencers";
 // over-produced" language that was pulling results toward girl-next-door plain.
 const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural fine skin texture, flattering soft hero lighting, shallow depth of field, polished and photogenic, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
 
-// Every generation is biased HARD toward conventionally attractive results —
-// baked into the base prompt every time so a beginner never has to ask.
-const BEAUTY_CLAUSE = "stunningly beautiful, supermodel-level good looks, extremely attractive and glamorous, flawless symmetrical face, high cheekbones, full lips, captivating expressive eyes, radiant glowing skin, well-proportioned model features, tasteful flattering makeup, instantly head-turning, top-tier instagram model aesthetic";
+// Every generation is biased HARD toward maximally attractive results — baked
+// into the base prompt every time so a beginner never has to ask. Gender-aware
+// so the "male" option doesn't get "most beautiful woman" descriptors.
+const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical face, high defined cheekbones, full lips, captivating mesmerizing eyes, radiant flawless glowing skin, perfectly styled voluminous glossy hair, perfect flawless professional makeup, perfect toned hourglass well-proportioned body, glamorous and instantly head-turning, top-tier Instagram model aesthetic";
+const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, perfect toned muscular well-proportioned physique, magnetic and instantly head-turning, top-tier male-model aesthetic";
 
 // Curated "vibes" carry the creative direction so a beginner never has to
 // write a prompt themselves — each one is a hand-tuned descriptor block.
@@ -123,11 +125,14 @@ export default function InfluencerBuilder({ onClose, onCreated }) {
     const ageDesc = picks.gender === "male" ? age.m : age.f;
     const ethPart = eth.adj ? `${eth.adj} ` : "";
     const subject = `a ${ethPart}${genderNoun} ${ageDesc}, with ${picks.hairColor.toLowerCase()} ${picks.hairStyle.toLowerCase()} hair and ${picks.eyeColor.toLowerCase()} eyes, ${body.desc}`;
+    // Gender-aware beauty bias, placed right after the subject so it carries
+    // strong weight in the prompt.
+    const beauty = picks.gender === "male" ? BEAUTY_CLAUSE_M : BEAUTY_CLAUSE_F;
 
     if (vibe.style === "anime") {
-      return `Anime-style character portrait of ${subject}. ${vibe.prompt}. ${BEAUTY_CLAUSE}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
+      return `Anime-style character portrait of ${subject} — ${beauty}. ${vibe.prompt}. High-quality anime illustration, vibrant colors, detailed line art, studio-quality anime art style. Fully original character design, not resembling any real person or existing franchise character.`;
     }
-    return `Photorealistic portrait of ${subject}. ${vibe.prompt}. ${BEAUTY_CLAUSE}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
+    return `Photorealistic portrait of ${subject} — ${beauty}. ${vibe.prompt}. ${HOUSE_STYLE}. Fully original, fictional face — not resembling any real person.`;
   }, [picks]);
 
   const runBatch = useCallback(() => {
