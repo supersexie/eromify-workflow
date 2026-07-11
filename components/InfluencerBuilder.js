@@ -12,8 +12,10 @@ const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, nat
 // Every generation is biased HARD toward maximally attractive results — baked
 // into the base prompt every time so a beginner never has to ask. Gender-aware
 // so the "male" option doesn't get "most beautiful woman" descriptors.
-const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical face, high defined cheekbones, full lips, captivating mesmerizing eyes, radiant flawless glowing skin, perfectly styled voluminous glossy hair, perfect flawless professional makeup, perfect toned hourglass well-proportioned body, glamorous and instantly head-turning, top-tier Instagram model aesthetic";
-const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, perfect toned muscular well-proportioned physique, magnetic and instantly head-turning, top-tier male-model aesthetic";
+// NOTE: no body-shape words here — physique is driven solely by the chosen
+// BODY_TYPES descriptor, so "curvy" isn't overridden by a forced "toned" body.
+const BEAUTY_CLAUSE_F = "the most beautiful woman in the world, breathtakingly gorgeous, absolute supermodel-level stunning good looks, flawless perfectly symmetrical face, high defined cheekbones, full lips, captivating mesmerizing eyes, radiant flawless glowing skin, perfectly styled voluminous glossy hair, perfect flawless professional makeup, glamorous and instantly head-turning, top-tier Instagram model aesthetic";
+const BEAUTY_CLAUSE_M = "the most handsome man in the world, breathtakingly good-looking, absolute supermodel-level stunning looks, flawless perfectly symmetrical face, chiseled sharp jawline, captivating eyes, radiant flawless skin, perfectly styled hair, perfectly groomed, magnetic and instantly head-turning, top-tier male-model aesthetic";
 
 // Curated "vibes" carry the creative direction so a beginner never has to
 // write a prompt themselves — each one is a hand-tuned descriptor block.
@@ -51,11 +53,13 @@ const AGES = [
 const HAIR_COLORS = ["Black", "Brunette", "Blonde", "Auburn", "Platinum", "Pastel Pink"];
 const HAIR_STYLES = ["Long Waves", "Sleek Straight", "Curly", "Short Bob", "High Ponytail"];
 const EYE_COLORS = ["Brown", "Blue", "Green", "Hazel", "Grey"];
+// Body-type descriptors drive the physique — kept explicit so the model
+// actually renders the shape (a bare "curvy figure" barely registers).
 const BODY_TYPES = [
-  { id: "slim", label: "Slim", desc: "slim build" },
-  { id: "athletic", label: "Athletic", desc: "athletic toned build" },
-  { id: "curvy", label: "Curvy", desc: "curvy figure" },
-  { id: "average", label: "Average", desc: "average build" },
+  { id: "slim", label: "Slim", desc: "slim slender figure, lean build, long legs, gentle subtle curves" },
+  { id: "athletic", label: "Athletic", desc: "fit athletic toned body, defined figure, flat toned stomach, sporty physique" },
+  { id: "curvy", label: "Curvy", desc: "voluptuous curvy hourglass figure, full curves, small cinched waist, wide hips, full bust, thick shapely thighs, thicc body" },
+  { id: "average", label: "Average", desc: "natural balanced everyday figure, softly feminine proportions" },
 ];
 
 const BLANK_PICKS = {
