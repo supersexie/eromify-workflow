@@ -2,13 +2,22 @@
 
 Content moderation for AI-generated content, built to satisfy CCBill's "Compliance Guidelines for AI Generated Content Merchants" (5967 MCC). Covers minor-safety, non-consensual/deepfake real-person protection, and the broader prohibited-content categories on page 3 of that document.
 
+## Hive API — V3 (verified live)
+
+Uses Hive's **V3** API. Auth is a single **Bearer** secret key (`HIVE_API_KEY` = the "Secret Key" from Hive's Playground API Keys page, NOT the Access Key ID). One key covers both models below. Each model is its own endpoint under `https://api.thehive.ai/api/v3/<model-key>`; request body is JSON `{"input":[{"media_url":"..."}]}` for hosted URLs, or multipart `media=@file` for uploads. Response shape is `output[0].classes[]`, where each entry's field is **`class`** (the live API uses `class`, though Hive's docs example shows `class_name` — the code reads `class ?? class_name`).
+
+Two models, both confirmed working against the production key:
+
+- **`hive/visual-moderation`** — used by `classifyOutput()`. Real class names verified against live responses (e.g. `yes_child_present`, `general_nsfw`, `general_suggestive`, `yes_sexual_activity`, `animal_genitalia_and_human`, `human_corpse`, `yes_self_harm`).
+- **`hive/ai-generated-and-deepfake-content-detection`** — used by `checkReferenceImage()`. Class `ai_generated`. Verified: AI image → `ai_generated ≈ 0.9999` (allow); real photo → `ai_generated ≈ 0.0002` (block).
+
 ## What's wired in (code, done)
 
 All logic lives in [`lib/moderation.js`](lib/moderation.js). Three gates, applied across every generation entry point:
 
 1. **`screenPrompt(prompt)`** — local, no API call. Blocks minor-safety violations, deepfake/real-person-name combinations, and the CCBill prohibited categories (incest, non-consensual/sleeping scenarios, watersports, violence/snuff, bestiality, prostitution, polygamy, illegal-activity instructions, hate speech starter list).
-2. **`checkReferenceImage(image, isExplicit)`** — calls Hive. Only triggers on prompts flagged explicit. Blocks a real (not-confidently-AI-generated) face used as a reference for explicit output, while allowing your own AI-influencer photos (synthetic faces) to be reused as video-start frames — this is what stops the feature from breaking on the core "animate my influencer" use case while still blocking real-photo misuse.
-3. **`classifyOutput(mediaUrl)`** — calls Hive. Runs on the finished generation before the URL is ever returned to the client.
+2. **`checkReferenceImage(image, isExplicit)`** — calls the AI/deepfake-detection model. Only triggers on prompts flagged explicit. Blocks a reference that is NOT confidently AI-generated (`ai_generated ≤ 0.9`, i.e. a real photo) from explicit reuse, while allowing your own AI-influencer photos (which score ~1.0) — this is what stops the feature from breaking on the core "animate my influencer" use case while still blocking real-photo misuse.
+3. **`classifyOutput(mediaUrl)`** — calls visual-moderation on the finished generation before the URL is ever returned. Adult NSFW is allowed (this is an adult platform); it blocks minor+sexual (CSAM proxy), any confidently-present minor, and bestiality/corpse/self-harm.
 
 All three **fail closed**: if `HIVE_API_KEY` isn't set, or the Hive call errors, they block rather than silently pass content through.
 
@@ -31,7 +40,8 @@ Review/block events log to console and, if `BLOB_READ_WRITE_TOKEN` (or any `*_RE
 - **`editVideo` (the source video being edited in the Kling video-edit path) is not frame-checked.** Only `editRefs` (reference images) and the i2v `image` are checked before an edit job runs.
 - **Known-CSAM hash matching (Thorn Safer / PhotoDNA) is not implemented.** This is the baseline most payment processors and legal counsel expect on top of a classifier — a classifier makes a probabilistic judgment on new content, hash matching gives a near-certain match against material NCMEC has already confirmed. It requires a gated partnership/approval process (not a self-serve API key) — start that process early, it's the piece most likely to block a compliance review if missing. Once approved, add a `checkKnownHash()` function to `lib/moderation.js` following the same fail-closed pattern, and call it first, before `screenPrompt`, on every route above.
 - **`KNOWN_PUBLIC_FIGURES` starts empty** (`loadPublicFigureList()` in `lib/moderation.js`) — populate/maintain it from wherever you're tracking reported names.
-- **Hive class names are illustrative, not verified against your account.** `scoreOf("csam")`, `scoreOf("ai_generated")`, `scoreOf("yes_face")`, etc. — confirm the exact class names your Hive project actually returns (check your Hive dashboard/API docs) and adjust before relying on the thresholds in production.
+- **Youthful-adult false-positive risk on `yes_child_present`.** The Influencer Builder offers an "18–22" range with a beauty bias toward youthful faces. `classifyOutput` blocks on `yes_child_present > 0.5` and flags 0.25–0.5 for review. A legitimately-adult-but-youthful influencer could occasionally trip this. Thresholds are starting values — tune against real traffic; consider widening the review band vs. hard-block for borderline scores.
+- **Hive URL fetch can fail for some hosts.** When a reference image is passed as a hosted URL, Hive fetches it server-side; some hosts (e.g. Wikimedia) block that fetcher, returning a 400 and a fail-closed block. In the real app, uploads arrive as data URIs (sent to Hive as multipart bytes — no fetch) and influencer photos are on fal.media / Vercel Blob (confirmed fetchable), so this is not a production concern, but keep it in mind for any new reference-image source.
 - **Text-to-text chat** (if Magic Mint ever adds a chatbot beyond `/api/assistant`'s internal routing) is not covered by `screenPrompt` for prohibited *outputs* (only inputs) — the CCBill list includes "professional advice" and "illegal activity" as prohibited chatbot outputs too, which would need output-side text classification if that feature ships.
 
 ## Testing without any keys
