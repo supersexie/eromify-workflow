@@ -2,12 +2,12 @@
 import { useCallback, useState } from "react";
 import { normHandle, saveInfluencerRemote } from "@/lib/influencers";
 
-// Realism guide — keeps output looking like a real photo, not the glossy
-// over-smoothed "AI slop" look. Tuned to stay FLATTERING (soft, hero lighting)
-// rather than plain/candid, so the beauty clause below actually lands. We keep
-// fine skin texture (anti-plastic) but drop the "imperfections/candid/not
-// over-produced" language that was pulling results toward girl-next-door plain.
-const HOUSE_STYLE = "hyper-realistic candid amateur-style photograph, natural realistic snapshot, natural fine skin texture, flattering soft hero lighting, shallow depth of field, polished and photogenic, the photo fills the entire frame with NO phone, NO smartphone, NO screen, NO device, NO app interface and NO UI visible, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
+// Realism guide — kept word-for-word in sync with the Enhance endpoint's
+// HOUSE_STYLE (app/api/prompt/enhance/route.js) so Canvas/Image and the
+// Influencer Builder produce the same raw-UGC look instead of drifting into
+// a blurred, over-produced "photoshoot" style. No "shallow depth of field" —
+// a real candid phone snapshot keeps the background in focus.
+const HOUSE_STYLE = "hyper-realistic UGC-style photo shot on a modern phone, natural skin texture with realistic pores and subtle imperfections, soft natural lighting, candid and photogenic, authentic not over-produced, the photo fills the entire frame with NO phone, NO smartphone, NO screen, NO device, NO app interface and NO UI visible, no plastic skin, no over-smoothing, no airbrushing, no cartoon, no illustration, no 3D render";
 
 // Every generation is biased HARD toward maximally attractive results — baked
 // into the base prompt every time so a beginner never has to ask. Gender-aware
