@@ -139,18 +139,12 @@ export default function Dashboard() {
         </svg>
         {/* Showcase tiles — left pair (1,2) + right pair (3,4). The gradient is
             a fallback shown only if the image file is missing. */}
-        <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }}>
-          <img src="/hero/cv1.png" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-        </div>
-        <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }}>
-          <img src="/hero/cv2.png" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-        </div>
-        <div className="cv-tile cv-tile-3" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }}>
-          <img src="/hero/cv3.png" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-        </div>
-        <div className="cv-tile cv-tile-4" style={{ background: "linear-gradient(135deg,#0ea5e9,#22c55e)" }}>
-          <img src="/hero/cv4.png" alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-        </div>
+        {/* Showcase media removed — the tiles keep their gradients. To restore,
+            drop an <img src="/hero/cvN.png" /> back inside each tile. */}
+        <div className="cv-tile cv-tile-1" style={{ background: "linear-gradient(135deg,#22c55e,#0ea5e9)" }} />
+        <div className="cv-tile cv-tile-2" style={{ background: "linear-gradient(135deg,#f59e0b,#ec4899)" }} />
+        <div className="cv-tile cv-tile-3" style={{ background: "linear-gradient(135deg,#6366f1,#a855f7)" }} />
+        <div className="cv-tile cv-tile-4" style={{ background: "linear-gradient(135deg,#0ea5e9,#22c55e)" }} />
         <div className="cv-bubble cv-bubble-1">That's cool!</div>
         <div className="cv-bubble cv-bubble-2">🔥 Love it</div>
         <div className="cv-hero-inner">

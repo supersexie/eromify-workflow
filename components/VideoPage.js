@@ -829,34 +829,32 @@ function VideoPageInner() {
                   <p className="vp-motion-hero-sub">Copy motion from any video and place your character into the same movement.</p>
                 </div>
                 <div className="vp-motion-hero-tiles">
+                  {/* Showcase media removed — gradient tiles only. */}
                   {[
-                    { bg: "linear-gradient(135deg,#ec4899,#a855f7)", video: "/hero/v1.mp4" },
-                    { bg: "linear-gradient(135deg,#3b82f6,#a855f7)", video: "/hero/v2.mp4" },
-                    { bg: "linear-gradient(135deg,#10b981,#ec4899)", video: "/hero/v3.mp4" },
-                  ].map((t, i) => (
-                    <div key={i} className="vp-motion-tile" style={{ background: t.bg, transform: `rotate(${(i - 1) * 6}deg) translateY(${i % 2 ? 8 : -8}px)` }}>
-                      <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-                    </div>
+                    "linear-gradient(135deg,#ec4899,#a855f7)",
+                    "linear-gradient(135deg,#3b82f6,#a855f7)",
+                    "linear-gradient(135deg,#10b981,#ec4899)",
+                  ].map((bg, i) => (
+                    <div key={i} className="vp-motion-tile" style={{ background: bg, transform: `rotate(${(i - 1) * 6}deg) translateY(${i % 2 ? 8 : -8}px)` }} />
                   ))}
                 </div>
               </div>
 
               <div className="vp-motion-library">
                 <div className="vp-motion-library-grid">
+                  {/* Showcase media removed — gradient cards only. */}
                   {[
-                    { bg: "linear-gradient(135deg,#7c3aed,#ec4899)", video: "/hero/ml1.mp4" },
-                    { bg: "linear-gradient(135deg,#06b6d4,#3b82f6)", video: "/hero/ml2.mp4" },
-                    { bg: "linear-gradient(135deg,#10b981,#84cc16)", video: "/hero/ml4.mp4" },
-                    { bg: "linear-gradient(135deg,#a855f7,#ec4899)", video: "/hero/ml5.mp4" },
-                  ].map((t, i) => (
+                    "linear-gradient(135deg,#7c3aed,#ec4899)",
+                    "linear-gradient(135deg,#06b6d4,#3b82f6)",
+                    "linear-gradient(135deg,#10b981,#84cc16)",
+                    "linear-gradient(135deg,#a855f7,#ec4899)",
+                  ].map((bg, i) => (
                     <button
                       key={i}
                       className="vp-motion-library-card"
-                      style={{ background: t.bg }}
+                      style={{ background: bg }}
                       title="Use this motion (coming soon)"
-                    >
-                      <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-                    </button>
+                    />
                   ))}
                 </div>
               </div>
@@ -866,25 +864,12 @@ function VideoPageInner() {
               title="Edit any"
               brand="Video"
               sub="Upload a 3–10s clip and describe the change — restyle, relight, swap elements, or add motion."
-              tiles={[
-                { video: "/hero/v2.mp4" },
-                { video: "/hero/v3.mp4" },
-                { video: "/hero/v4.mp4" },
-                { video: "/hero/v5.mp4" },
-              ]}
             />
           ) : (
             <SectionHero
               title="Create video with"
               brand={model}
               sub="Describe a scene or start from an image to bring it to life."
-              tiles={[
-                { video: "/hero/v1.mp4" },
-                { video: "/hero/v2.mp4" },
-                { video: "/hero/v3.mp4" },
-                { video: "/hero/v4.mp4" },
-                { video: "/hero/v5.mp4" },
-              ]}
             />
           )}
           {error && <div className="mc-error vp-error">{error}</div>}

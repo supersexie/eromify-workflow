@@ -111,12 +111,6 @@ export default function InfluencersPage() {
         title="Build your"
         brand="Influencers"
         sub="No AI slop — pick a vibe, dial in the look, and get a super realistic influencer in under a minute. Then summon her anywhere with @handle."
-        tiles={[
-          { img: "/hero/inf1.png" },
-          { img: "/hero/inf2.png" },
-          { img: "/hero/inf3.png" },
-          { img: "/hero/inf4.png" },
-        ]}
       />
 
       <div className="inf-body">

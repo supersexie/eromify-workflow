@@ -21,65 +21,57 @@ const PLANS = [
   { name: "Studio", price: 49, priceMonthly: 99, note: "1,000 credits per month", features: ["1080p & Pro video models", "Priority generation queue", "Up to 2TB storage"], popular: false },
 ];
 
-// Hero video carousel cards — real MP4s, hosted under /vyxen-assets.
+// SHOWCASE MEDIA REMOVED. Every tile below renders as a gradient placeholder
+// instead of a real image/video. The layout is unchanged, so dropping media
+// back in is just a matter of re-adding a `video`/`img` field here and the
+// matching <video>/<img> in the JSX — nothing else has to move.
+const G = {
+  pink: "linear-gradient(135deg,#ec4899,#a855f7)",
+  violet: "linear-gradient(135deg,#7c3aed,#ec4899)",
+  blue: "linear-gradient(135deg,#3b82f6,#a855f7)",
+  cyan: "linear-gradient(135deg,#06b6d4,#3b82f6)",
+  green: "linear-gradient(135deg,#10b981,#ec4899)",
+  amber: "linear-gradient(135deg,#f59e0b,#ec4899)",
+};
+
+// Hero carousel cards
 const CAROUSEL_CARDS = [
-  { model: "Kling Motion Control", headline: "Transfer motion to any character", video: "/vyxen-assets/kling_motion.mp4", href: "/video" },
-  { model: "Seedance 2.0", headline: "Cinematic AI video from a single prompt", video: "/vyxen-assets/seedance_1.mp4", href: "/video" },
-  { model: "Wan 2.2 Animate", headline: "Animate any image to life", video: "/vyxen-assets/wan22_animate.mp4", href: "/video" },
-  { model: "Veo", headline: "Google's most advanced video model", video: "/vyxen-assets/video_1776108997535_p0vv86.mp4", href: "/video" },
-  { model: "AI Influencer", headline: "Build a consistent AI identity", video: "/vyxen-assets/video_1776103833966_4rz0kg.mp4", href: "/influencers" },
-  { model: "Kling 2.6 Pro", headline: "Professional-grade video generation", video: "/vyxen-assets/video_1776097340136_1vmuv9.mp4", href: "/video" },
+  { model: "Kling Motion Control", headline: "Transfer motion to any character", bg: G.pink, href: "/video" },
+  { model: "Seedance 2.0", headline: "Cinematic AI video from a single prompt", bg: G.violet, href: "/video" },
+  { model: "Wan 2.2 Animate", headline: "Animate any image to life", bg: G.blue, href: "/video" },
+  { model: "Veo", headline: "Google's most advanced video model", bg: G.cyan, href: "/video" },
+  { model: "AI Influencer", headline: "Build a consistent AI identity", bg: G.green, href: "/influencers" },
+  { model: "Kling 2.6 Pro", headline: "Professional-grade video generation", bg: G.amber, href: "/video" },
 ];
 
 // GPT Image 2 showcase
-const GPT_IMAGES = [
-  "/vyxen-assets/zorq-image-1777300748158.png",
-  "/vyxen-assets/zorq-image-1777300753051.png",
-  "/vyxen-assets/zorq-image-1777300764397.png",
-  "/vyxen-assets/zorq-ultra-1777448275762.png",
-];
+const GPT_TILES = [G.pink, G.violet, G.blue, G.amber];
 
 // Bento feature tiles — model showcase
 const BENTO_TILES = [
-  { label: "Seedream 4.5", cls: "col-span-2", img: "/vyxen-assets/atlas-seedream45-1.jpg" },
-  { label: "Nano Banana Pro", cls: "", img: "/vyxen-assets/atlas-nanopro-new-1.jpg" },
-  { label: "Seedream 4.0", cls: "row-span-2", img: "/vyxen-assets/atlas-seedream4-1.jpg" },
-  { label: "Seedream 5 Lite", cls: "", img: "/vyxen-assets/atlas-seedream5lite-1.jpg" },
-  { label: "Nano Banana 2", cls: "", img: "/vyxen-assets/atlas-nanopro-new-2.jpg" },
+  { label: "Seedream 4.5", cls: "col-span-2", bg: G.pink },
+  { label: "Nano Banana Pro", cls: "", bg: G.violet },
+  { label: "Seedream 4.0", cls: "row-span-2", bg: G.blue },
+  { label: "Seedream 5 Lite", cls: "", bg: G.cyan },
+  { label: "Nano Banana 2", cls: "", bg: G.green },
 ];
 
-// Gallery — sample generated images
-const GALLERY_IMAGES = [
-  { src: "/vyxen-assets/image_1775338104681_kr0qtc.png", cls: "col-span-2" },
-  { src: "/vyxen-assets/image_1775941849168_x4p4kh.png", cls: "" },
-  { src: "/vyxen-assets/image_1775943459936_bstj80.png", cls: "row-span-2" },
-  { src: "/vyxen-assets/image_1775978296892_wyxpnf.png", cls: "" },
-  { src: "/vyxen-assets/image_1776059900097_i5ojh4.png", cls: "" },
-  { src: "/vyxen-assets/image_1776206487309_6vanrq.png", cls: "col-span-2" },
+// Gallery
+const GALLERY_TILES = [
+  { cls: "col-span-2", bg: G.pink },
+  { cls: "", bg: G.violet },
+  { cls: "row-span-2", bg: G.blue },
+  { cls: "", bg: G.cyan },
+  { cls: "", bg: G.green },
+  { cls: "col-span-2", bg: G.amber },
 ];
 
-// Character gallery — sample AI character images
+// Character gallery
 const CHARS = [
-  { name: "Sofia", faded: false, images: [
-    "/vyxen-assets/image_1780429922552_6yyqecbk.png", "/vyxen-assets/image_1780428967589_5316j1sr.png",
-    "/vyxen-assets/image_1780428968670_43ah4bzh.png", "/vyxen-assets/image_1780430412588_wj529fdx.png",
-    "/vyxen-assets/image_1780429562902_587gdpxl.png", "/vyxen-assets/image_1780428966577_48m8wu.png",
-  ]},
-  { name: "Aria", faded: false, images: [
-    "/vyxen-assets/image_1780406166141_33u61srr.png", "/vyxen-assets/image_1780407485796_s3nqzg3a.png",
-    "/vyxen-assets/image_1780408085471_gh4o67q4.png", "/vyxen-assets/image_1780408086287_r5eogfnu.png",
-    "/vyxen-assets/image_1780408322589_wcjlacpr.png", "/vyxen-assets/image_1780408325775_u3v107pz.png",
-  ]},
-  { name: "Luna", faded: false, images: [
-    "/vyxen-assets/image_1780444822509_8r9nzjho.png", "/vyxen-assets/image_1780444926476_m5h3hapa.png",
-    "/vyxen-assets/image_1780445175017_zf0tl64f.png", "/vyxen-assets/image_1780445179419_gl5aktit.png",
-    "/vyxen-assets/image_1780445290420_ff1baopf.png", "/vyxen-assets/image_1780445647759_mcoouale.png",
-  ]},
-  { name: "Nova", faded: true, images: [
-    "/vyxen-assets/image_1780426569248_7fqki3hx.png", "/vyxen-assets/image_1780426570120_3az7nbsk.png",
-    "/vyxen-assets/image_1780426572864_e199r815.png", "/vyxen-assets/image_1780426690483_ze3waqey.png",
-    "/vyxen-assets/image_1780426691327_j0h1a8ve.png", "/vyxen-assets/image_1780426811993_5bkeo4g2.png",
-  ]},
+  { name: "Sofia", faded: false, bg: G.pink },
+  { name: "Aria", faded: false, bg: G.violet },
+  { name: "Luna", faded: false, bg: G.blue },
+  { name: "Nova", faded: true, bg: G.cyan },
 ];
 
 export default function Home() {
@@ -198,7 +190,7 @@ export default function Home() {
             {CAROUSEL_CARDS.map((c) => (
               <div key={c.model} className="flex-none w-[calc(50%-10px)] min-w-[320px] md:min-w-[380px]">
                 <div className="relative aspect-[16/10] rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0710]">
-                  <video src={c.video} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 opacity-25" style={{ background: c.bg }} />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
                     <span className="text-[11px] text-[#B8B8B8] tracking-[0.05em]">{c.model}</span>
@@ -230,9 +222,9 @@ export default function Home() {
               </Link>
             </div>
             <div className="flex-1 grid grid-cols-2 gap-3 w-full">
-              {GPT_IMAGES.map((src, i) => (
+              {GPT_TILES.map((bg, i) => (
                 <div key={i} className="aspect-square rounded-[16px] overflow-hidden bg-[#111]">
-                  <img src={src} alt={`GPT Image 2 example ${i + 1}`} className="w-full h-full object-cover" />
+                  <div className="w-full h-full opacity-25" style={{ background: bg }} />
                 </div>
               ))}
             </div>
@@ -254,7 +246,7 @@ export default function Home() {
           <div className="grid grid-cols-2 grid-rows-[repeat(3,120px)] md:grid-rows-[repeat(3,156px)] gap-4">
             {BENTO_TILES.map((t) => (
               <div key={t.label} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
-                <img src={t.img} alt={t.label} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                <div className="absolute inset-0 opacity-25" style={{ background: t.bg }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute top-3 right-3 text-[11px] text-white bg-[#0A0A0A]/60 backdrop-blur-sm px-2.5 py-1 rounded-[10px]">{t.label}</span>
               </div>
@@ -321,9 +313,9 @@ export default function Home() {
               <div key={char.name} className={`flex flex-col items-center flex-none transition-opacity ${char.faded ? "opacity-40" : ""}`}>
                 <p className="text-base font-medium text-white mb-4">{char.name}</p>
                 <div className="grid grid-cols-2 gap-2" style={{ width: 328 }}>
-                  {char.images.map((src, i) => (
+                  {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="w-40 h-40 rounded-[14px] overflow-hidden bg-[#111]">
-                      <img src={src} alt={`${char.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                      <div className="w-full h-full opacity-25" style={{ background: char.bg }} />
                     </div>
                   ))}
                 </div>
@@ -374,9 +366,9 @@ export default function Home() {
           <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4 text-center">Generated with Magic Mint</p>
           <h2 className="font-heading text-[36px] leading-[1.2] font-semibold tracking-[-0.01em] text-white mb-12 text-center">All in one place.</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-[repeat(4,160px)] md:grid-rows-[repeat(3,220px)] gap-4 mb-12">
-            {GALLERY_IMAGES.map((t, i) => (
+            {GALLERY_TILES.map((t, i) => (
               <div key={i} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
-                <img src={t.src} alt={`Gallery ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 opacity-25" style={{ background: t.bg }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
             ))}

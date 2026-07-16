@@ -116,7 +116,7 @@ export default function MCPPage() {
                   On it. Generating 4 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
                   <div className="mcp-chat-grid">
                     {["img1", "img2", "img3", "img4"].map((n) => (
-                      <span key={n} className="mcp-chat-thumb"><img src={`/hero/${n}.png`} alt="" loading="lazy" /></span>
+                      <span key={n} className="mcp-chat-thumb" />
                     ))}
                   </div>
                   <div className="mcp-chat-meta">4 IMAGES · 30 CREDITS · ~20S</div>
