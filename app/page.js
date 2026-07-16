@@ -1,82 +1,91 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { Geist, Bricolage_Grotesque } from "next/font/google";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import "./vyxen-landing.css";
+import DotFieldBackground from "@/components/vyxen/DotFieldBackground";
+import { CanvasText } from "@/components/vyxen/CanvasText";
+import NavDropdown from "@/components/vyxen/NavDropdown";
+
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-const Arrow = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-
-const Check = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6L9 17l-5-5" />
-  </svg>
-);
-
-// ─── content ────────────────────────────────────────────────────────────────
-const FEATURES = [
-  { h: "Train your persona", p: "Build a custom AI influencer once with the guided Influencer Builder — a username and a look is all it takes. Magic Mint keeps their face and identity locked across every image and video after that." },
-  { h: "Generate images and video", p: "Text-to-image, image-to-video, and editing, using Flux 2, Nano Banana Pro, Seedream 4.5, GPT Image, Kling, Veo, LTX, Wan, and Hailuo." },
-  { h: "Motion control and face swap", p: "Transfer movement from a reference video onto your character, swap faces, and upscale stills or footage without leaving the studio." },
-  { h: "Generate from inside Claude", p: "The Magic Mint MCP connector lets you generate images and videos directly in a Claude, Cursor, or Hermes conversation." },
-];
-
-const MODELS = ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5", "GPT Image 1", "GPT Image 2", "Kling v2", "Veo", "LTX Video", "Wan", "Hailuo", "MiniMax"];
-
-const STEPS = [
-  { h: "Build your influencer", p: "Use the guided Influencer Builder — pick a vibe, dial in the look, generate a few options, and pick a favorite. No prompt-writing, no AI slop." },
-  { h: "Generate on the Canvas", p: "Put them in any scene, outfit, or lighting. Generate stills, then bring them to life as video. Chain nodes together for multi-step pipelines." },
-  { h: "Publish anywhere", p: "Download ready-to-post images and video, or generate straight from Claude with the MCP connector while you do something else." },
-];
-
-const DIFFS = [
-  { h: "Every model, one subscription", p: "Flux, Nano Banana, Seedream, Kling, Veo, and more, in one place. Most platforms lock you into a single model family." },
-  { h: "A guided builder, not a blank prompt", p: "Beginners pick a vibe and appearance from curated options instead of wrestling with prompt engineering to avoid a generic AI look." },
-  { h: "Consistency across every generation", p: "The same face holds across hundreds of generations — the part that breaks on most other tools." },
-  { h: "It plugs into Claude", p: "The MCP connector makes Magic Mint usable from inside a conversation — describe the week's content, get it rendered." },
-];
-
-// monthly = full monthly price; annual = effective monthly price when billed yearly.
-// Kept in sync with app/pricing/page.js.
+// monthly = full monthly price; annual = effective monthly price when billed
+// yearly. Kept in sync with app/pricing/page.js — Magic Mint's real numbers,
+// not Vyxen's.
 const PLANS = [
-  { name: "Starter", desc: "For casual creators just getting started.", monthly: 29, annual: 12 },
-  { name: "Creator", desc: "Best for creators serious about growth.", monthly: 49, annual: 19, popular: true,
-    features: ["400 credits/mo", "Premium models", "Claude MCP connector"] },
-  { name: "Studio", desc: "For pros who want the best tools, no limits.", monthly: 99, annual: 49,
-    features: ["1,000 credits/mo", "1080p & Pro video", "Priority queue"] },
-];
-PLANS[0].features = ["200 credits/mo", "Core AI models", "Node-based canvas"];
-
-const FAQS = [
-  { q: "What is Magic Mint?", a: "Magic Mint is an all-in-one AI studio for building, customizing, and monetizing AI influencers. It puts leading image and video models in one place, keeps a trained persona consistent across every generation, and turns that into content you can publish." },
-  { q: "Do I need to write prompts?", a: "No. The Influencer Builder walks you through curated vibes and appearance options and composes the prompt for you. You can still write freeform prompts anywhere else in the app if you want full control." },
-  { q: "What AI models are included?", a: "Flux 2 Pro/Max, Nano Banana Pro, Seedream 4.5, GPT Image 1/2 for images; Kling v2, Veo, LTX Video, Wan, Hailuo, and MiniMax for video. New models are added as they ship." },
-  { q: "Can I use Magic Mint from Claude or Cursor?", a: "Yes. The MCP connector lets you generate images and videos directly from any MCP-compatible tool — paste the connector URL and start prompting." },
-  { q: "Is there a free plan?", a: "You can sign up and explore the Canvas for free. Generating AI media requires a paid plan to cover model costs — see full pricing for details." },
+  { name: "Starter", price: 12, priceMonthly: 29, note: "200 credits per month", features: ["Image, video & voice generation", "Core AI models", "Node-based canvas"], popular: false },
+  { name: "Creator", price: 19, priceMonthly: 49, note: "400 credits per month", features: ["Premium models (Kling v2, Veo)", "Romy AI assistant", "Claude MCP connector"], popular: true },
+  { name: "Studio", price: 49, priceMonthly: 99, note: "1,000 credits per month", features: ["1080p & Pro video models", "Priority generation queue", "Up to 2TB storage"], popular: false },
 ];
 
-export default function LandingPage() {
+// Hero video carousel cards — real MP4s, hosted under /vyxen-assets.
+const CAROUSEL_CARDS = [
+  { model: "Kling Motion Control", headline: "Transfer motion to any character", video: "/vyxen-assets/kling_motion.mp4", href: "/video" },
+  { model: "Seedance 2.0", headline: "Cinematic AI video from a single prompt", video: "/vyxen-assets/seedance_1.mp4", href: "/video" },
+  { model: "Wan 2.2 Animate", headline: "Animate any image to life", video: "/vyxen-assets/wan22_animate.mp4", href: "/video" },
+  { model: "Veo", headline: "Google's most advanced video model", video: "/vyxen-assets/video_1776108997535_p0vv86.mp4", href: "/video" },
+  { model: "AI Influencer", headline: "Build a consistent AI identity", video: "/vyxen-assets/video_1776103833966_4rz0kg.mp4", href: "/influencers" },
+  { model: "Kling 2.6 Pro", headline: "Professional-grade video generation", video: "/vyxen-assets/video_1776097340136_1vmuv9.mp4", href: "/video" },
+];
+
+// GPT Image 2 showcase
+const GPT_IMAGES = [
+  "/vyxen-assets/zorq-image-1777300748158.png",
+  "/vyxen-assets/zorq-image-1777300753051.png",
+  "/vyxen-assets/zorq-image-1777300764397.png",
+  "/vyxen-assets/zorq-ultra-1777448275762.png",
+];
+
+// Bento feature tiles — model showcase
+const BENTO_TILES = [
+  { label: "Seedream 4.5", cls: "col-span-2", img: "/vyxen-assets/atlas-seedream45-1.jpg" },
+  { label: "Nano Banana Pro", cls: "", img: "/vyxen-assets/atlas-nanopro-new-1.jpg" },
+  { label: "Seedream 4.0", cls: "row-span-2", img: "/vyxen-assets/atlas-seedream4-1.jpg" },
+  { label: "Seedream 5 Lite", cls: "", img: "/vyxen-assets/atlas-seedream5lite-1.jpg" },
+  { label: "Nano Banana 2", cls: "", img: "/vyxen-assets/atlas-nanopro-new-2.jpg" },
+];
+
+// Gallery — sample generated images
+const GALLERY_IMAGES = [
+  { src: "/vyxen-assets/image_1775338104681_kr0qtc.png", cls: "col-span-2" },
+  { src: "/vyxen-assets/image_1775941849168_x4p4kh.png", cls: "" },
+  { src: "/vyxen-assets/image_1775943459936_bstj80.png", cls: "row-span-2" },
+  { src: "/vyxen-assets/image_1775978296892_wyxpnf.png", cls: "" },
+  { src: "/vyxen-assets/image_1776059900097_i5ojh4.png", cls: "" },
+  { src: "/vyxen-assets/image_1776206487309_6vanrq.png", cls: "col-span-2" },
+];
+
+// Character gallery — sample AI character images
+const CHARS = [
+  { name: "Sofia", faded: false, images: [
+    "/vyxen-assets/image_1780429922552_6yyqecbk.png", "/vyxen-assets/image_1780428967589_5316j1sr.png",
+    "/vyxen-assets/image_1780428968670_43ah4bzh.png", "/vyxen-assets/image_1780430412588_wj529fdx.png",
+    "/vyxen-assets/image_1780429562902_587gdpxl.png", "/vyxen-assets/image_1780428966577_48m8wu.png",
+  ]},
+  { name: "Aria", faded: false, images: [
+    "/vyxen-assets/image_1780406166141_33u61srr.png", "/vyxen-assets/image_1780407485796_s3nqzg3a.png",
+    "/vyxen-assets/image_1780408085471_gh4o67q4.png", "/vyxen-assets/image_1780408086287_r5eogfnu.png",
+    "/vyxen-assets/image_1780408322589_wcjlacpr.png", "/vyxen-assets/image_1780408325775_u3v107pz.png",
+  ]},
+  { name: "Luna", faded: false, images: [
+    "/vyxen-assets/image_1780444822509_8r9nzjho.png", "/vyxen-assets/image_1780444926476_m5h3hapa.png",
+    "/vyxen-assets/image_1780445175017_zf0tl64f.png", "/vyxen-assets/image_1780445179419_gl5aktit.png",
+    "/vyxen-assets/image_1780445290420_ff1baopf.png", "/vyxen-assets/image_1780445647759_mcoouale.png",
+  ]},
+  { name: "Nova", faded: true, images: [
+    "/vyxen-assets/image_1780426569248_7fqki3hx.png", "/vyxen-assets/image_1780426570120_3az7nbsk.png",
+    "/vyxen-assets/image_1780426572864_e199r815.png", "/vyxen-assets/image_1780426690483_ze3waqey.png",
+    "/vyxen-assets/image_1780426691327_j0h1a8ve.png", "/vyxen-assets/image_1780426811993_5bkeo4g2.png",
+  ]},
+];
+
+export default function Home() {
+  const [annual, setAnnual] = useState(true);
   const signInHref = CLERK_ENABLED ? "/sign-in" : "/app";
   const signUpHref = CLERK_ENABLED ? "/sign-up" : "/app";
-  const faqRef = useRef(null);
-
-  useEffect(() => {
-    const faq = faqRef.current;
-    if (!faq) return;
-    const handler = (e) => {
-      const btn = e.target.closest(".lp-qa-q");
-      if (!btn) return;
-      const item = btn.closest(".lp-qa");
-      const isOpen = item.classList.contains("is-open");
-      faq.querySelectorAll(".lp-qa").forEach((el) => el.classList.remove("is-open"));
-      if (!isOpen) item.classList.add("is-open");
-    };
-    faq.addEventListener("click", handler);
-    return () => faq.removeEventListener("click", handler);
-  }, []);
 
   // globals.css locks body overflow for the canvas editor — release it here so this page scrolls.
   useEffect(() => {
@@ -87,197 +96,326 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="lp-root">
-      {/* ── HEADER ── */}
-      <header className="lp-header">
-        <Link href="/" className="lp-brand">
-          <div className="lp-logo">m</div>
-          <span className="lp-brand-name">Magic Mint</span>
-        </Link>
-        <nav className="lp-nav-links">
-          <a href="#features">Features</a>
-          <a href="#models">Models</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#mcp">Claude MCP</a>
+    <div className={`${geistSans.variable} ${bricolage.variable} min-h-screen bg-[#0A0A0A] text-[#B8B8B8]`} style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}>
+      <DotFieldBackground />
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+
+        {/* Banner */}
+        <div className="h-10 flex items-center justify-center text-[11px] font-semibold tracking-[0.18em] uppercase text-[#7A7A7A] border-b border-white/[0.06]">
+          NEW — GPT IMAGE 2 IS LIVE&nbsp;·&nbsp;4K GENERATION WITH NEAR-PERFECT TEXT →
+        </div>
+
+        {/* Nav */}
+        <nav className="sticky top-0 z-50 h-[72px] bg-[#0A0A0A]/70 backdrop-blur-xl border-b border-white/[0.06]">
+          <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between px-6 md:px-16">
+            <Link href="/" className="flex items-center gap-3">
+              <span className="font-heading text-2xl font-bold tracking-tight text-white">
+                <CanvasText
+                  text="Magic Mint"
+                  backgroundClassName="bg-[#EC4899]"
+                  colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
+                  lineGap={4} lineWidth={1.5} animationDuration={8} curveIntensity={30}
+                />
+              </span>
+            </Link>
+            <ul className="hidden md:flex items-center gap-7">
+              <li>
+                <NavDropdown label="Images" sections={[
+                  { title: "Features", items: [
+                    { label: "Image Generation", href: "/image", icon: "✦" },
+                    { label: "Upscale", href: "/upscale", icon: "◈" },
+                    { label: "Image Edit", href: "/image", icon: "◎" },
+                  ]},
+                  { title: "Models", items: [
+                    { label: "GPT Image 2", href: "/image", icon: "◆" },
+                    { label: "GPT Image 1", href: "/image", icon: "◆" },
+                    { label: "Flux 2 Pro", href: "/image", icon: "◆" },
+                    { label: "Flux 2 Max", href: "/image", icon: "◆" },
+                    { label: "Nano Banana Pro", href: "/image", icon: "◆" },
+                    { label: "Seedream 4.5", href: "/image", icon: "◆" },
+                  ]},
+                ]} />
+              </li>
+              <li>
+                <NavDropdown label="Videos" sections={[
+                  { title: "Features", items: [
+                    { label: "Video Generation", href: "/video", icon: "▶" },
+                    { label: "Motion Control", href: "/video", icon: "⊹" },
+                    { label: "Face Swap", href: "/image", icon: "◉" },
+                  ]},
+                  { title: "Models", items: [
+                    { label: "Veo", href: "/video", icon: "◆" },
+                    { label: "Kling v2", href: "/video", icon: "◆" },
+                    { label: "LTX Video", href: "/video", icon: "◆" },
+                    { label: "Wan", href: "/video", icon: "◆" },
+                    { label: "Hailuo", href: "/video", icon: "◆" },
+                    { label: "MiniMax", href: "/video", icon: "◆" },
+                  ]},
+                ]} />
+              </li>
+              <li><a href="#characters" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Characters</a></li>
+              <li><a href="#pricing" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Pricing</a></li>
+            </ul>
+            <div className="flex items-center gap-4">
+              <Link href={signInHref} className="text-sm text-[#B8B8B8] hover:text-white transition-colors font-medium">Log in</Link>
+              <Link href={signUpHref} className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full bg-[#EC4899] text-white hover:brightness-110 transition-all shadow-[0_0_24px_rgba(236,72,153,0.5),0_4px_16px_rgba(236,72,153,0.35),inset_0_1px_0_rgba(255,255,255,0.15)] hover:shadow-[0_0_36px_rgba(236,72,153,0.7),0_6px_24px_rgba(236,72,153,0.5),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                Get started →
+              </Link>
+            </div>
+          </div>
         </nav>
-        <div className="lp-nav-right">
-          <Link href={signInHref} className="lp-signin">Sign in</Link>
-          <Link href={signUpHref} className="lp-btn">Start free <Arrow /></Link>
-        </div>
-      </header>
 
-      <div className="lp-page">
-
-        {/* ── HERO ── */}
-        <div className="lp-hero">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />AI Influencer Studio</div>
-          <h1 className="lp-h1">Build AI Influencers That Go Viral</h1>
-          <p className="lp-lede">A guided studio for building, customizing, and monetizing AI influencers — no prompt-writing required, no generic AI-slop look.</p>
-          <div style={{ display: "flex", gap: ".9rem", flexWrap: "wrap", justifyContent: "center" }}>
-            <Link href={signUpHref} className="lp-btn lp-btn-lg">Start Creating Free <Arrow /></Link>
-            <Link href="/app" className="lp-btn lp-btn-lg lp-btn-ghost">Open Canvas <Arrow /></Link>
+        {/* Hero */}
+        <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-16">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_70%_40%,rgba(236,72,153,0.22)_0%,rgba(236,72,153,0.07)_35%,transparent_70%)]" />
+          <div className="relative max-w-[680px] mb-16">
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Generative media platform</p>
+            <h1 className="font-heading text-[44px] md:text-[72px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
+              Generate{" "}
+              <CanvasText
+                text="AI influencers"
+                backgroundClassName="bg-[#EC4899]"
+                colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
+                lineGap={6} lineWidth={2} animationDuration={8} curveIntensity={40}
+              />
+            </h1>
+            <p className="text-lg leading-[1.55] text-[#B8B8B8] max-w-[520px] mb-9">
+              Magic Mint brings every leading image, video, and audio model into one fast, unified workspace — built for people who make things.
+            </p>
+            <div className="flex items-center gap-8">
+              <Link href={signUpHref} className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-[#EC4899] text-white hover:brightness-110 transition-all shadow-[0_0_32px_rgba(236,72,153,0.55),0_6px_20px_rgba(236,72,153,0.4),inset_0_1px_0_rgba(255,255,255,0.15)] hover:shadow-[0_0_48px_rgba(236,72,153,0.75),0_8px_32px_rgba(236,72,153,0.55),inset_0_1px_0_rgba(255,255,255,0.2)]">
+                Start creating →
+              </Link>
+              <a href="#gallery" className="text-sm font-medium text-white hover:text-[#EC4899] transition-colors flex items-center gap-1.5">
+                Browse the gallery →
+              </a>
+            </div>
           </div>
-          <p className="lp-proof">Loved by AI creators · No credit card required</p>
 
-          {/* Stylized canvas mock — not a screenshot, an illustration of the node graph */}
-          <div className="lp-hero-mock">
-            <div className="lp-hero-mock-grid" />
-            <div className="lp-hero-edge" style={{ left: "18%", top: "36%", width: "16%", transform: "rotate(6deg)" }} />
-            <div className="lp-hero-edge" style={{ left: "34%", top: "42%", width: "14%", transform: "rotate(-8deg)" }} />
-            <div className="lp-hero-edge" style={{ left: "56%", top: "34%", width: "16%", transform: "rotate(4deg)" }} />
-            <div className="lp-hero-edge" style={{ left: "72%", top: "44%", width: "12%", transform: "rotate(-10deg)" }} />
-            <div className="lp-hero-node" style={{ left: "6%", top: "28%" }}><span className="lp-hero-node-dot" style={{ background: "#60a5fa" }} />Influencer</div>
-            <div className="lp-hero-node" style={{ left: "30%", top: "58%" }}><span className="lp-hero-node-dot" style={{ background: "#34d399" }} />Image</div>
-            <div className="lp-hero-node" style={{ left: "52%", top: "22%" }}><span className="lp-hero-node-dot" style={{ background: "#f472b6" }} />Video</div>
-            <div className="lp-hero-node" style={{ left: "70%", top: "56%" }}><span className="lp-hero-node-dot" style={{ background: "#facc15" }} />Publish</div>
-          </div>
-        </div>
-
-        {/* ── WHAT IT DOES ── */}
-        <section className="lp-section" id="features">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />What it does</div>
-          <h2 className="lp-h2">Everything you need to run an AI influencer</h2>
-          <p className="lp-lead">Running an AI influencer normally means stitching together five tools. Magic Mint collapses that into one workflow.</p>
-          <div className="lp-grid">
-            {FEATURES.map((f) => (
-              <div key={f.h} className="lp-card">
-                <h3>{f.h}</h3>
-                <p>{f.p}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── MODELS ── */}
-        <section className="lp-section" id="models">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />Models</div>
-          <h2 className="lp-h2">Every leading model, one subscription</h2>
-          <p className="lp-lead">No separate accounts, no local setup, no GPU.</p>
-          <div className="lp-pills">
-            {MODELS.map((m) => <span key={m} className="lp-pill">{m}</span>)}
-          </div>
-        </section>
-
-        {/* ── HOW IT WORKS ── */}
-        <section className="lp-section">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />How it works</div>
-          <h2 className="lp-h2">Three steps, start to finish</h2>
-          <div className="lp-steps">
-            {STEPS.map((s, i) => (
-              <div key={s.h} className="lp-step">
-                <span className="lp-step-n">{String(i + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{s.h}</h3>
-                  <p>{s.p}</p>
+          {/* Video Carousel */}
+          <div className="flex gap-5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CAROUSEL_CARDS.map((c) => (
+              <div key={c.model} className="flex-none w-[calc(50%-10px)] min-w-[320px] md:min-w-[380px]">
+                <div className="relative aspect-[16/10] rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0710]">
+                  <video src={c.video} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <span className="text-[11px] text-[#B8B8B8] tracking-[0.05em]">{c.model}</span>
+                    <h3 className="text-[17px] font-semibold text-white mt-1.5 mb-3">{c.headline}</h3>
+                    <Link href={c.href} className="text-[13px] font-medium text-white hover:text-[#EC4899] transition-colors">Try it out →</Link>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-          <Link href={signUpHref} className="lp-btn" style={{ alignSelf: "flex-start" }}>Create Your AI Persona <Arrow /></Link>
         </section>
 
-        {/* ── DIFFERENTIATORS ── */}
-        <section className="lp-section">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />Why Magic Mint</div>
-          <h2 className="lp-h2">What makes it different</h2>
-          <div className="lp-grid">
-            {DIFFS.map((d) => (
-              <div key={d.h} className="lp-card">
-                <h3>{d.h}</h3>
-                <p>{d.p}</p>
+        {/* GPT Image 2 Feature Section */}
+        <section className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-20">
+          <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.02] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+            <div className="flex-none max-w-[340px]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#EC4899] bg-[rgba(236,72,153,0.12)] border border-[rgba(236,72,153,0.25)] px-3 py-1 rounded-full mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#EC4899] animate-pulse" />
+                New Model
+              </span>
+              <h2 className="font-heading text-[32px] md:text-[40px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-4">
+                Meet GPT Image 2.
+              </h2>
+              <p className="text-[15px] leading-[1.6] text-[#B8B8B8] mb-6">
+                4K images with near-perfect text rendering. The most versatile image model yet.
+              </p>
+              <Link href="/image" className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full bg-white text-black hover:brightness-90 transition-all">
+                Try it out →
+              </Link>
+            </div>
+            <div className="flex-1 grid grid-cols-2 gap-3 w-full">
+              {GPT_IMAGES.map((src, i) => (
+                <div key={i} className="aspect-square rounded-[16px] overflow-hidden bg-[#111]">
+                  <img src={src} alt={`GPT Image 2 example ${i + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Bento feature */}
+        <section id="features" className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-24 grid grid-cols-1 md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16 items-center">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">◆ Unified workspace</p>
+            <h2 className="font-heading text-[36px] leading-[1.2] font-semibold tracking-[-0.01em] text-white mb-6">One prompt.<br />Every model.</h2>
+            <p className="text-lg leading-[1.55] text-[#B8B8B8] max-w-[440px] mb-7">
+              Stop juggling tabs and subscriptions. Switch between the world&apos;s best generative models on one Canvas, compare outputs side by side, and pick the one that&apos;s right for the shot.
+            </p>
+            <Link href="/app" className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)] transition-all">
+              See how it works →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 grid-rows-[repeat(3,120px)] md:grid-rows-[repeat(3,156px)] gap-4">
+            {BENTO_TILES.map((t) => (
+              <div key={t.label} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
+                <img src={t.img} alt={t.label} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute top-3 right-3 text-[11px] text-white bg-[#0A0A0A]/60 backdrop-blur-sm px-2.5 py-1 rounded-[10px]">{t.label}</span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── MCP ── */}
-        <section className="lp-section" id="mcp">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />Claude MCP</div>
-          <h2 className="lp-h2">Generate from Claude, Cursor & more</h2>
-          <p className="lp-lead">Connect Magic Mint to any MCP-compatible AI tool and generate images and videos without leaving your workflow.</p>
-          <Link href="/mcp" className="lp-btn lp-btn-ghost" style={{ alignSelf: "flex-start" }}>See MCP setup <Arrow /></Link>
+        {/* Prompt Assist demo */}
+        <section className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-24 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <div className="rounded-[28px] p-8 border border-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" style={{ background: "linear-gradient(180deg,rgba(255,255,255,0.02) 0%,rgba(255,255,255,0) 100%),#0A0A0A" }}>
+            <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#7A7A7A] mb-3">Your Prompt</p>
+            <div className="text-sm text-[#B8B8B8] leading-relaxed px-4 py-3.5 bg-white/[0.03] border border-white/[0.06] rounded-[14px] mb-4">
+              a cinematic portrait of a woman at golden hour, soft bokeh, film grain, editorial style
+            </div>
+            <div className="bg-[#080808] border border-[rgba(236,72,153,0.40)] rounded-[14px] p-4 shadow-[0_0_24px_rgba(236,72,153,0.08)]">
+              <div className="flex gap-2 mb-3.5 flex-wrap">
+                {["GPT Image 2", "16:9", "4K"].map((tag) => (
+                  <span key={tag} className="text-xs font-medium text-[#EC4899] bg-[rgba(236,72,153,0.10)] border border-[rgba(236,72,153,0.25)] px-3 py-1.5 rounded-[10px]">{tag}</span>
+                ))}
+              </div>
+              <p className="text-sm text-[#B8B8B8] leading-[1.55] mb-4">
+                A luminous editorial portrait bathed in amber light — shallow depth of field draws the eye while organic film grain adds tactile authenticity.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-0.5 rounded-full bg-gradient-to-r from-[#EC4899] to-[rgba(236,72,153,0.2)]" />
+                <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-[#EC4899]">Enhanced</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Enhance</p>
+            <h2 className="font-heading text-[36px] md:text-[56px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-2">Your idea,<br />perfected.</h2>
+            <p className="text-lg leading-[1.55] text-[#B8B8B8] max-w-[420px] mb-8">
+              Magic Mint&apos;s Enhance rewrites your rough prompt into a production-ready shot description — in the house style, in seconds.
+            </p>
+            <ul className="flex flex-col gap-5 mb-8">
+              {["Automatically enriches your prompt for photorealistic results", "Preserves your intent while sharpening technical parameters", "Works across image, video, and the Canvas"].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[15px] text-[#B8B8B8]">
+                  <span className="mt-[7px] flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#EC4899]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link href="/image" className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full text-white border border-[rgba(236,72,153,0.40)] transition-all hover:shadow-[0_0_24px_rgba(236,72,153,0.2)]" style={{ background: "linear-gradient(180deg,#1A1A1A 0%,#0A0A0A 100%)", boxShadow: "inset 0 1px 0 rgba(236,72,153,0.20)" }}>
+              Try Enhance →
+            </Link>
+          </div>
         </section>
 
-        {/* ── PRICING TEASER ── */}
-        <section className="lp-section lp-center" id="pricing">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />Pricing</div>
-          <h2 className="lp-h2">Plans that scale with you</h2>
-          <p className="lp-lead">Monthly shown below; billing annually brings the effective rate down. See full pricing for the complete breakdown.</p>
-          <div className="lp-price-row">
-            {PLANS.map((p) => (
-              <div key={p.name} className={`lp-price ${p.popular ? "is-popular" : ""}`}>
-                {p.popular && <span className="lp-price-badge">Most popular</span>}
-                <span className="lp-price-name">{p.name}</span>
-                <span className="lp-price-desc">{p.desc}</span>
-                <span className="lp-price-amt">${p.annual}<span>/mo billed annually</span></span>
-                <span className="lp-price-billed">or ${p.monthly}/mo billed monthly</span>
-                <Link href={signUpHref} className="lp-btn">Get started <Arrow /></Link>
-                <ul className="lp-price-feats">
-                  {p.features.map((f) => <li key={f} className="lp-feat"><Check />{f}</li>)}
+        {/* Character gallery */}
+        <section id="characters" className="w-full flex flex-col md:flex-row items-center pl-6 md:pl-16 py-24 overflow-hidden">
+          <div className="flex-none w-full md:w-[300px] pr-6 md:pr-16 mb-8 md:mb-0">
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">AI Characters</p>
+            <h2 className="font-heading text-[36px] md:text-[56px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-4">Build your<br />own AI<br />influencer.</h2>
+            <p className="text-[15px] leading-[1.55] text-[#B8B8B8] mb-8">
+              Use the guided Influencer Builder to create a persistent AI identity — no prompt-writing needed. Generate hundreds of consistent images, in any setting, any style — always recognizably yours.
+            </p>
+            <Link href="/influencers" className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)] transition-all">
+              Explore characters →
+            </Link>
+          </div>
+          <div className="flex gap-6 overflow-x-auto md:overflow-hidden flex-1 pr-6">
+            {CHARS.map((char) => (
+              <div key={char.name} className={`flex flex-col items-center flex-none transition-opacity ${char.faded ? "opacity-40" : ""}`}>
+                <p className="text-base font-medium text-white mb-4">{char.name}</p>
+                <div className="grid grid-cols-2 gap-2" style={{ width: 328 }}>
+                  {char.images.map((src, i) => (
+                    <div key={i} className="w-40 h-40 rounded-[14px] overflow-hidden bg-[#111]">
+                      <img src={src} alt={`${char.name} ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="max-w-[1200px] mx-auto w-full px-6 md:px-16 py-24">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Save on annual plans</p>
+            <h2 className="font-heading text-[32px] md:text-[44px] leading-[1.15] font-bold tracking-[-0.02em] text-white mb-3">Simple pricing.<br />Serious power.</h2>
+            <p className="text-lg text-[#B8B8B8]">Generate without limits. Cancel any time.</p>
+          </div>
+          <div className="flex justify-center mb-12">
+            <div className="flex p-1 bg-white/[0.04] border border-white/[0.08] rounded-full">
+              <button onClick={() => setAnnual(false)} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors ${!annual ? "bg-[rgba(236,72,153,0.12)] text-[#EC4899]" : "text-[#B8B8B8]"}`}>Monthly</button>
+              <button onClick={() => setAnnual(true)} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${annual ? "bg-[rgba(236,72,153,0.12)] text-[#EC4899]" : "text-[#B8B8B8]"}`}>Annual <span className="text-[11px] text-[#EC4899]">save</span></button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PLANS.map((plan) => (
+              <div key={plan.name} className={`relative flex flex-col rounded-[28px] p-8 border min-h-[420px] ${plan.popular ? "border-[rgba(236,72,153,0.40)] shadow-[0_0_40px_rgba(236,72,153,0.10),inset_0_1px_0_rgba(236,72,153,0.12)]" : "border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"}`}>
+                {plan.popular && <span className="absolute -top-3.5 left-6 bg-[#EC4899] text-black text-[11px] font-semibold px-3 py-1 rounded-full">Most popular</span>}
+                <h3 className="text-xl font-semibold text-white mb-4">{plan.name}</h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className={`text-[48px] leading-none font-bold tracking-[-0.02em] ${plan.popular ? "text-[#EC4899]" : "text-white"}`}>${annual ? plan.price : plan.priceMonthly}</span>
+                  <span className="text-sm text-[#7A7A7A]">/mo</span>
+                </div>
+                <p className="text-[13px] text-[#7A7A7A] mb-6">{plan.note}</p>
+                <ul className="flex flex-col gap-3 mb-8 flex-1">
+                  {plan.features.map((f) => <li key={f} className="text-sm text-[#B8B8B8]">✓ {f}</li>)}
                 </ul>
+                <Link href={signUpHref} className={`w-full text-center text-sm font-semibold py-3.5 rounded-full transition-all ${plan.popular ? "bg-[#EC4899] text-black hover:brightness-110 hover:shadow-[0_0_32px_rgba(236,72,153,0.4)]" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
+                  Choose {plan.name}
+                </Link>
               </div>
             ))}
           </div>
-          <Link href="/pricing" className="lp-btn lp-btn-ghost">See full pricing <Arrow /></Link>
+          <p className="text-center text-sm text-[#7A7A7A] mt-8">
+            See <Link href="/pricing" className="text-white hover:text-[#EC4899] transition-colors">full pricing</Link> for the complete feature breakdown.
+          </p>
         </section>
 
-        {/* ── FAQ ── */}
-        <section className="lp-section">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />FAQ</div>
-          <h2 className="lp-h2">Common questions</h2>
-          <div className="lp-faq" ref={faqRef}>
-            {FAQS.map((f) => (
-              <div key={f.q} className="lp-qa">
-                <button className="lp-qa-q">
-                  {f.q}
-                  <svg className="lp-qa-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6" /></svg>
-                </button>
-                <div className="lp-qa-a">{f.a}</div>
+        {/* Gallery */}
+        <section id="gallery" className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-24">
+          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4 text-center">Generated with Magic Mint</p>
+          <h2 className="font-heading text-[36px] leading-[1.2] font-semibold tracking-[-0.01em] text-white mb-12 text-center">All in one place.</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-[repeat(4,160px)] md:grid-rows-[repeat(3,220px)] gap-4 mb-12">
+            {GALLERY_IMAGES.map((t, i) => (
+              <div key={i} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
+                <img src={t.src} alt={`Gallery ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               </div>
             ))}
           </div>
+          <div className="flex justify-center">
+            <Link href={signUpHref} className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-[#EC4899] text-black hover:brightness-110 hover:shadow-[0_0_32px_rgba(236,72,153,0.4)] transition-all">
+              Start creating →
+            </Link>
+          </div>
         </section>
 
-        {/* ── CLOSING ── */}
-        <div className="lp-closing">
-          <div className="lp-eyebrow"><span className="lp-eyebrow-dot" />Magic Mint</div>
-          <h2 className="lp-h2">Launch your AI influencer today</h2>
-          <p className="lp-lead">Join creators already building with Magic Mint.</p>
-          <div style={{ display: "flex", gap: ".9rem", flexWrap: "wrap", justifyContent: "center" }}>
-            <Link href={signUpHref} className="lp-btn lp-btn-lg">Start for free <Arrow /></Link>
-            <Link href="/pricing" className="lp-btn lp-btn-lg lp-btn-ghost">See pricing <Arrow /></Link>
+        {/* Footer */}
+        <footer className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-12 border-t border-white/[0.06]">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+            <Link href="/" className="flex items-center gap-3">
+              <span className="font-heading text-2xl font-bold tracking-tight text-white">
+                <CanvasText
+                  text="Magic Mint"
+                  backgroundClassName="bg-[#EC4899]"
+                  colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
+                  lineGap={4} lineWidth={1.5} animationDuration={8} curveIntensity={30}
+                />
+              </span>
+            </Link>
+            <ul className="flex flex-wrap gap-6 md:gap-8">
+              <li><a href="#features" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Features</a></li>
+              <li><a href="#characters" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Characters</a></li>
+              <li><a href="#pricing" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Pricing</a></li>
+              <li><Link href="/mcp" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Claude MCP</Link></li>
+              <li><Link href="/app" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Open App</Link></li>
+            </ul>
           </div>
-        </div>
+          <div className="flex flex-col md:flex-row justify-between gap-2 text-[13px] text-[#7A7A7A]">
+            <span>© 2026 Magic Mint. All rights reserved.</span>
+            <span>Made for creators.</span>
+          </div>
+        </footer>
 
       </div>
-
-      {/* ── FOOTER ── */}
-      <footer className="lp-footer">
-        <div className="lp-foot-top">
-          <div>
-            <Link href="/" className="lp-brand" style={{ display: "inline-flex" }}>
-              <div className="lp-logo">m</div>
-              <span className="lp-brand-name">Magic Mint</span>
-            </Link>
-            <p className="lp-foot-blurb">The node-based AI creative canvas. Generate and connect images, video, audio, and text for your AI influencers.</p>
-          </div>
-          <div className="lp-foot-col">
-            <h4>Product</h4>
-            <a href="#features">Features</a>
-            <a href="#models">Models</a>
-            <Link href="/pricing">Pricing</Link>
-            <a href="#mcp">Claude MCP</a>
-          </div>
-          <div className="lp-foot-col">
-            <h4>App</h4>
-            <Link href="/app">Open Canvas</Link>
-            <Link href="/image">Image Studio</Link>
-            <Link href="/video">Video Studio</Link>
-            <Link href="/influencers">Influencers</Link>
-          </div>
-        </div>
-        <div className="lp-foot-bar">Magic Mint · All rights reserved · © 2026</div>
-      </footer>
     </div>
   );
 }

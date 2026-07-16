@@ -1,0 +1,12 @@
+/* Tailwind v4, scoped to the Vyxen-derived landing page only. This file is
+   imported ONLY by app/page.js, so Next.js bundles it into that route's chunk
+   and it never loads on any other page — the rest of the app keeps using
+   plain CSS (globals.css) untouched, with no Tailwind reset/utilities
+   leaking into the Canvas editor, Image Studio, etc. */
+@import "tailwindcss";
+
+/* Tailwind v4's `font-[family-name:var(...)]` arbitrary-value syntax didn't
+   generate reliably here, so the heading font is a plain utility class
+   instead of relying on that escaping. */
+.font-heading { font-family: var(--font-bricolage), var(--font-geist-sans), sans-serif; }
+
