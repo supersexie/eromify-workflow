@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Content Creator Agreement — Eromify" };
+export const metadata = { title: "Content Creator Agreement — Magic Mint" };
 
 export default function ContentCreatorAgreement() {
   return (
@@ -8,7 +8,7 @@ export default function ContentCreatorAgreement() {
       <h2>1. Who this applies to</h2>
       <p>
         This agreement applies to every user who generates, uploads, edits, or publishes
-        content ("Creator Content") on Eromify. By creating content you agree to these terms.
+        content ("Creator Content") on Magic Mint. By creating content you agree to these terms.
       </p>
 
       <h2>2. Eligibility</h2>
@@ -40,7 +40,7 @@ export default function ContentCreatorAgreement() {
 
       <h2>6. License</h2>
       <p>
-        You grant Eromify a limited license to host, store, process, and display your content
+        You grant Magic Mint a limited license to host, store, process, and display your content
         solely to operate the service, including passing it through automated and human
         moderation.
       </p>
@@ -54,7 +54,7 @@ export default function ContentCreatorAgreement() {
 
       <h2>8. Indemnity</h2>
       <p>
-        You agree to indemnify Eromify against claims arising from content you create in breach
+        You agree to indemnify Magic Mint against claims arising from content you create in breach
         of this agreement.
       </p>
     </LegalPage>

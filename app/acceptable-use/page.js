@@ -1,7 +1,7 @@
 import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Acceptable Use Policy — Eromify" };
+export const metadata = { title: "Acceptable Use Policy — Magic Mint" };
 
 // PLACEHOLDER — scaffolding so the ToS gate + footer links resolve. Replace
 // with final, counsel-reviewed policy before launch. The prohibited-content
@@ -9,7 +9,7 @@ export const metadata = { title: "Acceptable Use Policy — Eromify" };
 export default function AcceptableUsePage() {
   return (
     <LegalPage title="Acceptable Use Policy">
-      <p>You may not use Eromify to generate, request, or distribute content in relation to any of the following:</p>
+      <p>You may not use Magic Mint to generate, request, or distribute content in relation to any of the following:</p>
       <ul>
         <li>Deepfakes, or the likeness of a real identifiable person in a sexual/explicit context without consent</li>
         <li>Minors (including subjects in diapers), or any underage content or scenarios</li>

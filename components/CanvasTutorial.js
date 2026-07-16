@@ -42,7 +42,7 @@ export const TUT_STEPS = [
     placement: "top",
     optional: true,
     title: "Enhance your prompt (optional)",
-    body: "Tap Enhance to let AI rewrite your prompt in Eromify's house style for richer results. Optional — skip it anytime with Next.",
+    body: "Tap Enhance to let AI rewrite your prompt in Magic Mint's house style for richer results. Optional — skip it anytime with Next.",
   },
   {
     mode: "spotlight",

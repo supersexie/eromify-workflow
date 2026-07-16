@@ -4,8 +4,8 @@ import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 
 // MCP connector URL — served by our Next.js MCP route at /api/[transport].
-// When deployed at eromify.pro this resolves to https://eromify.pro/api/mcp.
-const MCP_URL = "https://eromify.pro/api/mcp";
+// When deployed at magicmint.pro this resolves to https://magicmint.pro/api/mcp.
+const MCP_URL = "https://magicmint.pro/api/mcp";
 
 const APPS = [
   { id: "claude",  label: "Claude",   ic: <svg width="14" height="14" viewBox="0 0 24 24" fill="#ec4899"><circle cx="12" cy="12" r="10"/></svg> },
@@ -18,28 +18,28 @@ const APPS = [
 const APP_STEPS = {
   claude: {
     step1: { title: "Open Claude settings", body: <>Launch the app or open <b>claude.ai</b> and go to</>, action: "Settings → Connectors" },
-    step2: { title: <>Add the <span className="mcp-brand">Eromify</span> custom connector</>, body: <>Name it <b>Eromify</b> and paste the URL:</>, url: MCP_URL },
-    step3: { title: "Connect and sign in", body: <>Click <b>Add → Connect</b>, sign in with your Eromify account — you're all set, now just ask Claude to <b>generate an image</b>.</> },
+    step2: { title: <>Add the <span className="mcp-brand">Magic Mint</span> custom connector</>, body: <>Name it <b>Magic Mint</b> and paste the URL:</>, url: MCP_URL },
+    step3: { title: "Connect and sign in", body: <>Click <b>Add → Connect</b>, sign in with your Magic Mint account — you're all set, now just ask Claude to <b>generate an image</b>.</> },
   },
   cursor: {
     step1: { title: "Open Cursor settings", body: <>Open Cursor → <b>Settings → MCP</b> → Add new MCP server.</>, action: "Settings → MCP" },
-    step2: { title: <>Add the <span className="mcp-brand">Eromify</span> MCP server</>, body: <>Name it <b>Eromify</b> and paste the URL:</>, url: MCP_URL },
-    step3: { title: "Restart Cursor", body: <>Restart Cursor, then ask the agent to generate images or videos with Eromify.</> },
+    step2: { title: <>Add the <span className="mcp-brand">Magic Mint</span> MCP server</>, body: <>Name it <b>Magic Mint</b> and paste the URL:</>, url: MCP_URL },
+    step3: { title: "Restart Cursor", body: <>Restart Cursor, then ask the agent to generate images or videos with Magic Mint.</> },
   },
   openclaw: {
     step1: { title: "Open OpenClaw settings", body: <>Open OpenClaw → <b>Connectors</b>.</>, action: "Settings → Connectors" },
-    step2: { title: <>Add the <span className="mcp-brand">Eromify</span> MCP</>, body: <>Name it <b>Eromify</b> and paste the URL:</>, url: MCP_URL },
-    step3: { title: "Sign in", body: <>Sign in with your Eromify account and start generating.</> },
+    step2: { title: <>Add the <span className="mcp-brand">Magic Mint</span> MCP</>, body: <>Name it <b>Magic Mint</b> and paste the URL:</>, url: MCP_URL },
+    step3: { title: "Sign in", body: <>Sign in with your Magic Mint account and start generating.</> },
   },
   hermes: {
     step1: { title: "Open Hermes settings", body: <>Open Hermes → <b>Plugins</b> → Add MCP.</>, action: "Plugins → Add MCP" },
-    step2: { title: <>Add the <span className="mcp-brand">Eromify</span> MCP</>, body: <>Name it <b>Eromify</b> and paste the URL:</>, url: MCP_URL },
-    step3: { title: "Connect", body: <>Sign in and start asking Hermes to generate Eromify content.</> },
+    step2: { title: <>Add the <span className="mcp-brand">Magic Mint</span> MCP</>, body: <>Name it <b>Magic Mint</b> and paste the URL:</>, url: MCP_URL },
+    step3: { title: "Connect", body: <>Sign in and start asking Hermes to generate Magic Mint content.</> },
   },
 };
 
 const TOOL_CARDS = [
-  { title: "generate_image",      desc: "Text → photoreal image with the Eromify house style." },
+  { title: "generate_image",      desc: "Text → photoreal image with the Magic Mint house style." },
   { title: "generate_video",      desc: "Text or image → cinematic short clip via Kling/Veo/LTX." },
   { title: "edit_image",          desc: "Image + prompt → restyled / re-posed variant." },
   { title: "edit_video",          desc: "Source video + prompt → restyled / relit / re-elemented." },
@@ -80,7 +80,7 @@ export default function MCPPage() {
               </span>
             </div>
             <h1 className="mcp-hero-title">
-              EROMIFY MCP FOR{" "}
+              MAGIC MINT MCP FOR{" "}
               <span className="mcp-claude-mark" aria-hidden="true">
                 <svg viewBox="0 0 100 100" width="100%" height="100%">
                   <rect x="2" y="2" width="96" height="96" rx="24" fill="#c5704f" />
@@ -94,7 +94,7 @@ export default function MCPPage() {
               CLAUDE
             </h1>
             <p className="mcp-hero-sub">
-              Connect Eromify to your workflow and generate cinematic images and videos directly from your prompts.
+              Connect Magic Mint to your workflow and generate cinematic images and videos directly from your prompts.
             </p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function MCPPage() {
           <div className="mcp-chat">
             <div className="mcp-chat-head">
               <span className="mcp-chat-dot" /><span className="mcp-chat-dot" /><span className="mcp-chat-dot" />
-              <span className="mcp-chat-title">CLAUDE · EROMIFY CONNECTOR</span>
+              <span className="mcp-chat-title">CLAUDE · MAGIC MINT CONNECTOR</span>
             </div>
             <div className="mcp-chat-body">
               <div className="mcp-bubble mcp-bubble-you">
@@ -197,7 +197,7 @@ export default function MCPPage() {
 
         {/* Tools showcase */}
         <div className="mcp-tools">
-          <h2 className="mcp-tools-title">JUST DESCRIBE IT, EROMIFY BUILDS IT</h2>
+          <h2 className="mcp-tools-title">JUST DESCRIBE IT, MAGIC MINT BUILDS IT</h2>
           <p className="mcp-tools-sub">A look at the tools your agent can call, and what each one returns when you ask.</p>
           <div className="mcp-tools-grid">
             {TOOL_CARDS.map((t) => (

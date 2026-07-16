@@ -1,4 +1,4 @@
-# Eromify — Frontend / UI Changelog
+# Magic Mint — Frontend / UI Changelog
 
 UI, layout, visual, and responsiveness work. Functional/product changes live in
 [PRODUCT-CHANGES.md](PRODUCT-CHANGES.md).

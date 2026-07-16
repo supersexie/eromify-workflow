@@ -51,7 +51,7 @@ export default function TosGate() {
       <div className="tos-gate">
         <h2 id="tos-gate-title" className="tos-gate-title">Before you continue</h2>
         <p className="tos-gate-lead">
-          Eromify generates AI content. To use the studio you must be 18+ and agree to our
+          Magic Mint generates AI content. To use the studio you must be 18+ and agree to our
           {" "}<Link href="/terms" target="_blank" className="tos-gate-link">Terms of Service</Link> and
           {" "}<Link href="/acceptable-use" target="_blank" className="tos-gate-link">Acceptable Use Policy</Link>.
         </p>

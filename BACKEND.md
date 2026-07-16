@@ -846,7 +846,7 @@ const BASE = (
 ).replace(/\/$/, "");
 
 // Wrap a generated media URL in our same-origin proxy so the widget iframe can load it
-// (claude.ai won't load raw fal.media in the sandbox — Eromify does the same thing).
+// (claude.ai won't load raw fal.media in the sandbox — Magic Mint does the same thing).
 function proxied(url) {
   if (!url || typeof url !== "string" || !url.startsWith("http")) return url;
   return `${BASE}/api/media?u=${encodeURIComponent(url)}`;

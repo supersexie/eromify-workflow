@@ -158,7 +158,7 @@ export default function Dashboard() {
             {["tl", "tm", "tr", "ml", "mr", "bl", "bm", "br"].map((h) => (
               <span key={h} className={`cv-handle cv-handle-${h}`} />
             ))}
-            <div className="cv-hero-eyebrow">EROMIFY CANVAS</div>
+            <div className="cv-hero-eyebrow">MAGIC MINT CANVAS</div>
             <h1 className="cv-hero-title">Generate stunning<br />media with AI Canvas</h1>
           </div>
         </div>

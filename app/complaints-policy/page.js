@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Complaints Policy — Eromify" };
+export const metadata = { title: "Complaints Policy — Magic Mint" };
 
 export default function ComplaintsPolicy() {
   return (

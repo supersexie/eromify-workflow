@@ -18,7 +18,7 @@ export default function LegalPage({ title, updated = "Draft", children }) {
       }}
     >
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "64px 24px", color: "#e8e8ea", lineHeight: 1.65 }}>
-        <Link href="/" style={{ color: "#7aa2ff", fontSize: 14, textDecoration: "none" }}>← Eromify</Link>
+        <Link href="/" style={{ color: "#7aa2ff", fontSize: 14, textDecoration: "none" }}>← Magic Mint</Link>
         <h1 style={{ fontSize: 32, marginTop: 16, marginBottom: 4 }}>{title}</h1>
         <p style={{ color: "#6b7280", fontSize: 13, margin: "0 0 18px" }}>Last updated: {updated}</p>
         <p

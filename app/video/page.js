@@ -1,7 +1,7 @@
 import VideoPage from "@/components/VideoPage";
 
 export const metadata = {
-  title: "Video — Eromify",
+  title: "Video — Magic Mint",
   description: "Generate AI videos with Kling, Veo, LTX, Wan, and Hailuo. Includes Motion Control.",
 };
 

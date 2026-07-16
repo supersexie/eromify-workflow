@@ -1,7 +1,7 @@
 import UpscalePage from "@/components/UpscalePage";
 
 export const metadata = {
-  title: "Upscale — Eromify",
+  title: "Upscale — Magic Mint",
   description: "Upscale images and videos to higher resolution with fal's best enhancement models.",
 };
 

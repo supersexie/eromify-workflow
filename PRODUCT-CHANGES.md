@@ -1,4 +1,4 @@
-# Eromify — Product Changelog
+# Magic Mint — Product Changelog
 
 Product-level changes (features, generation logic, data/persistence, models, MCP,
 and functional bug fixes). Pure UI/layout/visual tweaks are intentionally omitted.

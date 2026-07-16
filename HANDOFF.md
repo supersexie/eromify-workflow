@@ -1,6 +1,6 @@
-# Eromify — Engineering Handoff
+# Magic Mint — Engineering Handoff
 
-Complete memory transfer for **Eromify**. A developer (or a fresh AI session) should be
+Complete memory transfer for **Magic Mint**. A developer (or a fresh AI session) should be
 able to read this and continue with zero prior context. Companion docs:
 [PRODUCT-CHANGES.md](PRODUCT-CHANGES.md) (functional changelog) and
 [FRONTEND-CHANGES.md](FRONTEND-CHANGES.md) (UI changelog).
@@ -9,7 +9,7 @@ able to read this and continue with zero prior context. Companion docs:
 
 ## Overview
 
-Eromify is an AI-influencer content platform: a node-based **Canvas** plus standalone
+Magic Mint is an AI-influencer content platform: a node-based **Canvas** plus standalone
 studios for generating **images, video, motion-controlled video, and upscales**, a
 reusable **@influencer** character system, a **Library**, and a **Claude MCP** connector.
 
@@ -23,7 +23,7 @@ reusable **@influencer** character system, a **Library**, and a **Claude MCP** c
 | MCP | `mcp-handler` + `@modelcontextprotocol/ext-apps` (inline media widget) |
 | Repo | GitHub `supersexie/eromify-workflow` |
 | Deploy | Vercel (auto-deploys on push to `main`) |
-| Canonical domain | `https://www.eromify.pro` (apex 308-redirects to www) |
+| Canonical domain | `https://www.magicmint.pro` (apex 308-redirects to www) |
 
 A **single `FAL_KEY`** pays for ALL image/video/upscale/motion generation, including the
 `openai/*` and `bytedance/*` namespaces hosted on fal.
@@ -57,7 +57,7 @@ auto-deploys (~1–2 min).
 | `OPENAI_API_KEY` | Recommended | Prompt Enhance, image→prompt vision (**503 without it**), text/assistant. |
 | `GEMINI_API_KEY` | Optional | Google Veo video models + status + file proxy. |
 | `ELEVENLABS_API_KEY` | Optional | ElevenLabs TTS (OpenAI TTS is the alternative). |
-| `EROMIFY_BASE_URL` | Optional | Overrides MCP base URL. Falls back to `VERCEL_PROJECT_PRODUCTION_URL`, then `https://eromify.pro`. |
+| `EROMIFY_BASE_URL` | Optional | Overrides MCP base URL. Falls back to `VERCEL_PROJECT_PRODUCTION_URL`, then `https://magicmint.pro`. |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Off | Master auth switch. Unset → app is open, `uid()` = `"public"`. Set → auth turns on everywhere. |
 | `CLERK_SECRET_KEY` | Off | Required alongside the publishable key. |
 | `GEOFLIX_READ_WRITE_TOKEN` / `*_READ_WRITE_TOKEN` | Legacy fallback | Secondary Blob token resolution. |
@@ -169,7 +169,7 @@ persists (previously, exceeding the ~5MB quota silently dropped saves → nodes 
 reload). The load effect runs **once per workflow** so a re-render can't clobber live nodes.
 
 ### Claude MCP
-Open endpoint `https://eromify.pro/api/mcp` (no auth — Claude treats 401 as an OAuth
+Open endpoint `https://magicmint.pro/api/mcp` (no auth — Claude treats 401 as an OAuth
 challenge and fails to register). Tools: `generate_image`, `generate_video`, `check_video`,
 `generate_text`, `generate_audio`, `list_influencers`. Images/videos render **inline** via a
 hand-written `ui://` MCP-Apps widget (`app/api/[transport]/widget-html.js`): video uses raw
@@ -205,8 +205,8 @@ moment they're present (no code change needed for the basic gate).
 2. Copy `Publishable key` + `Secret key`.
 3. Vercel → Settings → Environment Variables (Production): add
    `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
-4. For production: switch the Clerk instance to **Production**, add `www.eromify.pro`
-   (and `eromify.pro`) under **Configure → Domains**, use the `pk_live_/sk_live_` keys.
+4. For production: switch the Clerk instance to **Production**, add `www.magicmint.pro`
+   (and `magicmint.pro`) under **Configure → Domains**, use the `pk_live_/sk_live_` keys.
 5. Redeploy.
 
 **Implications once on:** every app page requires login; `uid()` returns the Clerk user id,

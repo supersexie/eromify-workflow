@@ -1,10 +1,11 @@
 import "@xyflow/react/dist/style.css";
 import "./globals.css";
+import "./site.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import TosGate from "@/components/TosGate";
 
 export const metadata = {
-  title: "Eromify — The Node-Based Canvas for AI Influencer Content",
+  title: "Magic Mint — The Node-Based Canvas for AI Influencer Content",
   description: "Build, customize and monetize stunning AI personas. Generate images, video, voiceovers, and scripts on one infinite canvas.",
 };
 
@@ -26,7 +27,7 @@ export default function RootLayout({ children }) {
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "if(location.hostname==='eromify.pro'){location.replace('https://www.eromify.pro'+location.pathname+location.search+location.hash);}",
+              "if(location.hostname==='magicmint.pro'){location.replace('https://www.magicmint.pro'+location.pathname+location.search+location.hash);}",
           }}
         />
       </head>

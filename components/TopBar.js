@@ -10,7 +10,7 @@ export default function TopBar({ right }) {
     <div className="app-topbar">
       <Link href="/" className="app-topbar-brand">
         <div className="logo">m</div>
-        <span>Eromify</span>
+        <span>Magic Mint</span>
       </Link>
       <div className="nav-pill">
         <Tabs showBrand={false} />

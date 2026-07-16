@@ -21,7 +21,7 @@
 }
 
 :root {
-  /* Eromify dark theme. Token names kept (--blue, --grad, --ink) for backward
+  /* Magic Mint dark theme. Token names kept (--blue, --grad, --ink) for backward
      compatibility with the existing CSS; semantics: --blue = pink accent. */
   --bg: #08080a;
   --surface: #111114;

@@ -5,14 +5,14 @@ import { NextResponse } from "next/server";
 const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)", "/image(.*)", "/video(.*)", "/upscale(.*)", "/library(.*)", "/influencers(.*)", "/mcp"]);
 
 // Force the bare apex onto www so the page and its /api calls share one origin.
-// Without this, the page loads on eromify.pro but /api cross-redirects to
-// www.eromify.pro → the browser can't read the response (CORS) → influencers
+// Without this, the page loads on magicmint.pro but /api cross-redirects to
+// www.magicmint.pro → the browser can't read the response (CORS) → influencers
 // look empty. We skip /api so the existing MCP connector URL keeps working.
 function canonicalHost(req) {
   const host = req.headers.get("host") || "";
-  if (host === "eromify.pro" && !req.nextUrl.pathname.startsWith("/api")) {
+  if (host === "magicmint.pro" && !req.nextUrl.pathname.startsWith("/api")) {
     const url = req.nextUrl.clone();
-    url.host = "www.eromify.pro";
+    url.host = "www.magicmint.pro";
     url.protocol = "https:";
     return NextResponse.redirect(url, 308);
   }

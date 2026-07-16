@@ -205,7 +205,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
     try {
       // When a source image is wired into this node, the subject is already
       // defined by that image — the API switches to a 'describe only the
-      // change/motion' system prompt and skips the Eromify house-style block.
+      // change/motion' system prompt and skips the Magic Mint house-style block.
       const hasSourceImage = sources.some((s) => s.kind === "image" && s.url);
       const res = await fetch("/api/prompt/enhance", {
         method: "POST",
@@ -410,7 +410,7 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             className="pb-enhance"
             onClick={enhance}
             disabled={enhancing || !((data.prompt || "").trim())}
-            title="Enhance prompt with Eromify style"
+            title="Enhance prompt with Magic Mint style"
           >
             {enhancing ? (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pb-enhance-spin">

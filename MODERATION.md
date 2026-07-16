@@ -1,4 +1,4 @@
-# Moderation — Eromify (eromify.pro)
+# Moderation — Magic Mint (magicmint.pro)
 
 Content moderation for AI-generated content, built to satisfy CCBill's "Compliance Guidelines for AI Generated Content Merchants" (5967 MCC). Covers minor-safety, non-consensual/deepfake real-person protection, and the broader prohibited-content categories on page 3 of that document.
 
@@ -42,7 +42,7 @@ Review/block events log to console and, if `BLOB_READ_WRITE_TOKEN` (or any `*_RE
 - **`KNOWN_PUBLIC_FIGURES` starts empty** (`loadPublicFigureList()` in `lib/moderation.js`) — populate/maintain it from wherever you're tracking reported names.
 - **Youthful-adult false-positive risk on `yes_child_present`.** The Influencer Builder offers an "18–22" range with a beauty bias toward youthful faces. `classifyOutput` blocks on `yes_child_present > 0.5` and flags 0.25–0.5 for review. A legitimately-adult-but-youthful influencer could occasionally trip this. Thresholds are starting values — tune against real traffic; consider widening the review band vs. hard-block for borderline scores.
 - **Hive URL fetch can fail for some hosts.** When a reference image is passed as a hosted URL, Hive fetches it server-side; some hosts (e.g. Wikimedia) block that fetcher, returning a 400 and a fail-closed block. In the real app, uploads arrive as data URIs (sent to Hive as multipart bytes — no fetch) and influencer photos are on fal.media / Vercel Blob (confirmed fetchable), so this is not a production concern, but keep it in mind for any new reference-image source.
-- **Text-to-text chat** (if Eromify ever adds a chatbot beyond `/api/assistant`'s internal routing) is not covered by `screenPrompt` for prohibited *outputs* (only inputs) — the CCBill list includes "professional advice" and "illegal activity" as prohibited chatbot outputs too, which would need output-side text classification if that feature ships.
+- **Text-to-text chat** (if Magic Mint ever adds a chatbot beyond `/api/assistant`'s internal routing) is not covered by `screenPrompt` for prohibited *outputs* (only inputs) — the CCBill list includes "professional advice" and "illegal activity" as prohibited chatbot outputs too, which would need output-side text classification if that feature ships.
 
 ## Testing without any keys
 
