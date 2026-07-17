@@ -6,57 +6,24 @@ import "./vyxen-landing.css";
 import DotFieldBackground from "@/components/vyxen/DotFieldBackground";
 import { CanvasText } from "@/components/vyxen/CanvasText";
 import NavDropdown from "@/components/vyxen/NavDropdown";
+import { PLANS, FEATURE_ROWS, MODEL_ROWS } from "@/lib/pricing";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 
 const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
-// monthly = full monthly price; annual = effective monthly price when billed
-// yearly. Kept in sync with app/pricing/page.js — mirrors Eromify tiers.
-const PLANS = [
-  {
-    name: "Builder",
-    price: 2.99,
-    priceMonthly: 29,
-    note: "500 credits per month",
-    desc: "Start creating AI images in minutes.",
-    cta: "Start creating",
-    features: ["Image generation", "Flux 2 Pro, Nano Banana 2, Z-image Turbo"],
-    popular: false,
-  },
-  {
-    name: "Launch",
-    price: 7.99,
-    priceMonthly: 45,
-    note: "1,000 credits per month",
-    desc: "Train your own AI persona and create on autopilot.",
-    cta: "Train my AI",
-    features: ["Influencer Training", "Flux LoRA training", "Everything in Builder"],
-    popular: false,
-  },
-  {
-    name: "Growth",
-    price: 15.99,
-    priceMonthly: 79,
-    note: "4,000 credits per month",
-    desc: "Unlock video, face swap, and the full studio.",
-    cta: "Unlock video",
-    features: ["Video & NSFW generation", "Workflow Canvas, Face Swap, Image Upscale", "Claude MCP, Kling, GPT Image, Seedream"],
-    popular: true,
-  },
-  {
-    name: "Creator",
-    price: 23.99,
-    priceMonthly: 99,
-    note: "6,000 credits per month",
-    desc: "Every model unlocked. 4K, premium video, unlimited.",
-    cta: "Get everything",
-    features: ["Motion Control, Video Upscale, AI Agent", "Kling 3.0 Pro, Seedance 2.0, SeedVR", "Wan 2.7 Image to Video Spicy"],
-    popular: false,
-    best: true,
-  },
-];
+const TAG_COLOR = { Automation: "text-[#5b9dff]", Training: "text-[#e08a3c]", "4K": "text-[#EC4899]" };
+
+function MatrixRow({ label, tag, included }) {
+  return (
+    <div className={`grid grid-cols-[1rem_1fr_auto] gap-x-2 items-center text-[12px] leading-snug ${included ? "text-[#E7E7EA]" : "text-[#4b5563]"}`}>
+      <span className={included ? "text-white" : "text-[#4b5563]"}>{included ? "✓" : "—"}</span>
+      <span>{label}</span>
+      {tag ? <span className={`text-[10px] font-bold tracking-[0.04em] uppercase ${TAG_COLOR[tag] || "text-[#6b7280]"}`}>{tag}</span> : <span />}
+    </div>
+  );
+}
 
 // SHOWCASE MEDIA REMOVED. Every tile below renders as a gradient placeholder
 // instead of a real image/video. The layout is unchanged, so dropping media
@@ -356,7 +323,7 @@ export default function Home() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="max-w-[1200px] mx-auto w-full px-6 md:px-16 py-24">
+        <section id="pricing" className="max-w-[1280px] mx-auto w-full px-6 md:px-10 py-24">
           <div className="text-center mb-10">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Save on annual plans</p>
             <h2 className="font-heading text-[32px] md:text-[44px] leading-[1.15] font-bold tracking-[-0.02em] text-white mb-3">Simple pricing.<br />Serious power.</h2>
@@ -368,30 +335,39 @@ export default function Home() {
               <button onClick={() => setAnnual(true)} className={`px-6 py-2.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${annual ? "bg-[rgba(236,72,153,0.12)] text-[#EC4899]" : "text-[#B8B8B8]"}`}>Annual <span className="text-[11px] text-[#EC4899]">save</span></button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PLANS.map((plan) => (
-              <div key={plan.name} className={`relative flex flex-col rounded-[28px] p-8 border min-h-[420px] ${plan.popular || plan.best ? "border-[rgba(236,72,153,0.40)] shadow-[0_0_40px_rgba(236,72,153,0.10),inset_0_1px_0_rgba(236,72,153,0.12)]" : "border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 items-start">
+            {PLANS.map((plan, i) => (
+              <div key={plan.name} className={`relative flex flex-col rounded-[24px] p-6 border ${plan.popular || plan.best ? "border-[rgba(236,72,153,0.40)] shadow-[0_0_40px_rgba(236,72,153,0.10),inset_0_1px_0_rgba(236,72,153,0.12)]" : "border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"}`}>
                 {plan.popular && <span className="absolute -top-3.5 left-6 bg-[#EC4899] text-black text-[11px] font-semibold px-3 py-1 rounded-full">Most popular</span>}
                 {plan.best && <span className="absolute -top-3.5 left-6 bg-[#EC4899] text-black text-[11px] font-semibold px-3 py-1 rounded-full">Best value</span>}
                 <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
                 <p className="text-[13px] text-[#B8B8B8] leading-snug mb-4 min-h-[2.6em]">{plan.desc}</p>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className={`text-[48px] leading-none font-bold tracking-[-0.02em] ${plan.popular || plan.best ? "text-[#EC4899]" : "text-white"}`}>${annual ? plan.price : plan.priceMonthly}</span>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className={`text-[44px] leading-none font-bold tracking-[-0.02em] ${plan.popular || plan.best ? "text-[#EC4899]" : "text-white"}`}>${annual ? plan.annual : plan.monthly}</span>
                   <span className="text-sm text-[#7A7A7A]">/mo</span>
                 </div>
-                <p className="text-[13px] text-[#7A7A7A] mb-6">{plan.note}</p>
-                <ul className="flex flex-col gap-3 mb-8 flex-1">
-                  {plan.features.map((f) => <li key={f} className="text-sm text-[#B8B8B8]">✓ {f}</li>)}
-                </ul>
-                <Link href={signUpHref} className={`w-full text-center text-sm font-semibold py-3.5 rounded-full transition-all ${plan.popular || plan.best ? "bg-[#EC4899] text-black hover:brightness-110" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
-                  {plan.cta || `Choose ${plan.name}`}
+                <p className="text-[12px] text-[#7A7A7A] mb-1">{annual ? "billed for 12 months" : "billed monthly"}</p>
+                {annual ? <p className="text-[11px] font-bold tracking-[0.06em] uppercase text-[#EC4899] mb-4">Save ${plan.save}/year</p> : <p className="mb-4 min-h-[1em]" />}
+                <Link href={signUpHref} className={`w-full text-center text-sm font-semibold py-3 rounded-full transition-all mb-4 ${plan.popular || plan.best ? "bg-[#EC4899] text-black hover:brightness-110" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
+                  {plan.cta}
                 </Link>
+                <p className="text-[13px] font-semibold text-white mb-4 flex items-center gap-1.5">
+                  <span className="text-[#EC4899]">✦</span> {plan.credits} credits per month
+                </p>
+                <div className="flex flex-col gap-2 mb-5">
+                  {FEATURE_ROWS.map((row) => (
+                    <MatrixRow key={row.label} label={row.label} tag={row.tag} included={!!row.cols[i]} />
+                  ))}
+                </div>
+                <p className="text-[10px] font-bold tracking-[0.08em] uppercase text-[#6b7280] pt-4 border-t border-white/10 mb-3">Unlimited access</p>
+                <div className="flex flex-col gap-2">
+                  {MODEL_ROWS.map((row) => (
+                    <MatrixRow key={row.label} label={row.label} tag={row.tag} included={!!row.cols[i]} />
+                  ))}
+                </div>
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-[#7A7A7A] mt-8">
-            See <Link href="/pricing" className="text-white hover:text-[#EC4899] transition-colors">full pricing</Link> for the complete feature breakdown.
-          </p>
         </section>
 
         {/* Gallery */}
