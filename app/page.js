@@ -439,6 +439,31 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Explore AI Features */}
+        <section className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-20">
+          <h2 className="font-heading text-[28px] md:text-[40px] font-bold tracking-[-0.02em] text-white text-center mb-10">
+            Explore more AI features
+          </h2>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              "Influencer Training", "Flux 1.1 Pro", "Flux 2 Flex", "Flux LoRA", "Flux 2 Max", "Flux 2 Pro",
+              "Nano Banana 2", "Seedance 2.0", "Z-image Turbo", "Kling 2.1 Master", "Kling 2.5 Turbo",
+              "Kling 2.6 Pro", "Kling 3.0 Pro", "Kling O1", "Seedance 1.5 Pro", "Sora 2 Pro",
+              "Veo 3.1", "Veo 3.1 Fast", "WAN 2.6", "Kling Image O1 Edit",
+              "Kling Motion Control Pro", "Kling Motion Control Standard", "Kling Video O1 Edit",
+              "Nano Banana Pro Edit", "Topaz Image Upscale", "Topaz Video Upscale",
+            ].map((f) => (
+              <Link
+                key={f}
+                href={signUpHref}
+                className="px-5 py-2.5 rounded-full border border-white/[0.1] text-[13px] font-medium text-[#D1D5DB] hover:border-[#EC4899]/40 hover:text-white transition-all"
+              >
+                {f}
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-16 pb-10 border-t border-white/[0.08]">
           <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 md:gap-8 mb-14">
