@@ -3010,3 +3010,128 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   width: 1em; height: 1em; margin: 0 0.12em;
   border-radius: 0.24em; line-height: 0;
 }
+
+/* ── Influencer Studio (3-panel builder) ── */
+.studio-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.studio-layout { display: flex; flex: 1; min-height: 0; }
+
+/* Left sidebar */
+.studio-left {
+  width: 260px; min-width: 260px; background: var(--surface);
+  border-right: 1px solid var(--line); display: flex; flex-direction: column;
+}
+.studio-left-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 12px; border-bottom: 1px solid var(--line);
+}
+.studio-left-head h3 { font-size: 13px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.studio-left-count {
+  font-size: 11px; font-weight: 700; background: var(--line); color: var(--muted);
+  padding: 2px 8px; border-radius: 999px;
+}
+.studio-left-list { flex: 1; overflow-y: auto; padding: 8px; }
+.studio-inf-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 8px 10px; border-radius: 10px; border: none; background: transparent;
+  color: var(--text); cursor: pointer; text-align: left; position: relative;
+}
+.studio-inf-item:hover { background: var(--surface-2); }
+.studio-inf-item.is-active { background: var(--blue-soft); border: 1px solid rgba(236,72,153,.3); }
+.studio-inf-thumb { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+.studio-inf-meta { flex: 1; min-width: 0; }
+.studio-inf-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio-inf-desc { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio-inf-del {
+  position: absolute; top: 6px; right: 6px; background: none; border: none;
+  color: var(--muted-2); cursor: pointer; opacity: 0; padding: 4px;
+}
+.studio-inf-item:hover .studio-inf-del { opacity: 1; }
+.studio-inf-del:hover { color: #ef4444; }
+.studio-create-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 8px 12px 12px; padding: 10px; border-radius: 10px;
+  border: 1px dashed var(--line-2); background: transparent;
+  color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.studio-create-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+/* Center preview */
+.studio-center {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  background: var(--bg); min-width: 0; padding: 24px; position: relative;
+}
+.studio-preview-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; max-height: 100%; }
+.studio-preview-img {
+  max-height: calc(100vh - 160px); max-width: 100%; border-radius: 16px;
+  object-fit: contain; box-shadow: var(--shadow);
+}
+.studio-preview-handle { font-size: 16px; font-weight: 700; color: var(--blue); }
+.studio-preview-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.studio-tag {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+  background: var(--surface-2); color: var(--muted); border: 1px solid var(--line);
+}
+.studio-empty-preview { text-align: center; color: var(--muted-2); }
+.studio-empty-icon { margin-bottom: 12px; }
+.studio-empty-preview p { font-size: 14px; }
+
+/* Center generation grid */
+.studio-gen-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+  max-width: 520px; width: 100%; position: relative;
+}
+.studio-gen-card {
+  aspect-ratio: 3/4; border-radius: 14px; overflow: hidden;
+  border: 2px solid var(--line); background: var(--surface);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.studio-gen-card img { width: 100%; height: 100%; object-fit: cover; }
+.studio-gen-card:hover { border-color: var(--blue); }
+.studio-gen-card.is-error { border-color: #ef4444; }
+.studio-gen-status {
+  position: absolute; inset: auto 0 -32px 0; text-align: center;
+  font-size: 12px; color: var(--muted); font-weight: 600;
+}
+
+/* Right sidebar */
+.studio-right {
+  width: 320px; min-width: 320px; background: var(--surface);
+  border-left: 1px solid var(--line); display: flex; flex-direction: column;
+}
+.studio-right-head {
+  padding: 16px 16px 12px; border-bottom: 1px solid var(--line);
+}
+.studio-right-head h3 { font-size: 13px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.studio-right-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+.studio-section { margin-bottom: 20px; }
+.studio-section-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+
+.studio-vibe-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.studio-vibe-card {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface-2); cursor: pointer; transition: all .15s;
+}
+.studio-vibe-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.studio-vibe-card.is-active { border-color: var(--blue); background: rgba(236,72,153,.08); }
+.studio-vibe-emoji { font-size: 20px; }
+.studio-vibe-label { font-size: 11px; font-weight: 700; color: var(--ink); }
+
+.studio-right-footer {
+  padding: 12px 16px; border-top: 1px solid var(--line);
+}
+.studio-gen-btn { width: 100%; justify-content: center; }
+.studio-namer { display: flex; gap: 8px; align-items: center; }
+.studio-namer .inf-handle-input { flex: 1; }
+.studio-namer .primary-btn { white-space: nowrap; }
+
+/* Responsive: stack on smaller screens */
+@media (max-width: 900px) {
+  .studio-layout { flex-direction: column; }
+  .studio-left { width: 100%; min-width: 0; max-height: 140px; border-right: none; border-bottom: 1px solid var(--line); }
+  .studio-left-list { display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 8px; }
+  .studio-inf-item { min-width: 160px; }
+  .studio-right { width: 100%; min-width: 0; max-height: 50vh; border-left: none; border-top: 1px solid var(--line); }
+  .studio-center { min-height: 300px; }
+}

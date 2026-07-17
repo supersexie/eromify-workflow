@@ -16,6 +16,7 @@ const TABS = [
   { id: "upscale", label: "Upscale", path: "/upscale", match: (p) => p.startsWith("/upscale") },
   { id: "library", label: "Library", path: "/library", match: (p) => p.startsWith("/library") },
   { id: "influencers", label: "Influencers", path: "/influencers", match: (p) => p.startsWith("/influencers") },
+  { id: "builder", label: "Builder", path: "/builder", match: (p) => p.startsWith("/builder") },
   { id: "mcp",    label: "MCP", path: "/mcp", match: (p) => p.startsWith("/mcp") },
 ];
 
