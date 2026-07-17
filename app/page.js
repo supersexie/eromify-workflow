@@ -174,13 +174,9 @@ export default function Home() {
             <span className="inline-flex text-[10px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] border border-[rgba(236,72,153,0.45)] px-3.5 py-1.5 rounded-full mb-6">
               MCP Connector — Growth &amp; Creator
             </span>
-            <h2 className="font-heading text-[32px] md:text-[48px] leading-[1.1] font-bold tracking-[-0.02em] text-white uppercase max-w-[820px] mb-5">
+            <h2 className="font-heading text-[40px] md:text-[64px] leading-[1.08] font-bold tracking-[-0.02em] text-white uppercase max-w-[900px] mb-5">
               Turn{" "}
-              <span className="inline-flex align-middle mx-1.5 w-9 h-9 md:w-11 md:h-11 rounded-[10px] bg-[#D4A574] items-center justify-center shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 2l1.2 6.3L19.5 7l-4.2 4.8L21 15.5l-6.5-.2L12 22l-2.5-6.7L3 15.5l5.7-3.7L4.5 7l6.3 1.3L12 2z" fill="white" />
-                </svg>
-              </span>{" "}
+              <img src="/claude-mark.png" alt="Claude" className="inline-block align-middle mx-1.5 w-10 h-10 md:w-14 md:h-14 rounded-[12px]" />{" "}
               Claude into your creative engine
             </h2>
             <p className="text-[15px] md:text-lg leading-[1.55] text-[#9CA3AF] max-w-[560px]">
