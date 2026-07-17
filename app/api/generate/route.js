@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { moderatePrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, moderateTextOutput, queueForReview } from "@/lib/moderation";
-import { requireFeature } from "@/lib/apiGate";
+import { requireFeature, getUserTier } from "@/lib/apiGate";
+import { auth } from "@/auth";
+import { checkCredits, incrementUsage } from "@/lib/creditStore";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -161,6 +163,16 @@ export async function POST(req) {
   const gate = await requireFeature("Image generation");
   if (gate) return gate;
 
+  const session = await auth();
+  const uid = session?.user?.id;
+  const tier = await getUserTier();
+  if (uid && tier) {
+    const credits = await checkCredits(uid, tier);
+    if (!credits.allowed) {
+      return NextResponse.json({ error: `Monthly credit limit reached (${credits.limit}). Please upgrade your plan.` }, { status: 429 });
+    }
+  }
+
   const { kind, prompt, model, images, voice, userId } = await req.json();
 
   // --- Moderation gate 1: prompt screening (image AND text prompts) ---
@@ -227,6 +239,7 @@ export async function POST(req) {
     } else {
       output = mockFallback(kind, prompt);
     }
+    if (uid) incrementUsage(uid).catch(() => {});
     return NextResponse.json({ output });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });

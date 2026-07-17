@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { uploadDataUrl } from "@/lib/genstore";
 import { moderatePrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
-import { requireFeature } from "@/lib/apiGate";
+import { requireFeature, getUserTier } from "@/lib/apiGate";
+import { auth } from "@/auth";
+import { checkCredits, incrementUsage } from "@/lib/creditStore";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -108,6 +110,17 @@ function parseDataUrl(d) {
 export async function POST(req) {
   const gate = await requireFeature("Video generation");
   if (gate) return gate;
+
+  const session = await auth();
+  const uid = session?.user?.id;
+  const tier = await getUserTier();
+  if (uid && tier) {
+    const credits = await checkCredits(uid, tier);
+    if (!credits.allowed) {
+      return NextResponse.json({ error: `Monthly credit limit reached (${credits.limit}). Please upgrade your plan.` }, { status: 429 });
+    }
+    incrementUsage(uid, 2).catch(() => {});
+  }
 
   const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs, audio, userId } = await req.json();
 

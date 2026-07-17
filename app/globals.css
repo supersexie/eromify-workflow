@@ -1284,6 +1284,40 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   display: grid; place-items: center;
   background: var(--grad); color: #fff; font-size: 13px; font-weight: 700;
 }
+.user-menu { position: relative; }
+.user-dropdown {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 100;
+  min-width: 220px; padding: 12px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.user-dropdown-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.user-dropdown-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+.user-dropdown-tier {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 9999px;
+  background: rgba(236,72,153,0.15); color: #ec4899;
+}
+.user-dropdown-credits { margin-bottom: 10px; }
+.user-credits-bar {
+  height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; margin-bottom: 4px;
+}
+.user-credits-fill { height: 100%; border-radius: 3px; background: #ec4899; transition: width 0.3s; }
+.user-credits-text { font-size: 11px; color: var(--muted); }
+.user-dropdown-actions {
+  display: flex; flex-direction: column; gap: 2px;
+  padding-top: 10px; border-top: 1px solid var(--line);
+}
+.user-dropdown-link {
+  display: block; width: 100%; padding: 6px 8px; border-radius: 8px;
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  background: none; border: none; text-align: left; cursor: pointer;
+  font-family: inherit;
+}
+.user-dropdown-link:hover { background: var(--surface-2); color: var(--ink); }
 
 /* ---- New-workflow name modal ---- */
 .nw-backdrop {
