@@ -140,9 +140,9 @@ export default function Home() {
             on screens wider than 1440. overflow-hidden keeps it from ever
             widening the page. */}
         <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,rgba(236,72,153,0.22)_0%,rgba(236,72,153,0.07)_35%,transparent_70%)]" />
-        <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-24 flex flex-col md:flex-row items-center gap-12 md:gap-16">
-          <div className="relative max-w-[680px] flex-1">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_40%,rgba(236,72,153,0.22)_0%,rgba(236,72,153,0.07)_35%,transparent_70%)]" />
+        <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-24 flex flex-col items-center text-center">
+          <div className="relative max-w-[720px] w-full flex flex-col items-center">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Generative media platform</p>
             <h1 className="font-heading text-[44px] md:text-[72px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
               Generate{" "}
@@ -156,7 +156,7 @@ export default function Home() {
             <p className="text-lg leading-[1.55] text-[#B8B8B8] max-w-[520px] mb-9">
               Magic Mint brings every leading image, video, and audio model into one fast, unified workspace — built for people who make things.
             </p>
-            <div className="flex items-center gap-8">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
               <Link href={signUpHref} className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-[#EC4899] text-white hover:brightness-110 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
                 Start creating →
               </Link>
@@ -164,21 +164,6 @@ export default function Home() {
                 See how it works →
               </a>
             </div>
-          </div>
-          <div className="hidden md:grid grid-cols-3 gap-3 flex-none w-[420px]">
-            {[
-              "linear-gradient(135deg,#581c87,#831843)",
-              "linear-gradient(135deg,#701a75,#581c87)",
-              "linear-gradient(135deg,#831843,#701a75)",
-              "linear-gradient(135deg,#581c87,#701a75)",
-              "linear-gradient(135deg,#701a75,#831843)",
-              "linear-gradient(135deg,#831843,#581c87)",
-              "linear-gradient(135deg,#701a75,#581c87)",
-              "linear-gradient(135deg,#581c87,#831843)",
-              "linear-gradient(135deg,#831843,#701a75)",
-            ].map((bg, i) => (
-              <div key={i} className="aspect-square rounded-2xl" style={{ background: bg }} />
-            ))}
           </div>
         </section>
         </div>
