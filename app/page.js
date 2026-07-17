@@ -87,11 +87,6 @@ export default function Home() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
 
-        {/* Banner */}
-        <div className="h-10 flex items-center justify-center text-[11px] font-semibold tracking-[0.18em] uppercase text-[#7A7A7A] border-b border-white/[0.06]">
-          NEW — GPT IMAGE 2 IS LIVE&nbsp;·&nbsp;4K GENERATION WITH NEAR-PERFECT TEXT →
-        </div>
-
         {/* Nav */}
         <nav className="sticky top-0 z-50 h-[72px] bg-[#0A0A0A]/70 backdrop-blur-xl border-b border-white/[0.06]">
           <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between px-6 md:px-16">
