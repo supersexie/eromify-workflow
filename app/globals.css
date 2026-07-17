@@ -1215,8 +1215,45 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink);
 }
 .auth-sub {
-  margin: 0 0 12px; font-size: 14px; color: var(--muted); line-height: 1.5;
+  margin: 0 0 4px; font-size: 14px; color: var(--muted); line-height: 1.5;
 }
+.auth-form {
+  width: 100%; display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 4px;
+}
+.auth-field { display: flex; flex-direction: column; gap: 6px; }
+.auth-field span { font-size: 12px; font-weight: 600; color: var(--muted); }
+.auth-field input {
+  width: 100%; height: 44px; padding: 0 14px; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--ink); font-size: 14px; font-family: inherit; outline: none;
+  box-sizing: border-box;
+}
+.auth-field input:focus { border-color: var(--blue); }
+.auth-field input::placeholder { color: var(--muted-2); }
+.auth-error {
+  margin: 0; font-size: 13px; color: #f87171; text-align: center; line-height: 1.4;
+}
+.auth-submit {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; height: 44px; border-radius: 9999px; border: none;
+  background: var(--grad); color: #fff;
+  font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+  margin-top: 4px;
+}
+.auth-submit:hover:not(:disabled) { filter: brightness(1.08); }
+.auth-submit:disabled { opacity: .6; cursor: not-allowed; }
+.auth-divider {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  color: var(--muted-2); font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; margin: 4px 0;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ""; flex: 1; height: 1px; background: var(--line);
+}
+.auth-switch {
+  margin: 8px 0 0; font-size: 13px; color: var(--muted);
+}
+.auth-switch a { color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .auth-google-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   width: 100%; height: 44px; border-radius: 9999px;

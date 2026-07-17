@@ -57,7 +57,7 @@ const CHARS = [
 export default function Home() {
   const [annual, setAnnual] = useState(false);
   const signInHref = "/sign-in";
-  const signUpHref = "/sign-in";
+  const signUpHref = "/sign-up";
 
   // globals.css locks body overflow for the canvas editor — release it here so this page scrolls.
   useEffect(() => {

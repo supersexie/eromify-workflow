@@ -62,7 +62,7 @@ export default function Pricing() {
   }, []);
 
   const signInHref = "/sign-in";
-  const signUpHref = "/sign-in";
+  const signUpHref = "/sign-up";
 
   return (
     <div className="lp-root">

@@ -33,11 +33,7 @@ function canonicalHost(req) {
   return null;
 }
 
-const authEnabled = !!(
-  process.env.AUTH_GOOGLE_ID &&
-  process.env.AUTH_GOOGLE_SECRET &&
-  process.env.AUTH_SECRET
-);
+const authEnabled = !!process.env.AUTH_SECRET;
 
 const { auth } = NextAuth({
   ...authConfig,

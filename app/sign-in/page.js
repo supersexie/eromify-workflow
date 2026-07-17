@@ -1,6 +1,6 @@
-import { authEnabled } from "@/auth";
+import { authEnabled, googleEnabled } from "@/auth";
 import { redirect } from "next/navigation";
-import GoogleSignInButton from "@/components/GoogleSignInButton";
+import AuthForm from "@/components/AuthForm";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +12,7 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="auth-wrap">
-      <div className="auth-card">
-        <div className="auth-brand">m</div>
-        <h1 className="auth-title">Welcome to Magic Mint</h1>
-        <p className="auth-sub">Sign in with Google to start creating.</p>
-        <GoogleSignInButton callbackUrl={callbackUrl} />
-      </div>
+      <AuthForm mode="signin" callbackUrl={callbackUrl} googleEnabled={googleEnabled} />
     </div>
   );
 }
