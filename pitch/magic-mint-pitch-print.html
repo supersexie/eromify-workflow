@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Magic Mint — Pitch Deck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    @page { size: landscape; margin: 0; }
+    :root {
+      --bg: #0a0a0a; --surface: #121214; --line: rgba(255,255,255,0.08);
+      --ink: #fff; --muted: #9a9a9a; --faint: #5a5a5a; --pink: #ec4899;
+      --pink-dim: rgba(236,72,153,0.14);
+      --font-display: "Bricolage Grotesque", Georgia, serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: var(--ink); font-family: var(--font-body); }
+    .slide {
+      width: 100vw; height: 100vh; page-break-after: always; break-after: page;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 3.2rem 4.5rem;
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 20%, rgba(236,72,153,0.12), transparent 55%),
+        var(--bg);
+      position: relative;
+    }
+    .slide:last-child { page-break-after: auto; }
+    .eyebrow { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--pink); margin-bottom: 0.9rem; }
+    h1 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.035em; font-size: 3.6rem; line-height: 1.05; max-width: 14ch; }
+    h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; font-size: 2.6rem; line-height: 1.1; max-width: 20ch; margin-bottom: 0.65rem; }
+    .lede { font-size: 1.15rem; color: var(--muted); line-height: 1.5; max-width: 40ch; margin-top: 1rem; }
+    .brand { color: var(--pink); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; max-width: 920px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; margin-top: 1.5rem; max-width: 980px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.5rem; max-width: 1040px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.1rem 1.2rem; }
+    .card h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .card p { color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+    .card .num { color: var(--pink); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.4rem; }
+    ul.bullets { list-style: none; margin-top: 1.2rem; display: flex; flex-direction: column; gap: 0.65rem; max-width: 44rem; }
+    ul.bullets li { display: grid; grid-template-columns: 0.5rem 1fr; gap: 0.75rem; color: var(--muted); font-size: 0.98rem; line-height: 1.4; }
+    ul.bullets li::before { content: ""; width: 0.4rem; height: 0.4rem; border-radius: 999px; background: var(--pink); margin-top: 0.4rem; }
+    ul.bullets strong { color: var(--ink); font-weight: 600; }
+    .price { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; min-height: 140px; display: flex; flex-direction: column; gap: 0.3rem; }
+    .price.hot { border-color: rgba(236,72,153,0.45); background: linear-gradient(180deg, var(--pink-dim), transparent 60%), var(--surface); }
+    .price .name { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+    .price .amt { font-family: var(--font-display); font-weight: 800; font-size: 1.75rem; color: var(--pink); }
+    .price .amt span { font-size: 0.8rem; color: var(--faint); font-weight: 500; }
+    .price .note { color: var(--muted); font-size: 0.8rem; line-height: 1.35; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1.3rem; }
+    .tag { font-size: 0.75rem; font-weight: 600; color: var(--muted); border: 1px solid var(--line); padding: 0.3rem 0.65rem; border-radius: 999px; }
+    .cta { display: inline-flex; background: var(--pink); color: #fff; font-weight: 700; padding: 0.85rem 1.35rem; border-radius: 999px; text-decoration: none; margin-top: 1.5rem; }
+    .foot { position: absolute; bottom: 1.2rem; left: 4.5rem; right: 4.5rem; display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--faint); }
+  </style>
+</head>
+<body>
+
+<section class="slide">
+  <p class="eyebrow">Confidential · Product pitch</p>
+  <h1><span class="brand">Magic Mint</span><br />The AI studio for influencer content</h1>
+  <p class="lede">One workspace to train personas, generate images &amp; video, and ship campaigns — across the best models, including Claude.</p>
+  <div class="tag-row">
+    <span class="tag">magicmint.pro</span><span class="tag">Node canvas</span><span class="tag">AI influencers</span><span class="tag">Claude MCP</span>
+  </div>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>1 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The problem</p>
+  <h2>Creators juggle five tools to ship one post.</h2>
+  <ul class="bullets">
+    <li><span><strong>Fragmented stack</strong> — Midjourney + Runway + CapCut + ChatGPT + Drive, all billed separately.</span></li>
+    <li><span><strong>Broken identity</strong> — every generation looks like a different person; brands can’t stay consistent.</span></li>
+    <li><span><strong>No workflow</strong> — prompts, refs, and exports live in chat threads and random folders.</span></li>
+    <li><span><strong>Slow campaigns</strong> — a week of Instagram content takes days of tab-switching, not minutes.</span></li>
+  </ul>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>2 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The product</p>
+  <h2>One canvas. Every model. A consistent face.</h2>
+  <div class="grid-3">
+    <div class="card"><div class="num">01</div><h3>Train an influencer</h3><p>Upload a reference, name them, then @mention them anywhere — face and style stay locked.</p></div>
+    <div class="card"><div class="num">02</div><h3>Generate on a node canvas</h3><p>Images, video, face swap, upscale, and motion control in one graph — not five subscriptions.</p></div>
+    <div class="card"><div class="num">03</div><h3>Talk to Claude</h3><p>MCP connector turns Claude into a creative engine: batch campaigns from one conversation.</p></div>
+  </div>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>3 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Why it wins</p>
+  <h2>Not another chatbot wrapper.</h2>
+  <ul class="bullets">
+    <li><span><strong>Model agnostic</strong> — Flux, Seedream, GPT Image, Kling, Nano Banana, and more, one credit balance.</span></li>
+    <li><span><strong>Identity layer</strong> — LoRA / persona training so the character is a product asset, not a lucky prompt.</span></li>
+    <li><span><strong>Workflow canvas</strong> — creators think in pipelines; Magic Mint matches that mental model.</span></li>
+    <li><span><strong>Automation path</strong> — Growth+ unlocks Claude MCP; Creator adds agent + 4K video stack.</span></li>
+  </ul>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>4 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Who it’s for</p>
+  <h2>Solo creators → content agencies.</h2>
+  <div class="grid-2">
+    <div class="card"><h3>AI influencer builders</h3><p>People monetizing synthetic personas on IG, TikTok, Fanvue, and brand deals who need volume + consistency.</p></div>
+    <div class="card"><h3>Social / UGC teams</h3><p>Agencies shipping weekly content calendars without hiring a full shoot crew for every look.</p></div>
+    <div class="card"><h3>Freelance creators</h3><p>Operators who want pro models without juggling five logins and five invoices.</p></div>
+    <div class="card"><h3>Automation-first power users</h3><p>Growth &amp; Creator tiers: canvas + Claude MCP for batch campaigns from conversation.</p></div>
+  </div>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>5 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Business model</p>
+  <h2>Credit subscriptions. Clear upgrade path.</h2>
+  <div class="grid-4">
+    <div class="price"><div class="name">Builder</div><div class="amt">$29<span>/mo</span></div><div class="note">500 credits · image-first entry</div></div>
+    <div class="price"><div class="name">Launch</div><div class="amt">$45<span>/mo</span></div><div class="note">1,000 credits · persona training</div></div>
+    <div class="price hot"><div class="name">Growth</div><div class="amt">$79<span>/mo</span></div><div class="note">4,000 credits · video + MCP · most popular</div></div>
+    <div class="price"><div class="name">Creator</div><div class="amt">$99<span>/mo</span></div><div class="note">6,000 credits · 4K + agent · best value</div></div>
+  </div>
+  <p class="lede" style="font-size:0.95rem;margin-top:1.2rem;">Annual billing drops effective monthly to $2.99–$23.99. Checkout via Whop.</p>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>6 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Traction &amp; stage</p>
+  <h2>Product live. GTM in motion.</h2>
+  <div class="grid-3">
+    <div class="card"><h3>Shipped</h3><p>Live product at magicmint.pro — canvas, influencers, image/video, auth, paid plans.</p></div>
+    <div class="card"><h3>Differentiation</h3><p>Persona + canvas + Claude MCP in one SKU. Competitors usually pick one of those three.</p></div>
+    <div class="card"><h3>Next 90 days</h3><p>Creator acquisition, MCP-led virality, tighten unit economics, deepen agency workflows.</p></div>
+  </div>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>7 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">Path to $100k / month</p>
+  <h2>The math: ~1,300 Growth seats — or ~1,100 Creator.</h2>
+  <div class="grid-2">
+    <div class="card"><h3>Target mix</h3><p><strong style="color:#fff">~1,000 Growth ($79)</strong> + <strong style="color:#fff">~250 Creator ($99)</strong> ≈ <strong style="color:#fff">$104k MRR</strong>. Blended ARPU ~$83. Annual deals front-load cash.</p></div>
+    <div class="card"><h3>Funnel assumption</h3><p>Paid + partner traffic → 8–12% trial/paid start → 40%+ land on Growth. Need ~12–15k qualified visits/week if conversion holds.</p></div>
+  </div>
+  <ul class="bullets">
+    <li><span><strong>Week 1</strong> — Close 10–20 affiliate / Whop / AI-tool newsletter deals; ship 3 demo videos (persona, canvas, Claude MCP).</span></li>
+    <li><span><strong>Week 2</strong> — Paid acquisition (Meta + YouTube + X) at CAC &lt; 1× first-month ARPU; daily creator UGC contest.</span></li>
+    <li><span><strong>Week 3</strong> — Agency / “AI influencer agency” outbound: 50 intros, 10 pilots at Creator annual.</span></li>
+    <li><span><strong>Week 4</strong> — Double spend on winning creatives; launch limited Founding Creator annual (cash spike toward $100k).</span></li>
+  </ul>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>8 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">How we scale in 30 days</p>
+  <h2>Four engines running in parallel.</h2>
+  <div class="grid-2">
+    <div class="card"><div class="num">01 · PERFORMANCE</div><h3>Paid + Whop distribution</h3><p>Aggressive creative testing on hooks that sell identity (“same girl, 30 looks”). Budget scales only on payback &lt; 30 days.</p></div>
+    <div class="card"><div class="num">02 · AFFILIATES</div><h3>Creator &amp; tool affiliates</h3><p>30–40% rev share for first 3 months. Target AI influencer YouTubers, Discord servers, and “faceless” course audiences.</p></div>
+    <div class="card"><div class="num">03 · PRODUCT-LED</div><h3>Claude MCP virality</h3><p>Every MCP session is a demo. Ship shareable “campaign from one prompt” clips; Claude directory + Reddit + X loops.</p></div>
+    <div class="card"><div class="num">04 · B2B SPRINT</div><h3>Agency land-and-expand</h3><p>Sell seats in packs (5–20). One agency at Creator × 15 seats = ~$1.5k MRR. Twenty such logos = $30k alone.</p></div>
+  </div>
+  <p class="lede" style="font-size:0.95rem;margin-top:1.1rem;">Requires: ad cash or partner distribution, support coverage, and model-cost controls so gross margin stays healthy while we scale.</p>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>9 / 10</span></div>
+</section>
+
+<section class="slide">
+  <p class="eyebrow">The ask</p>
+  <h2>Help us put Magic Mint in every creator’s stack.</h2>
+  <p class="lede">Whether you’re investing, partnering, or distributing — we’re looking for people who understand creator tooling and want a wedge in AI media.</p>
+  <a class="cta" href="https://www.magicmint.pro">Open magicmint.pro →</a>
+  <div class="foot"><span>Magic Mint · Pitch deck</span><span>10 / 10</span></div>
+</section>
+
+</body>
+</html>
