@@ -52,7 +52,6 @@ const CHARS = [
   { name: "Sofia", faded: false, bg: G.pink },
   { name: "Aria", faded: false, bg: G.violet },
   { name: "Luna", faded: false, bg: G.blue },
-  { name: "Nova", faded: true, bg: G.cyan },
 ];
 
 export default function Home() {
