@@ -49,7 +49,7 @@ const BENTO_TILES = [
 
 // Character gallery
 const CHARS = [
-  { name: "Sofia", faded: false, bg: G.pink },
+  { name: "Sofia", faded: false, bg: G.pink, imgs: ["/chars/sofia-1.jpg","/chars/sofia-2.jpg","/chars/sofia-3.jpg","/chars/sofia-4.jpg","/chars/sofia-5.jpg","/chars/sofia-6.jpg"] },
   { name: "Aria", faded: false, bg: G.violet },
   { name: "Luna", faded: false, bg: G.blue },
 ];
@@ -320,7 +320,11 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-2 w-full">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="aspect-square rounded-[14px] overflow-hidden bg-[#111]">
-                      <div className="w-full h-full opacity-25" style={{ background: char.bg }} />
+                      {char.imgs ? (
+                        <img src={char.imgs[i]} alt={`${char.name} ${i + 1}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full opacity-25" style={{ background: char.bg }} />
+                      )}
                     </div>
                   ))}
                 </div>
