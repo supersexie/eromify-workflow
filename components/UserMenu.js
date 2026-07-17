@@ -68,9 +68,9 @@ export default function UserMenu() {
 
           <div className="user-dropdown-actions">
             <a
-              href="https://whop.com/magic-mint/"
-              target="_blank"
-              rel="noopener noreferrer"
+              href={tier ? "https://whop.com/magic-mint/" : "/app/upgrade"}
+              target={tier ? "_blank" : undefined}
+              rel={tier ? "noopener noreferrer" : undefined}
               className="user-dropdown-link"
             >
               {tier ? "Manage subscription" : "Subscribe"}
