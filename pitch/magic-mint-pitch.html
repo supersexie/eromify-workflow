@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Magic Mint — Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #121214;
+      --line: rgba(255,255,255,0.08);
+      --ink: #ffffff;
+      --muted: #9a9a9a;
+      --faint: #5a5a5a;
+      --pink: #ec4899;
+      --pink-dim: rgba(236,72,153,0.14);
+      --font-display: "Bricolage Grotesque", Georgia, serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-body); overflow: hidden; }
+    .deck { height: 100%; position: relative; }
+    .slide {
+      position: absolute; inset: 0;
+      display: none; flex-direction: column; justify-content: center;
+      padding: clamp(2rem, 6vw, 5rem) clamp(2rem, 8vw, 7rem);
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 20%, rgba(236,72,153,0.12), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 10% 90%, rgba(236,72,153,0.06), transparent 50%),
+        var(--bg);
+    }
+    .slide.is-active { display: flex; }
+    .eyebrow {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--pink); margin-bottom: 1.1rem;
+    }
+    h1 {
+      font-family: var(--font-display); font-weight: 800; letter-spacing: -0.035em;
+      font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1.05; max-width: 14ch;
+    }
+    h2 {
+      font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em;
+      font-size: clamp(1.9rem, 4.2vw, 3.2rem); line-height: 1.1; max-width: 18ch; margin-bottom: 0.75rem;
+    }
+    .lede { font-size: clamp(1.05rem, 1.6vw, 1.35rem); color: var(--muted); line-height: 1.55; max-width: 38ch; margin-top: 1.25rem; }
+    .brand { font-family: var(--font-display); font-weight: 800; color: var(--pink); letter-spacing: -0.03em; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 2rem; max-width: 920px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; max-width: 980px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem; margin-top: 2rem; max-width: 1040px; }
+    @media (max-width: 800px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      h1, h2 { max-width: none; }
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+      padding: 1.25rem 1.35rem;
+    }
+    .card h3 {
+      font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: 0.45rem;
+    }
+    .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+    .card .num { color: var(--pink); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.55rem; }
+    ul.bullets { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; max-width: 42rem; }
+    ul.bullets li {
+      display: grid; grid-template-columns: 0.6rem 1fr; gap: 0.85rem; align-items: start;
+      color: var(--muted); font-size: 1.05rem; line-height: 1.45;
+    }
+    ul.bullets li::before {
+      content: ""; width: 0.45rem; height: 0.45rem; border-radius: 999px; background: var(--pink); margin-top: 0.45rem;
+    }
+    ul.bullets strong { color: var(--ink); font-weight: 600; }
+    .price {
+      background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 1.2rem;
+      display: flex; flex-direction: column; gap: 0.35rem; min-height: 160px;
+    }
+    .price.hot { border-color: rgba(236,72,153,0.45); background: linear-gradient(180deg, var(--pink-dim), transparent 60%), var(--surface); }
+    .price .name { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; }
+    .price .amt { font-family: var(--font-display); font-weight: 800; font-size: 2rem; letter-spacing: -0.03em; color: var(--pink); }
+    .price .amt span { font-size: 0.9rem; color: var(--faint); font-weight: 500; }
+    .price .note { color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+    .footer-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; border-top: 1px solid var(--line);
+      background: rgba(10,10,10,0.85); backdrop-filter: blur(10px); z-index: 10;
+      font-size: 0.8rem; color: var(--faint);
+    }
+    .footer-bar b { color: var(--muted); font-weight: 600; }
+    .nav-btns { display: flex; gap: 0.5rem; }
+    .nav-btns button {
+      height: 32px; padding: 0 0.9rem; border-radius: 999px; border: 1px solid var(--line);
+      background: transparent; color: var(--ink); font: inherit; font-size: 0.8rem; cursor: pointer;
+    }
+    .nav-btns button:hover { border-color: rgba(236,72,153,0.5); color: var(--pink); }
+    .progress { display: flex; gap: 5px; align-items: center; }
+    .progress i { width: 18px; height: 3px; border-radius: 2px; background: var(--line); }
+    .progress i.on { background: var(--pink); }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; align-items: center; }
+    .cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--pink); color: #fff; font-weight: 700; font-size: 1rem;
+      padding: 0.95rem 1.5rem; border-radius: 999px; text-decoration: none;
+    }
+    .cta-ghost { color: var(--muted); font-size: 0.95rem; }
+    .slide { padding-bottom: 5rem; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; max-width: 40rem; }
+    .tag {
+      font-size: 0.78rem; font-weight: 600; color: var(--muted);
+      border: 1px solid var(--line); padding: 0.35rem 0.7rem; border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <!-- 1 -->
+    <section class="slide is-active" data-slide>
+      <p class="eyebrow">Confidential · Product pitch</p>
+      <h1><span class="brand">Magic Mint</span><br />The AI studio for influencer content</h1>
+      <p class="lede">One workspace to train personas, generate images &amp; video, and ship campaigns — across the best models, including Claude.</p>
+      <div class="tag-row">
+        <span class="tag">magicmint.pro</span>
+        <span class="tag">Node canvas</span>
+        <span class="tag">AI influencers</span>
+        <span class="tag">Claude MCP</span>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">The problem</p>
+      <h2>Creators juggle five tools to ship one post.</h2>
+      <ul class="bullets">
+        <li><span><strong>Fragmented stack</strong> — Midjourney + Runway + CapCut + ChatGPT + Drive, all billed separately.</span></li>
+        <li><span><strong>Broken identity</strong> — every generation looks like a different person; brands can’t stay consistent.</span></li>
+        <li><span><strong>No workflow</strong> — prompts, refs, and exports live in chat threads and random folders.</span></li>
+        <li><span><strong>Slow campaigns</strong> — a week of Instagram content takes days of tab-switching, not minutes.</span></li>
+      </ul>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">The product</p>
+      <h2>One canvas. Every model. A consistent face.</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="num">01</div>
+          <h3>Train an influencer</h3>
+          <p>Upload a reference, name them, then @mention them anywhere — face and style stay locked.</p>
+        </div>
+        <div class="card">
+          <div class="num">02</div>
+          <h3>Generate on a node canvas</h3>
+          <p>Images, video, face swap, upscale, and motion control in one graph — not five subscriptions.</p>
+        </div>
+        <div class="card">
+          <div class="num">03</div>
+          <h3>Talk to Claude</h3>
+          <p>MCP connector turns Claude into a creative engine: “8 IG photos of Lily this week” → rendered batch.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">Why it wins</p>
+      <h2>Not another chatbot wrapper.</h2>
+      <ul class="bullets">
+        <li><span><strong>Model agnostic</strong> — Flux, Seedream, GPT Image, Kling, Nano Banana, and more, one credit balance.</span></li>
+        <li><span><strong>Identity layer</strong> — LoRA / persona training so the character is a product asset, not a lucky prompt.</span></li>
+        <li><span><strong>Workflow canvas</strong> — creators think in pipelines; Magic Mint matches that mental model.</span></li>
+        <li><span><strong>Automation path</strong> — Growth+ unlocks Claude MCP; Creator adds agent + 4K video stack.</span></li>
+      </ul>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">Who it’s for</p>
+      <h2>Solo creators → content agencies.</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>AI influencer builders</h3>
+          <p>People monetizing synthetic personas on IG, TikTok, Fanvue, and brand deals who need volume + consistency.</p>
+        </div>
+        <div class="card">
+          <h3>Social / UGC teams</h3>
+          <p>Agencies shipping weekly content calendars without hiring a full shoot crew for every look.</p>
+        </div>
+        <div class="card">
+          <h3>Freelance creators</h3>
+          <p>Operators who want pro models without juggling five logins and five invoices.</p>
+        </div>
+        <div class="card">
+          <h3>Automation-first power users</h3>
+          <p>Growth &amp; Creator tiers: canvas + Claude MCP for batch campaigns from conversation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">Business model</p>
+      <h2>Credit subscriptions. Clear upgrade path.</h2>
+      <div class="grid-4">
+        <div class="price">
+          <div class="name">Builder</div>
+          <div class="amt">$29<span>/mo</span></div>
+          <div class="note">500 credits · image-first entry</div>
+        </div>
+        <div class="price">
+          <div class="name">Launch</div>
+          <div class="amt">$45<span>/mo</span></div>
+          <div class="note">1,000 credits · persona training</div>
+        </div>
+        <div class="price hot">
+          <div class="name">Growth</div>
+          <div class="amt">$79<span>/mo</span></div>
+          <div class="note">4,000 credits · video + MCP · most popular</div>
+        </div>
+        <div class="price">
+          <div class="name">Creator</div>
+          <div class="amt">$99<span>/mo</span></div>
+          <div class="note">6,000 credits · 4K + agent · best value</div>
+        </div>
+      </div>
+      <p class="lede" style="margin-top:1.5rem;font-size:1rem;">Annual billing drops effective monthly to $2.99–$23.99. Checkout via Whop. Gross margin expands as model mix and caching improve.</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">Traction &amp; stage</p>
+      <h2>Product live. GTM in motion.</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Shipped</h3>
+          <p>Live product at magicmint.pro — canvas, influencers, image/video, auth, paid plans.</p>
+        </div>
+        <div class="card">
+          <h3>Differentiation</h3>
+          <p>Persona + canvas + Claude MCP in one SKU. Competitors usually pick one of those three.</p>
+        </div>
+        <div class="card">
+          <h3>Next 90 days</h3>
+          <p>Creator acquisition, MCP-led virality, tighten unit economics, deepen agency workflows.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-slide>
+      <p class="eyebrow">The ask</p>
+      <h2>Help us put Magic Mint in every creator’s stack.</h2>
+      <p class="lede">Whether you’re investing, partnering, or distributing — we’re looking for people who understand creator tooling and want a wedge in AI media.</p>
+      <div class="cta-row">
+        <a class="cta" href="https://www.magicmint.pro" target="_blank" rel="noopener">Open magicmint.pro →</a>
+        <span class="cta-ghost">Demo · Partnership · Investment conversation</span>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer-bar">
+    <div><b>Magic Mint</b> · Pitch deck</div>
+    <div class="progress" id="progress"></div>
+    <div class="nav-btns">
+      <button type="button" id="prev">← Prev</button>
+      <button type="button" id="next">Next →</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll("[data-slide]")];
+    const progress = document.getElementById("progress");
+    let i = 0;
+
+    function render() {
+      slides.forEach((s, idx) => s.classList.toggle("is-active", idx === i));
+      progress.innerHTML = slides.map((_, idx) => `<i class="${idx === i ? "on" : ""}"></i>`).join("");
+    }
+    function go(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      render();
+    }
+
+    document.getElementById("prev").onclick = () => go(i - 1);
+    document.getElementById("next").onclick = () => go(i + 1);
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); go(i + 1); }
+      if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(i - 1); }
+      if (e.key === "Home") go(0);
+      if (e.key === "End") go(slides.length - 1);
+    });
+    render();
+  </script>
+</body>
+</html>
