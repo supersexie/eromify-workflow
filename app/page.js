@@ -40,12 +40,12 @@ const G = {
 
 // Bento feature tiles — model showcase
 const BENTO_WIDE = [
-  { label: "Seedream 4.5", bg: G.pink, img: "/chars/bento-1.jpg" },
+  { label: "Seedream 4.5", bg: G.pink, img: "/chars/bento-4.jpg" },
   { label: "Nano Banana Pro", bg: G.violet, img: "/chars/bento-2.jpg" },
   { label: "Seedream 5 Lite", bg: G.cyan, img: "/chars/bento-3.jpg" },
 ];
 const BENTO_SIDE = [
-  { label: "Seedream 4.0", bg: G.blue, img: "/chars/bento-4.jpg" },
+  { label: "Seedream 4.0", bg: G.blue, img: "/chars/bento-1.jpg" },
   { label: "Nano Banana 2", bg: G.green },
 ];
 
