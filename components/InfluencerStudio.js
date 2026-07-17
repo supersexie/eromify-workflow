@@ -138,7 +138,7 @@ export default function InfluencerStudio() {
 
   const runBatch = useCallback(() => {
     const prompt = composePrompt();
-    const initial = Array.from({ length: 4 }, () => ({ status: "pending" }));
+    const initial = Array.from({ length: 2 }, () => ({ status: "pending" }));
     setSlots(initial);
     setSelectedUrl(null);
     setSelectedInf(null);
