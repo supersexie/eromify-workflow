@@ -1,4 +1,4 @@
-import { getGenerations, addGeneration, configured } from "@/lib/genstore";
+import { getGenerations, configured } from "@/lib/genstore";
 
 export const dynamic = "force-dynamic";
 
@@ -7,15 +7,8 @@ export async function GET() {
   return Response.json({ items, configured: configured() });
 }
 
-// Record a finished generation in the server index so the Image/Video pages
-// can show it on any origin/device. Best-effort — never blocks the client.
-export async function POST(req) {
-  try {
-    const { url, kind, prompt } = await req.json();
-    if (!url || typeof url !== "string") return Response.json({ ok: false }, { status: 400 });
-    await addGeneration({ url, kind: kind || "image", prompt: prompt || "" });
-    return Response.json({ ok: true });
-  } catch {
-    return Response.json({ ok: false }, { status: 500 });
-  }
+// Web UI no longer writes here (localStorage is enough and Blob Advanced ops
+// were burning the free tier). MCP still calls addGeneration() directly.
+export async function POST() {
+  return Response.json({ ok: true, skipped: true });
 }

@@ -74,14 +74,14 @@ export default function InfluencersPage() {
       id, handle, name: handle, description: editing.description || "",
       image: editing.image, ts: editing.ts || Date.now(),
     });
-    setItems(await syncInfluencers());
+    setItems(await syncInfluencers({ force: true }));
   };
 
   const onDelete = async (id, e) => {
     e?.stopPropagation();
     if (!confirm("Delete this influencer?")) return;
     await deleteInfluencerRemote(id);
-    setItems(await syncInfluencers());
+    setItems(await syncInfluencers({ force: true }));
   };
 
   const canSave = editing && !!editing.image && !!normHandle(editing.handle);
@@ -89,7 +89,7 @@ export default function InfluencersPage() {
 
   const onBuilt = async (saved) => {
     setBuilding(false);
-    setItems(await syncInfluencers());
+    setItems(await syncInfluencers({ force: true }));
   };
 
   return (

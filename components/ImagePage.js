@@ -43,19 +43,10 @@ function savePending(arr) {
   try { localStorage.setItem(PENDING_KEY, JSON.stringify(arr)); } catch {}
 }
 
-// Fire-and-forget: record a finished generation in the server-side index so
-// it shows up across origins/devices, not just on whoever's localStorage.
-function recordGeneration(url, prompt) {
-  if (!url) return;
-  try {
-    fetch("/api/generations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, kind: "image", prompt: prompt || "" }),
-      keepalive: true,
-    }).catch(() => {});
-  } catch {}
-}
+// Web gens stay in localStorage history — do not POST to Blob generations.json
+// (that was 2 Advanced ops per image and blew the free tier).
+function recordGeneration() {}
+
 
 // Force-download an image as a file (works across origins via blob fetch).
 async function downloadImage(url, filename) {
