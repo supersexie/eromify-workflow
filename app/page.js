@@ -378,30 +378,113 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-12 border-t border-white/[0.06]">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-            <Link href="/" className="flex items-center gap-3">
-              <span className="font-heading text-2xl font-bold tracking-tight text-white">
-                <CanvasText
-                  text="Magic Mint"
-                  backgroundClassName="bg-[#EC4899]"
-                  colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
-                  lineGap={4} lineWidth={1.5} animationDuration={8} curveIntensity={30}
-                />
-              </span>
-            </Link>
-            <ul className="flex flex-wrap gap-6 md:gap-8">
-              <li><a href="#features" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Features</a></li>
-              <li><a href="#characters" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Characters</a></li>
-              <li><a href="#pricing" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Pricing</a></li>
-              <li><Link href="/mcp" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Claude MCP</Link></li>
-              <li><Link href="/app" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Open App</Link></li>
-            </ul>
+        {/* FAQ */}
+        <section id="faq" className="max-w-[860px] mx-auto w-full px-6 md:px-16 py-20">
+          <h2 className="font-heading text-[32px] md:text-[44px] leading-[1.1] font-bold tracking-[-0.02em] text-white text-center mb-12">
+            Frequently asked questions
+          </h2>
+          <div className="flex flex-col divide-y divide-white/[0.08]">
+            {[
+              { q: "What is Magic Mint?", a: "Magic Mint is a generative media platform that brings every leading AI image, video, and audio model into one fast, unified workspace. Build AI influencers, generate content, and manage your entire creative pipeline in one place." },
+              { q: "What AI models are available?", a: "We support GPT Image 2, Flux 2 Pro, Flux 2 Max, Nano Banana Pro, Seedream 4.5, Kling v2, Veo, Wan, Hailuo, MiniMax, LTX Video, and more. New models are added regularly." },
+              { q: "How does the Claude MCP connector work?", a: "Connect Magic Mint to Claude (or Cursor) via our MCP server. Once connected, you can generate images and videos directly from your conversations - just describe what you want and Claude handles the rest." },
+              { q: "Can I train my own AI influencer?", a: "Yes. With the Launch plan and above, you can train a custom LoRA on your character's face and style. Once trained, every generation stays consistent and on-brand." },
+              { q: "What payment methods do you accept?", a: "We accept all major credit cards, debit cards, and PayPal. All plans are billed monthly or annually with a discount for annual billing." },
+              { q: "Can I cancel anytime?", a: "Yes. You can cancel your subscription at any time from your account settings. You'll retain access until the end of your current billing period." },
+            ].map((item, i) => (
+              <details key={i} className="group py-5">
+                <summary className="flex items-center justify-between cursor-pointer list-none text-[16px] md:text-[18px] font-medium text-white hover:text-[#EC4899] transition-colors">
+                  {item.q}
+                  <svg className="flex-none ml-4 w-5 h-5 text-[#6B7280] group-open:rotate-45 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
+                </summary>
+                <p className="mt-3 text-[14px] md:text-[15px] leading-[1.6] text-[#9CA3AF] max-w-[720px]">{item.a}</p>
+              </details>
+            ))}
           </div>
-          <div className="flex flex-col md:flex-row justify-between gap-2 text-[13px] text-[#7A7A7A]">
-            <span>© 2026 Magic Mint. All rights reserved.</span>
-            <span>Made for creators.</span>
+        </section>
+
+        {/* CTA Banner */}
+        <section className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-16">
+          <div className="relative rounded-[24px] overflow-hidden bg-[#0c0c0e] border border-white/[0.08] px-8 md:px-16 py-14 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_80%_0%,rgba(236,72,153,0.18),rgba(168,85,247,0.1),transparent_70%)]" />
+            <div className="relative">
+              <h2 className="font-heading text-[28px] md:text-[36px] leading-[1.15] font-bold tracking-[-0.02em] text-white mb-3">Build your AI creator today.</h2>
+              <p className="text-[15px] leading-[1.55] text-[#9CA3AF] max-w-[480px]">Photos, video, and everything in between - grow and monetize, all in one studio.</p>
+            </div>
+            <Link href={signUpHref} className="relative inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-gradient-to-r from-[#EC4899] to-[#F97316] text-white hover:brightness-110 transition-all flex-none">
+              Start creating free
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </Link>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-16 pb-10 border-t border-white/[0.08]">
+          <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 md:gap-8 mb-14">
+            <div>
+              <Link href="/" className="inline-flex items-center gap-3 mb-5">
+                <span className="font-heading text-2xl font-bold tracking-tight text-white">
+                  <CanvasText
+                    text="Magic Mint"
+                    backgroundClassName="bg-[#EC4899]"
+                    colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
+                    lineGap={4} lineWidth={1.5} animationDuration={8} curveIntensity={30}
+                  />
+                </span>
+              </Link>
+              <p className="text-[14px] leading-[1.55] text-[#9CA3AF] max-w-[260px] mb-6">The all-in-one studio for building, growing, and monetizing AI influencers.</p>
+              <div className="flex gap-3">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-white/[0.1] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-white/[0.2] transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+                </a>
+                <a href="mailto:support@magicmint.pro" className="w-9 h-9 rounded-full border border-white/[0.1] flex items-center justify-center text-[#9CA3AF] hover:text-white hover:border-white/[0.2] transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>
+                </a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] mb-4">Product</h4>
+              <ul className="space-y-2.5">
+                <li><a href="#pricing" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Pricing</a></li>
+                <li><Link href="/image" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Image Generation</Link></li>
+                <li><Link href="/video" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Video Generation</Link></li>
+                <li><Link href="/upscale" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Upscale</Link></li>
+                <li><Link href="/mcp" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Claude MCP</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] mb-4">Company</h4>
+              <ul className="space-y-2.5">
+                <li><a href="mailto:support@magicmint.pro" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Contact</a></li>
+                <li><a href="mailto:support@magicmint.pro" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Support</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] mb-4">Get Started</h4>
+              <ul className="space-y-2.5">
+                <li><Link href={signUpHref} className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Sign up</Link></li>
+                <li><Link href={signInHref} className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Log in</Link></li>
+                <li><Link href="/mcp" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Claude MCP</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] mb-4">Legal & Safety</h4>
+              <ul className="space-y-2.5">
+                <li><Link href="/terms" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/acceptable-use" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Acceptable Use</Link></li>
+                <li><Link href="/content-moderation" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Content Moderation</Link></li>
+                <li><Link href="/content-removal" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Content Removal</Link></li>
+                <li><Link href="/privacy" className="text-[14px] text-[#9CA3AF] hover:text-white transition-colors">Privacy</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-3 pt-8 border-t border-white/[0.06]">
+            <span className="text-[13px] text-[#6B7280]">© 2026 Magic Mint. All rights reserved.</span>
+            <div className="flex gap-6">
+              <Link href="/terms" className="text-[13px] text-[#6B7280] hover:text-white transition-colors">Terms</Link>
+              <Link href="/acceptable-use" className="text-[13px] text-[#6B7280] hover:text-white transition-colors">AUP</Link>
+              <Link href="/privacy" className="text-[13px] text-[#6B7280] hover:text-white transition-colors">Privacy</Link>
+            </div>
           </div>
         </footer>
 
