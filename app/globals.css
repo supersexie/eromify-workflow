@@ -1596,7 +1596,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .ip-edit-src-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
 .ip-bar-generate {
   display: inline-flex; align-items: center; gap: 8px;
-  height: 40px; padding: 0 20px; border-radius: 12px;
+  height: 40px; padding: 0 20px; border-radius: 9999px;
   background: var(--grad); border: none; color: #fff;
   font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
   box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
@@ -1606,7 +1606,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 /* While actively generating the button is disabled, but it's WORKING, not
    forbidden — show a progress cursor and keep it looking active. */
 .ip-bar-generate.is-running:disabled { cursor: progress; opacity: .9; }
-.ip-bar-count { background: rgba(0,0,0,.25); padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.ip-bar-count { background: rgba(0,0,0,.25); padding: 2px 8px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
 .ip-bar-chips { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 0 4px; flex-wrap: wrap; }
 /* On desktop the row groups are transparent (children flow inline); on mobile
    (below) they become explicit full-width rows. */
@@ -1617,7 +1617,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .ip-gpt-mobile { display: none; }
 /* Generate pinned to the bottom-right of the chatbox, sized like Enhance. */
 .ip-bar-generate-corner {
-  margin-left: auto; height: 26px; padding: 0 12px; border-radius: 8px;
+  margin-left: auto; height: 26px; padding: 0 12px; border-radius: 9999px;
   font-size: 12px; font-weight: 600; gap: 6px;
   box-shadow: 0 2px 10px rgba(236, 72, 153, 0.35);
 }
@@ -1625,7 +1625,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .pb-run-x { font-size: 11px; font-weight: 700; opacity: 0.9; }
 .ip-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  height: 28px; padding: 0 10px; border-radius: 8px;
+  height: 28px; padding: 0 10px; border-radius: 9999px;
   background: var(--surface-2); border: 1px solid var(--line);
   color: var(--text); font-size: 12px; font-weight: 500;
   font-family: inherit; cursor: pointer;
