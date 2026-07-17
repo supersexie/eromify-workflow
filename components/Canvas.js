@@ -686,7 +686,7 @@ function CanvasInner({ workflowId }) {
           minZoom={0.2}
           maxZoom={2}
         >
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} color="#2a2a30" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} color="rgba(236,72,153,0.12)" />
         </ReactFlow>
       </div>
 
