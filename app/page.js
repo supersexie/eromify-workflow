@@ -51,7 +51,7 @@ const BENTO_TILES = [
 const CHARS = [
   { name: "Sofia", faded: false, bg: G.pink, imgs: ["/chars/sofia-1.jpg","/chars/sofia-2.jpg","/chars/sofia-3.jpg","/chars/sofia-4.jpg","/chars/sofia-5.jpg","/chars/sofia-6.jpg"] },
   { name: "Aria", faded: false, bg: G.violet, imgs: ["/chars/aria-1.jpg","/chars/aria-2.jpg","/chars/aria-3.jpg","/chars/aria-4.jpg","/chars/aria-5.jpg","/chars/aria-6.jpg"] },
-  { name: "Luna", faded: false, bg: G.blue },
+  { name: "Luna", faded: false, bg: G.blue, imgs: ["/chars/luna-1.jpg","/chars/luna-2.jpg","/chars/luna-3.jpg","/chars/luna-4.jpg","/chars/luna-5.jpg","/chars/luna-6.jpg"] },
 ];
 
 export default function Home() {
