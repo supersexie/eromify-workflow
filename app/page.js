@@ -205,9 +205,9 @@ export default function Home() {
                       On it. Generating 8 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
                     </p>
                     <div className="grid grid-cols-4 gap-2">
-                      {[G.pink, G.violet, G.blue, G.amber].map((bg, i) => (
+                      {["/chars/mcp-1.jpg","/chars/mcp-2.jpg","/chars/mcp-3.jpg","/chars/mcp-4.jpg"].map((src, i) => (
                         <div key={i} className="aspect-[4/5] rounded-xl overflow-hidden bg-[#0a0a0c] border border-white/[0.06]">
-                          <div className="w-full h-full opacity-40" style={{ background: bg }} />
+                          <img src={src} alt={`Generated ${i + 1}`} className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>
