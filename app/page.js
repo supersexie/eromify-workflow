@@ -329,7 +329,7 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <Link href="/image" className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full text-white border border-[rgba(236,72,153,0.40)] transition-all" style={{ background: "linear-gradient(180deg,#1A1A1A 0%,#0A0A0A 100%)", boxShadow: "inset 0 1px 0 rgba(236,72,153,0.20)" }}>
+            <Link href="/image" className="inline-flex items-center gap-2 text-sm font-semibold px-7 py-3.5 rounded-full bg-[#EC4899] text-white hover:brightness-110 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
               Try Enhance →
             </Link>
           </div>
