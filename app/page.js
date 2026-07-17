@@ -302,7 +302,7 @@ export default function Home() {
         </section>
 
         {/* Character gallery */}
-        <section id="characters" className="max-w-[1440px] mx-auto w-full flex flex-col md:flex-row items-start px-6 md:px-16 py-24 gap-8 md:gap-12">
+        <section id="characters" className="max-w-[1440px] mx-auto w-full flex flex-col md:flex-row items-start px-6 md:px-16 py-24 gap-8 md:gap-20">
           <div className="flex-none w-full md:w-[300px] mb-8 md:mb-0">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">AI Characters</p>
             <h2 className="font-heading text-[36px] md:text-[56px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-4">Build your<br />own AI<br />influencer.</h2>
