@@ -46,7 +46,7 @@ const BENTO_WIDE = [
 ];
 const BENTO_SIDE = [
   { label: "Seedream 4.0", bg: G.blue, img: "/chars/bento-1.jpg" },
-  { label: "Nano Banana 2", bg: G.green },
+  { label: "Nano Banana 2", bg: G.green, img: "/chars/bento-5.jpg" },
 ];
 
 // Character gallery
