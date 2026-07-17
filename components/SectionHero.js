@@ -2,11 +2,26 @@
 
 // Shared empty-state hero with floating tiles — used by the Image,
 // Video (create/edit), and Influencers sections so they all share one look.
+// Default tiles are gradient placeholders (used by Video pages).
 const TILES = [
+  { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Portrait" },
+  { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Concept" },
+  { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Editorial" },
+  { hue: "linear-gradient(135deg,#10b981,#a855f7)", label: "Surreal" },
+];
+
+export const IMAGE_TILES = [
   { img: "/chars/sofia-1.jpg", label: "Portrait" },
   { img: "/chars/aria-3.jpg", label: "Concept" },
   { img: "/chars/luna-2.jpg", label: "Editorial" },
   { img: "/chars/sofia-4.jpg", label: "Surreal" },
+];
+
+export const INFLUENCER_TILES = [
+  { img: "/chars/luna-1.jpg", label: "Portrait" },
+  { img: "/chars/sofia-3.jpg", label: "Concept" },
+  { img: "/chars/aria-5.jpg", label: "Editorial" },
+  { img: "/chars/luna-6.jpg", label: "Surreal" },
 ];
 
 export default function SectionHero({ title, brand, sub, tiles = TILES }) {

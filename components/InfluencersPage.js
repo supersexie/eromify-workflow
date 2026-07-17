@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
-import SectionHero from "@/components/SectionHero";
+import SectionHero, { INFLUENCER_TILES } from "@/components/SectionHero";
 import InfluencerBuilder from "@/components/InfluencerBuilder";
 import { listInfluencers, syncInfluencers, saveInfluencerRemote, deleteInfluencerRemote, normHandle } from "@/lib/influencers";
 
@@ -108,6 +108,7 @@ export default function InfluencersPage() {
 
       <div className="inf-scroll">
       <SectionHero
+        tiles={INFLUENCER_TILES}
         title="Build your"
         brand="Influencers"
         sub="No AI slop — pick a vibe, dial in the look, and get a super realistic influencer in under a minute. Then summon her anywhere with @handle."

@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
-import SectionHero from "@/components/SectionHero";
+import SectionHero, { IMAGE_TILES } from "@/components/SectionHero";
 import { listInfluencers, syncInfluencers, resolveMentions, IDENTITY_CLAUSE } from "@/lib/influencers";
 import { imageCredits } from "@/lib/credits";
 import MentionField from "@/components/MentionField";
@@ -530,6 +530,7 @@ export default function ImagePage() {
         </div>
         {results.length === 0 && pending.length === 0 ? (
           <SectionHero
+            tiles={IMAGE_TILES}
             title={mode === "swap" ? "Face swap with" : mode === "edit" ? "Edit with" : "Start creating with"}
             brand={mode === "swap" ? "Influencers" : model}
             sub={
