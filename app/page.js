@@ -15,10 +15,47 @@ const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 // monthly = full monthly price; annual = effective monthly price when billed
 // yearly. Kept in sync with app/pricing/page.js — mirrors Eromify tiers.
 const PLANS = [
-  { name: "Builder", price: 2.99, priceMonthly: 29, note: "500 credits per month", features: ["Image generation", "Core AI models", "Node-based canvas"], popular: false },
-  { name: "Launch", price: 7.99, priceMonthly: 45, note: "1,000 credits per month", features: ["Influencer training", "Flux LoRA training", "Everything in Builder"], popular: false },
-  { name: "Growth", price: 15.99, priceMonthly: 79, note: "4,000 credits per month", features: ["Video generation", "Face swap & upscale", "Claude MCP connector"], popular: true },
-  { name: "Creator", price: 23.99, priceMonthly: 99, note: "6,000 credits per month", features: ["4K & Pro video models", "Motion control", "AI Agent"], popular: false, best: true },
+  {
+    name: "Builder",
+    price: 2.99,
+    priceMonthly: 29,
+    note: "500 credits per month",
+    desc: "Start creating AI images in minutes.",
+    cta: "Start creating",
+    features: ["Image generation", "Flux 2 Pro, Nano Banana 2, Z-image Turbo"],
+    popular: false,
+  },
+  {
+    name: "Launch",
+    price: 7.99,
+    priceMonthly: 45,
+    note: "1,000 credits per month",
+    desc: "Train your own AI persona and create on autopilot.",
+    cta: "Train my AI",
+    features: ["Influencer Training", "Flux LoRA training", "Everything in Builder"],
+    popular: false,
+  },
+  {
+    name: "Growth",
+    price: 15.99,
+    priceMonthly: 79,
+    note: "4,000 credits per month",
+    desc: "Unlock video, face swap, and the full studio.",
+    cta: "Unlock video",
+    features: ["Video & NSFW generation", "Workflow Canvas, Face Swap, Image Upscale", "Claude MCP, Kling, GPT Image, Seedream"],
+    popular: true,
+  },
+  {
+    name: "Creator",
+    price: 23.99,
+    priceMonthly: 99,
+    note: "6,000 credits per month",
+    desc: "Every model unlocked. 4K, premium video, unlimited.",
+    cta: "Get everything",
+    features: ["Motion Control, Video Upscale, AI Agent", "Kling 3.0 Pro, Seedance 2.0, SeedVR", "Wan 2.7 Image to Video Spicy"],
+    popular: false,
+    best: true,
+  },
 ];
 
 // SHOWCASE MEDIA REMOVED. Every tile below renders as a gradient placeholder
@@ -179,12 +216,17 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="hidden md:grid grid-cols-2 gap-4 flex-none w-[340px]">
+          <div className="hidden md:grid grid-cols-3 gap-3 flex-none w-[420px]">
             {[
               "linear-gradient(135deg,#581c87,#831843)",
               "linear-gradient(135deg,#701a75,#581c87)",
+              "linear-gradient(135deg,#831843,#701a75)",
               "linear-gradient(135deg,#581c87,#701a75)",
               "linear-gradient(135deg,#701a75,#831843)",
+              "linear-gradient(135deg,#831843,#581c87)",
+              "linear-gradient(135deg,#701a75,#581c87)",
+              "linear-gradient(135deg,#581c87,#831843)",
+              "linear-gradient(135deg,#831843,#701a75)",
             ].map((bg, i) => (
               <div key={i} className="aspect-square rounded-2xl" style={{ background: bg }} />
             ))}
@@ -331,7 +373,8 @@ export default function Home() {
               <div key={plan.name} className={`relative flex flex-col rounded-[28px] p-8 border min-h-[420px] ${plan.popular || plan.best ? "border-[rgba(236,72,153,0.40)] shadow-[0_0_40px_rgba(236,72,153,0.10),inset_0_1px_0_rgba(236,72,153,0.12)]" : "border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"}`}>
                 {plan.popular && <span className="absolute -top-3.5 left-6 bg-[#EC4899] text-black text-[11px] font-semibold px-3 py-1 rounded-full">Most popular</span>}
                 {plan.best && <span className="absolute -top-3.5 left-6 bg-[#EC4899] text-black text-[11px] font-semibold px-3 py-1 rounded-full">Best value</span>}
-                <h3 className="text-xl font-semibold text-white mb-4">{plan.name}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{plan.name}</h3>
+                <p className="text-[13px] text-[#B8B8B8] leading-snug mb-4 min-h-[2.6em]">{plan.desc}</p>
                 <div className="flex items-baseline gap-1 mb-2">
                   <span className={`text-[48px] leading-none font-bold tracking-[-0.02em] ${plan.popular || plan.best ? "text-[#EC4899]" : "text-white"}`}>${annual ? plan.price : plan.priceMonthly}</span>
                   <span className="text-sm text-[#7A7A7A]">/mo</span>
@@ -341,7 +384,7 @@ export default function Home() {
                   {plan.features.map((f) => <li key={f} className="text-sm text-[#B8B8B8]">✓ {f}</li>)}
                 </ul>
                 <Link href={signUpHref} className={`w-full text-center text-sm font-semibold py-3.5 rounded-full transition-all ${plan.popular || plan.best ? "bg-[#EC4899] text-black hover:brightness-110" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
-                  Choose {plan.name}
+                  {plan.cta || `Choose ${plan.name}`}
                 </Link>
               </div>
             ))}

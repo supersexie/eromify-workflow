@@ -10,11 +10,40 @@ const Arrow = () => (
   </svg>
 );
 
-const Check = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6L9 17l-5-5" />
-  </svg>
-);
+// Feature / model matrix copied from Eromify (build.py TIERS / FEATURES / MODELS).
+// cols order: Builder, Launch, Growth, Creator — 1 = included, 0 = not.
+const FEATURE_ROWS = [
+  { label: "Influencer Training", cols: [0, 1, 1, 1] },
+  { label: "Image generation", cols: [1, 1, 1, 1] },
+  { label: "Video generation", cols: [0, 0, 1, 1] },
+  { label: "NSFW generation", cols: [0, 0, 1, 1] },
+  { label: "Workflow Canvas", cols: [0, 0, 1, 1] },
+  { label: "Motion Control", cols: [0, 0, 0, 1] },
+  { label: "Face Swap", cols: [0, 0, 1, 1] },
+  { label: "Image Upscale", cols: [0, 0, 1, 1] },
+  { label: "Video Upscale", cols: [0, 0, 0, 1] },
+  { label: "Claude MCP", tag: "Automation", cols: [0, 0, 1, 1] },
+  { label: "AI Agent", tag: "Automation", cols: [0, 0, 0, 1] },
+];
+
+const MODEL_ROWS = [
+  { label: "Flux 2 Pro", cols: [1, 1, 1, 1] },
+  { label: "Flux LoRA", tag: "Training", cols: [0, 1, 1, 1] },
+  { label: "Nano Banana 2", cols: [1, 1, 1, 1] },
+  { label: "Z-image Turbo", cols: [1, 1, 1, 1] },
+  { label: "Kling Image O3", cols: [0, 0, 1, 1] },
+  { label: "GPT Image 2", cols: [0, 0, 1, 1] },
+  { label: "Seedream 4.5", cols: [0, 0, 1, 1] },
+  { label: "Kling 2.6 Pro", cols: [0, 0, 1, 1] },
+  { label: "Kling 3.0 Pro", tag: "4K", cols: [0, 0, 0, 1] },
+  { label: "SeedVR Upscale", tag: "4K", cols: [0, 0, 0, 1] },
+  { label: "Seedance 2.0", tag: "4K", cols: [0, 0, 0, 1] },
+  { label: "Z-image Spicy", cols: [0, 0, 1, 1] },
+  { label: "Qwen Image Edit Spicy", cols: [0, 0, 1, 1] },
+  { label: "Wan 2.7 Image to Video Spicy", tag: "4K", cols: [0, 0, 0, 1] },
+];
+
+const TAG_CLASS = { Automation: "lp-tag-auto", Training: "lp-tag-train", "4K": "lp-tag-4k" };
 
 // monthly = full monthly price; annual = effective monthly price when billed yearly.
 // Kept in sync with the pricing teaser on app/page.js — mirrors Eromify tiers.
@@ -25,12 +54,8 @@ const PLANS = [
     monthly: 29,
     annual: 2.99,
     save: 312,
-    features: [
-      "500 credits per month",
-      "Image generation",
-      "Core AI models (Flux 2 Pro, Nano Banana 2, Z-image Turbo)",
-      "Node-based canvas",
-    ],
+    credits: "500",
+    cta: "Start creating",
   },
   {
     name: "Launch",
@@ -38,12 +63,8 @@ const PLANS = [
     monthly: 45,
     annual: 7.99,
     save: 444,
-    features: [
-      "1,000 credits per month",
-      "Everything in Builder",
-      "Influencer training",
-      "Flux LoRA training",
-    ],
+    credits: "1,000",
+    cta: "Train my AI",
   },
   {
     name: "Growth",
@@ -51,15 +72,9 @@ const PLANS = [
     monthly: 79,
     annual: 15.99,
     save: 756,
+    credits: "4,000",
+    cta: "Unlock video",
     popular: true,
-    features: [
-      "4,000 credits per month",
-      "Everything in Launch",
-      "Video generation",
-      "Face swap & image upscale",
-      "Claude MCP connector",
-      "Premium models (Kling, GPT Image, Seedream)",
-    ],
   },
   {
     name: "Creator",
@@ -67,17 +82,20 @@ const PLANS = [
     monthly: 99,
     annual: 23.99,
     save: 900,
+    credits: "6,000",
+    cta: "Get everything",
     best: true,
-    features: [
-      "6,000 credits per month",
-      "Everything in Growth",
-      "Motion control",
-      "4K & Pro video models",
-      "Video upscale",
-      "AI Agent",
-    ],
   },
 ];
+
+function MatrixRow({ label, tag, included }) {
+  return (
+    <span className={`lp-feat-row ${included ? "is-yes" : "is-no"}`}>
+      <span className="lp-feat-label">{label}</span>
+      {tag ? <span className={`lp-tag ${TAG_CLASS[tag]}`}>{tag}</span> : <span />}
+    </span>
+  );
+}
 
 const PRICE_FAQS = [
   { q: "What are Magic Mint credits and how do they work?", a: "Every generation — an image, a video clip, a voiceover, or a script — uses credits from your monthly balance. Heavier jobs (longer video, premium models) cost more. Plans include 500 to 6,000 credits per month, and credits refresh at the start of each billing cycle." },
@@ -157,19 +175,28 @@ export default function Pricing() {
           </div>
 
           <div className="lp-price-row">
-            {PLANS.map((p) => (
-              <div key={p.name} className={`lp-price ${p.popular || p.best ? "is-popular" : ""}`}>
+            {PLANS.map((p, i) => (
+              <div key={p.name} className={`lp-price ${p.popular ? "is-popular" : ""} ${p.best ? "is-best" : ""}`}>
                 {p.popular && <span className="lp-price-badge">Most popular</span>}
                 {p.best && <span className="lp-price-badge">Best value</span>}
                 <span className="lp-price-name">{p.name}</span>
                 <span className="lp-price-desc">{p.desc}</span>
                 <span className="lp-price-amt">${annual ? p.annual : p.monthly}<span>/mo</span></span>
                 <span className="lp-price-billed">{annual ? "billed for 12 months" : "billed monthly"}</span>
-                {annual && p.save ? <span className="lp-price-billed">Save ${p.save}/year</span> : null}
-                <Link href={signUpHref} className="lp-btn">Get started <Arrow /></Link>
-                <ul className="lp-price-feats">
-                  {p.features.map((f) => <li key={f} className="lp-feat"><Check />{f}</li>)}
-                </ul>
+                {annual && p.save ? <span className="lp-price-save">Save ${p.save}/year</span> : <span className="lp-price-save" />}
+                <Link href={signUpHref} className="lp-btn">{p.cta} <Arrow /></Link>
+                <span className="lp-price-credits">{p.credits} credits per month</span>
+                <div className="lp-price-feats">
+                  {FEATURE_ROWS.map((row) => (
+                    <MatrixRow key={row.label} label={row.label} tag={row.tag} included={!!row.cols[i]} />
+                  ))}
+                </div>
+                <div className="lp-price-sub">Unlimited access</div>
+                <div className="lp-price-feats">
+                  {MODEL_ROWS.map((row) => (
+                    <MatrixRow key={row.label} label={row.label} tag={row.tag} included={!!row.cols[i]} />
+                  ))}
+                </div>
               </div>
             ))}
           </div>

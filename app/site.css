@@ -155,8 +155,35 @@
 .lp-price-amt { font-size: 2.4rem; font-weight: 600; color: var(--ink); letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: .2rem; }
 .lp-price-amt span { font-size: .88rem; color: var(--muted-2); font-weight: 400; }
 .lp-price-billed { font-size: .75rem; color: var(--faint); }
+.lp-price-save { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--lp-accent); min-height: 1em; }
 .lp-price .lp-btn { width: 100%; justify-content: center; margin: .4rem 0 .2rem; }
-.lp-price-feats { list-style: none; margin: .5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.lp-price-credits {
+  font-size: .84rem; font-weight: 600; color: var(--ink); margin-top: .2rem;
+  display: flex; align-items: center; gap: .35rem;
+}
+.lp-price-credits::before { content: "✦"; color: var(--lp-accent); }
+.lp-price-feats { list-style: none; margin: .5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+.lp-feat-row {
+  display: grid; grid-template-columns: 1rem 1fr auto; gap: .5rem; align-items: center;
+  font-size: .8rem; line-height: 1.35;
+}
+.lp-feat-row::before { font-size: .8rem; grid-column: 1; }
+.lp-feat-label { grid-column: 2; }
+.lp-feat-row .lp-tag { grid-column: 3; }
+.lp-feat-row.is-yes { color: var(--text); }
+.lp-feat-row.is-no { color: var(--faint); }
+.lp-feat-row.is-yes::before { content: "✓"; color: var(--ink); }
+.lp-feat-row.is-no::before { content: "—"; color: var(--faint); }
+.lp-tag { font-size: .62rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-left: auto; }
+.lp-tag-auto { color: #5b9dff; }
+.lp-tag-train { color: #e08a3c; }
+.lp-tag-4k { color: var(--muted-2); }
+.lp-price.is-best .lp-tag-4k { color: var(--lp-accent); }
+.lp-price.is-best { border-color: rgba(37,99,235,.4); background: linear-gradient(180deg, var(--lp-accent-soft), transparent 55%), var(--surface); }
+.lp-price-sub {
+  margin-top: .85rem; padding-top: .7rem; border-top: 1px solid var(--line);
+  font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2);
+}
 .lp-feat { display: flex; align-items: flex-start; gap: .5rem; font-size: .84rem; color: var(--text); }
 .lp-feat svg { flex: 0 0 auto; color: var(--lp-accent); margin-top: 2px; }
 
