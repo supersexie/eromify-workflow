@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { auth } from "@/auth";
+
+async function getWhopToken() {
+  const session = await auth();
+  if (session?.user?.whopToken) return session.user.whopToken;
+
+  const cookieStore = await cookies();
+  return cookieStore.get("whop_token")?.value || null;
+}
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("whop_token")?.value;
+  const token = await getWhopToken();
 
   if (!token) {
     return NextResponse.json({ tier: null, active: false });

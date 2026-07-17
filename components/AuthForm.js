@@ -3,8 +3,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import WhopSignInButton from "@/components/WhopSignInButton";
 
-export default function AuthForm({ mode = "signin", callbackUrl = "/app", googleEnabled = true }) {
+export default function AuthForm({ mode = "signin", callbackUrl = "/app", googleEnabled = true, whopEnabled = false }) {
   const isSignUp = mode === "signup";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -103,10 +104,11 @@ export default function AuthForm({ mode = "signin", callbackUrl = "/app", google
         </button>
       </form>
 
-      {googleEnabled && (
+      {(googleEnabled || whopEnabled) && (
         <>
           <div className="auth-divider"><span>or</span></div>
-          <GoogleSignInButton callbackUrl={callbackUrl} />
+          {whopEnabled && <WhopSignInButton callbackUrl={callbackUrl} />}
+          {googleEnabled && <GoogleSignInButton callbackUrl={callbackUrl} />}
         </>
       )}
 

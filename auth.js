@@ -35,7 +35,32 @@ if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
   );
 }
 
+if (process.env.WHOP_CLIENT_ID && process.env.WHOP_CLIENT_SECRET) {
+  providers.push({
+    id: "whop",
+    name: "Whop",
+    type: "oauth",
+    authorization: {
+      url: "https://whop.com/oauth",
+      params: { scope: "openid profile email", client_id: process.env.WHOP_CLIENT_ID },
+    },
+    token: "https://api.whop.com/api/v5/oauth/token",
+    userinfo: "https://api.whop.com/api/v5/me",
+    clientId: process.env.WHOP_CLIENT_ID,
+    clientSecret: process.env.WHOP_CLIENT_SECRET,
+    profile(profile) {
+      return {
+        id: profile.id,
+        name: profile.name || profile.username || profile.email,
+        email: profile.email,
+        image: profile.profile_pic_url || null,
+      };
+    },
+  });
+}
+
 export const googleEnabled = !!(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
+export const whopEnabled = !!(process.env.WHOP_CLIENT_ID && process.env.WHOP_CLIENT_SECRET);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -47,6 +72,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user, account, profile }) {
       if (user?.id) token.sub = user.id;
       if (account?.provider === "google" && profile?.sub) token.sub = profile.sub;
+      if (account?.provider === "whop") {
+        token.sub = profile?.id || user?.id;
+        token.whopToken = account.access_token;
+      }
       if (user?.email) token.email = user.email;
       if (user?.name) token.name = user.name;
       return token;
@@ -56,6 +85,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (token.sub) session.user.id = token.sub;
         if (token.email) session.user.email = token.email;
         if (token.name) session.user.name = token.name;
+        if (token.whopToken) session.user.whopToken = token.whopToken;
       }
       return session;
     },
