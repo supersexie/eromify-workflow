@@ -38,9 +38,6 @@ const G = {
   amber: "linear-gradient(135deg,#f59e0b,#ec4899)",
 };
 
-// GPT Image 2 showcase
-const GPT_TILES = [G.pink, G.violet, G.blue, G.amber];
-
 // Bento feature tiles — model showcase
 const BENTO_TILES = [
   { label: "Seedream 4.5", cls: "col-span-2", bg: G.pink },
@@ -196,30 +193,79 @@ export default function Home() {
         </section>
         </div>
 
-        {/* GPT Image 2 Feature Section */}
-        <section className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-20">
-          <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.02] p-6 md:p-10 flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-            <div className="flex-none max-w-[340px]">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-[#EC4899] bg-[rgba(236,72,153,0.12)] border border-[rgba(236,72,153,0.25)] px-3 py-1 rounded-full mb-5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#EC4899] animate-pulse" />
-                New Model
-              </span>
-              <h2 className="font-heading text-[32px] md:text-[40px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-4">
-                Meet GPT Image 2.
-              </h2>
-              <p className="text-[15px] leading-[1.6] text-[#B8B8B8] mb-6">
-                4K images with near-perfect text rendering. The most versatile image model yet.
-              </p>
-              <Link href="/image" className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full bg-white text-black hover:brightness-90 transition-all">
-                Try it out →
-              </Link>
-            </div>
-            <div className="flex-1 grid grid-cols-2 gap-3 w-full">
-              {GPT_TILES.map((bg, i) => (
-                <div key={i} className="aspect-square rounded-[16px] overflow-hidden bg-[#111]">
-                  <div className="w-full h-full opacity-25" style={{ background: bg }} />
+        {/* Claude MCP */}
+        <section id="mcp" className="max-w-[1100px] mx-auto w-full px-6 md:px-10 py-24">
+          <div className="flex flex-col items-center text-center mb-12 md:mb-14">
+            <span className="inline-flex text-[10px] font-semibold tracking-[0.14em] uppercase text-[#EC4899] border border-[rgba(236,72,153,0.45)] px-3.5 py-1.5 rounded-full mb-6">
+              MCP Connector — Growth &amp; Creator
+            </span>
+            <h2 className="font-heading text-[32px] md:text-[48px] leading-[1.1] font-bold tracking-[-0.02em] text-white uppercase max-w-[820px] mb-5">
+              Turn{" "}
+              <span className="inline-flex align-middle mx-1.5 w-9 h-9 md:w-11 md:h-11 rounded-[10px] bg-[#D4A574] items-center justify-center shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2l1.2 6.3L19.5 7l-4.2 4.8L21 15.5l-6.5-.2L12 22l-2.5-6.7L3 15.5l5.7-3.7L4.5 7l6.3 1.3L12 2z" fill="white" />
+                </svg>
+              </span>{" "}
+              Claude into your creative engine
+            </h2>
+            <p className="text-[15px] md:text-lg leading-[1.55] text-[#9CA3AF] max-w-[560px]">
+              Connect Magic Mint to Claude and generate avatar images, videos, and full campaigns right from your conversations.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-5 md:gap-6 items-stretch">
+            {/* Chat mockup */}
+            <div className="rounded-[20px] border border-white/[0.08] bg-[#111114] overflow-hidden flex flex-col min-h-[420px]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
                 </div>
-              ))}
+                <span className="text-[10px] font-semibold tracking-[0.14em] uppercase text-[#6B7280]">Claude × Magic Mint Connector</span>
+              </div>
+              <div className="flex-1 p-5 md:p-6 flex flex-col gap-5">
+                <div className="self-start max-w-[92%] rounded-2xl bg-[#1a1a1f] border border-white/[0.06] px-4 py-3.5 text-[13px] md:text-[14px] leading-[1.55] text-[#E7E7EA]">
+                  Generate 8 IG-ready photos of Lily for this week — vary the outfits, moods, and lighting. Mix indoor and outdoor. 4:5 portrait.
+                </div>
+                <div className="flex gap-3 items-start">
+                  <span className="flex-none mt-0.5 w-7 h-7 rounded-lg bg-[#D4A574] flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 2l1.2 6.3L19.5 7l-4.2 4.8L21 15.5l-6.5-.2L12 22l-2.5-6.7L3 15.5l5.7-3.7L4.5 7l6.3 1.3L12 2z" fill="white" />
+                    </svg>
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] md:text-[14px] leading-[1.55] text-[#E7E7EA] mb-4">
+                      On it. Generating 8 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[G.pink, G.violet, G.blue, G.amber].map((bg, i) => (
+                        <div key={i} className="aspect-[4/5] rounded-xl overflow-hidden bg-[#0a0a0c] border border-white/[0.06]">
+                          <div className="w-full h-full opacity-40" style={{ background: bg }} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature cards */}
+            <div className="flex flex-col gap-5 md:gap-6">
+              <div className="flex-1 rounded-[20px] border border-white/[0.08] bg-[#0c0c0e] p-6 md:p-7 flex flex-col justify-center">
+                <span className="text-[13px] font-semibold tracking-[0.08em] text-[#EC4899] mb-3">01</span>
+                <h3 className="text-[18px] md:text-[20px] font-semibold text-white mb-2.5 tracking-[-0.01em]">Talk to your avatars by name</h3>
+                <p className="text-[14px] leading-[1.55] text-[#9CA3AF]">
+                  Lily, Aria, Maya — Claude knows which trained LoRA to use and never breaks character.
+                </p>
+              </div>
+              <div className="flex-1 rounded-[20px] border border-white/[0.08] bg-[#0c0c0e] p-6 md:p-7 flex flex-col justify-center">
+                <span className="text-[13px] font-semibold tracking-[0.08em] text-[#EC4899] mb-3">02</span>
+                <h3 className="text-[18px] md:text-[20px] font-semibold text-white mb-2.5 tracking-[-0.01em]">Batch generate 12 at a time</h3>
+                <p className="text-[14px] leading-[1.55] text-[#9CA3AF]">
+                  One prompt. One coffee. A week of content rendered while you focus on shipping.
+                </p>
+              </div>
             </div>
           </div>
         </section>
