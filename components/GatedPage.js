@@ -18,9 +18,7 @@ export default function GatedPage({ feature, children }) {
           <h3>{feature}</h3>
           <p>This feature requires the <strong>{needed}</strong> plan or higher.</p>
           <a
-            href="https://whop.com/magic-mint/"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/#pricing"
             className="upgrade-gate-btn"
           >
             Upgrade now
