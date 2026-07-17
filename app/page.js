@@ -34,16 +34,6 @@ const G = {
   amber: "linear-gradient(135deg,#f59e0b,#ec4899)",
 };
 
-// Hero carousel cards
-const CAROUSEL_CARDS = [
-  { model: "Kling Motion Control", headline: "Transfer motion to any character", bg: G.pink, href: "/video" },
-  { model: "Seedance 2.0", headline: "Cinematic AI video from a single prompt", bg: G.violet, href: "/video" },
-  { model: "Wan 2.2 Animate", headline: "Animate any image to life", bg: G.blue, href: "/video" },
-  { model: "Veo", headline: "Google's most advanced video model", bg: G.cyan, href: "/video" },
-  { model: "AI Influencer", headline: "Build a consistent AI identity", bg: G.green, href: "/influencers" },
-  { model: "Kling 2.6 Pro", headline: "Professional-grade video generation", bg: G.amber, href: "/video" },
-];
-
 // GPT Image 2 showcase
 const GPT_TILES = [G.pink, G.violet, G.blue, G.amber];
 
@@ -165,8 +155,8 @@ export default function Home() {
             widening the page. */}
         <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,rgba(236,72,153,0.22)_0%,rgba(236,72,153,0.07)_35%,transparent_70%)]" />
-        <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-16">
-          <div className="relative max-w-[680px] mb-16">
+        <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-24">
+          <div className="relative max-w-[680px]">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Generative media platform</p>
             <h1 className="font-heading text-[44px] md:text-[72px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
               Generate{" "}
@@ -188,23 +178,6 @@ export default function Home() {
                 Browse the gallery →
               </a>
             </div>
-          </div>
-
-          {/* Video Carousel */}
-          <div className="flex gap-5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CAROUSEL_CARDS.map((c) => (
-              <div key={c.model} className="flex-none w-[calc(50%-10px)] min-w-[320px] md:min-w-[380px]">
-                <div className="relative aspect-[16/10] rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0710]">
-                  <div className="absolute inset-0 opacity-25" style={{ background: c.bg }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <span className="text-[11px] text-[#B8B8B8] tracking-[0.05em]">{c.model}</span>
-                    <h3 className="text-[17px] font-semibold text-white mt-1.5 mb-3">{c.headline}</h3>
-                    <Link href={c.href} className="text-[13px] font-medium text-white hover:text-[#EC4899] transition-colors">Try it out →</Link>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </section>
         </div>
