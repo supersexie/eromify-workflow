@@ -1,6 +1,7 @@
 import Canvas from "@/components/Canvas";
+import GatedPage from "@/components/GatedPage";
 
 export default async function EditorPage({ params }) {
   const { id } = await params;
-  return <Canvas workflowId={id} />;
+  return <GatedPage feature="Workflow Canvas"><Canvas workflowId={id} /></GatedPage>;
 }

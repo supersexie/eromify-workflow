@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { moderatePrompt, isExplicitPrompt, checkReferenceImage, classifyOutput, moderateTextOutput, queueForReview } from "@/lib/moderation";
+import { requireFeature } from "@/lib/apiGate";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -157,6 +158,9 @@ function mockFallback(kind, prompt) {
 }
 
 export async function POST(req) {
+  const gate = await requireFeature("Image generation");
+  if (gate) return gate;
+
   const { kind, prompt, model, images, voice, userId } = await req.json();
 
   // --- Moderation gate 1: prompt screening (image AND text prompts) ---

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { uploadDataUrl } from "@/lib/genstore";
+import { requireFeature } from "@/lib/apiGate";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -22,6 +23,9 @@ const VIDEO_UPSCALERS = {
 };
 
 export async function POST(req) {
+  const gate = await requireFeature("Image Upscale");
+  if (gate) return gate;
+
   const { kind, model, media, scale } = await req.json();
 
   if (!FAL) return NextResponse.json({ mock: true, output: "Upscale output (mock — set FAL_KEY)" });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { uploadDataUrl } from "@/lib/genstore";
 import { moderatePrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
+import { requireFeature } from "@/lib/apiGate";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -105,6 +106,9 @@ function parseDataUrl(d) {
 }
 
 export async function POST(req) {
+  const gate = await requireFeature("Video generation");
+  if (gate) return gate;
+
   const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs, audio, userId } = await req.json();
 
   // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
