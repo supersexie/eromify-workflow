@@ -26,7 +26,7 @@ const TABS = [
 // https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
 export default function Tabs({ showBrand = true }) {
   return (
-    <Suspense fallback={<div className="mc-tabs">{showBrand && <Link href="/" className="title-pill"><div className="logo">m</div><span>Magic Mint</span></Link>}</div>}>
+    <Suspense fallback={<div className="mc-tabs">{showBrand && <Link href="/" className="title-pill"><img src="/logo.png" alt="M" className="logo" /><span>Magic Mint</span></Link>}</div>}>
       <TabsInner showBrand={showBrand} />
     </Suspense>
   );
@@ -41,7 +41,7 @@ function TabsInner({ showBrand = true }) {
     <div className="mc-tabs">
       {showBrand && (
         <Link href="/" className="title-pill">
-          <div className="logo">m</div>
+          <img src="/logo.png" alt="M" className="logo" />
           <span>Magic Mint</span>
         </Link>
       )}

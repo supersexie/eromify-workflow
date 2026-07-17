@@ -77,6 +77,7 @@ export default function Home() {
         <nav className="sticky top-0 z-50 h-[72px] bg-[#0A0A0A]/70 backdrop-blur-xl border-b border-white/[0.06]">
           <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between px-6 md:px-16">
             <Link href="/" className="flex items-center gap-3">
+              <img src="/logo.png" alt="Magic Mint" style={{ width: 32, height: 32, borderRadius: 8 }} />
               <span className="font-heading text-2xl font-bold tracking-tight text-white">
                 <CanvasText
                   text="Magic Mint"
@@ -442,6 +443,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 md:gap-8 mb-14">
             <div>
               <Link href="/" className="inline-flex items-center gap-3 mb-5">
+                <img src="/logo.png" alt="Magic Mint" style={{ width: 32, height: 32, borderRadius: 8 }} />
                 <span className="font-heading text-2xl font-bold tracking-tight text-white">
                   <CanvasText
                     text="Magic Mint"

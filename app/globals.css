@@ -68,8 +68,7 @@ body {
 }
 .logo {
   width: 22px; height: 22px; border-radius: 6px;
-  background: var(--grad);
-  display: grid; place-items: center; color: white; font-weight: 700; font-size: 12px;
+  object-fit: cover; display: block;
 }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
 .topbar-right { display: flex; align-items: center; gap: 8px; }

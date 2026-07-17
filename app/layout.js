@@ -7,6 +7,10 @@ import TosGate from "@/components/TosGate";
 export const metadata = {
   title: "Magic Mint — The Node-Based Canvas for AI Influencer Content",
   description: "Build, customize and monetize stunning AI personas. Generate images, video, voiceovers, and scripts on one infinite canvas.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 // Mobile foundation: render at device width (not a zoomed-out desktop width).

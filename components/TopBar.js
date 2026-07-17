@@ -9,7 +9,7 @@ export default function TopBar({ right }) {
   return (
     <div className="app-topbar">
       <Link href="/" className="app-topbar-brand">
-        <div className="logo">m</div>
+        <img src="/logo.png" alt="M" className="logo" />
         <span>Magic Mint</span>
       </Link>
       <div className="nav-pill">
