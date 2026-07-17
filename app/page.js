@@ -125,6 +125,7 @@ export default function Home() {
               </li>
               <li><a href="#characters" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Characters</a></li>
               <li><a href="#pricing" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Pricing</a></li>
+              <li><a href="#mcp" className="text-sm text-[#B8B8B8] hover:text-white transition-colors">Claude MCP</a></li>
             </ul>
             <div className="flex items-center gap-4">
               <Link href={signInHref} className="text-sm text-[#B8B8B8] hover:text-white transition-colors font-medium">Log in</Link>
