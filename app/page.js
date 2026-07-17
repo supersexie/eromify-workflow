@@ -47,16 +47,6 @@ const BENTO_TILES = [
   { label: "Nano Banana 2", cls: "", bg: G.green },
 ];
 
-// Gallery
-const GALLERY_TILES = [
-  { cls: "col-span-2", bg: G.pink },
-  { cls: "", bg: G.violet },
-  { cls: "row-span-2", bg: G.blue },
-  { cls: "", bg: G.cyan },
-  { cls: "", bg: G.green },
-  { cls: "col-span-2", bg: G.amber },
-];
-
 // Character gallery
 const CHARS = [
   { name: "Sofia", faded: false, bg: G.pink },
@@ -170,8 +160,8 @@ export default function Home() {
               <Link href={signUpHref} className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-[#EC4899] text-white hover:brightness-110 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]">
                 Start creating →
               </Link>
-              <a href="#gallery" className="text-sm font-medium text-white hover:text-[#EC4899] transition-colors flex items-center gap-1.5">
-                Browse the gallery →
+              <a href="#features" className="text-sm font-medium text-white hover:text-[#EC4899] transition-colors flex items-center gap-1.5">
+                See how it works →
               </a>
             </div>
           </div>
@@ -408,25 +398,6 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Gallery */}
-        <section id="gallery" className="max-w-[1440px] mx-auto w-full px-6 md:px-16 py-24">
-          <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4 text-center">Generated with Magic Mint</p>
-          <h2 className="font-heading text-[36px] leading-[1.2] font-semibold tracking-[-0.01em] text-white mb-12 text-center">All in one place.</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 grid-rows-[repeat(4,160px)] md:grid-rows-[repeat(3,220px)] gap-4 mb-12">
-            {GALLERY_TILES.map((t, i) => (
-              <div key={i} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
-                <div className="absolute inset-0 opacity-25" style={{ background: t.bg }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center">
-            <Link href={signUpHref} className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-4 rounded-full bg-[#EC4899] text-black hover:brightness-110 transition-all">
-              Start creating →
-            </Link>
           </div>
         </section>
 
