@@ -54,9 +54,9 @@ body {
 
 /* ---- Top bar ---- */
 .topbar {
-  position: fixed; top: 0; left: 0; right: 0; height: 51px;
+  position: fixed; top: 0; left: 0; right: 0;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 16px; z-index: 10; pointer-events: none;
+  padding: 14px 24px; z-index: 10; pointer-events: none;
 }
 .topbar > * { pointer-events: auto; }
 .title-pill {
@@ -78,8 +78,12 @@ body {
    don't shift it off-center. */
 .topbar-nav {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm);
+  background: rgba(255,255,255,0.06);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px; padding: 4px 6px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 .topbar-nav .mc-tab { font-size: 13px; padding: 6px 12px; }
 .chip {
@@ -440,6 +444,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   height: 26px; padding: 0 12px; border-radius: 9999px;
   width: 130px; flex-shrink: 0; margin-left: auto;
+  box-sizing: border-box;
   background: var(--grad); border: none; color: #fff;
   font-size: 11px; font-weight: 600; font-family: inherit; cursor: pointer;
   white-space: nowrap;
@@ -528,8 +533,10 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 
 .pb-chips {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  /* Match .pb-title-row / .ip-bar-chips so Enhance + Generate share the same right edge. */
+  padding: 0 4px;
 }
-.pb-chips-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pb-chips-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
 .chip-wrap { position: relative; }
 .chip-btn {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1627,6 +1634,7 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   font-size: 11px; font-weight: 600; gap: 5px;
   box-shadow: 0 2px 10px rgba(236, 72, 153, 0.35);
   width: 130px; justify-content: center; flex-shrink: 0;
+  box-sizing: border-box;
 }
 .ip-bar-generate-corner .ip-bar-count { padding: 1px 6px; font-size: 11px; }
 .pb-run-x { font-size: 11px; font-weight: 700; opacity: 0.9; }
