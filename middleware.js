@@ -1,8 +1,22 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import authConfig from "./auth.config";
 
-// Gate the app + editor; the marketing site (/) and auth pages stay public.
-const isProtected = createRouteMatcher(["/app(.*)", "/w(.*)", "/motion(.*)", "/image(.*)", "/video(.*)", "/upscale(.*)", "/library(.*)", "/influencers(.*)", "/mcp"]);
+const PROTECTED = [
+  "/app",
+  "/w",
+  "/motion",
+  "/image",
+  "/video",
+  "/upscale",
+  "/library",
+  "/influencers",
+  "/mcp",
+];
+
+function isProtected(pathname) {
+  return PROTECTED.some((p) => pathname === p || pathname.startsWith(p + "/"));
+}
 
 // Force the bare apex onto www so the page and its /api calls share one origin.
 // Without this, the page loads on magicmint.pro but /api cross-redirects to
@@ -19,25 +33,37 @@ function canonicalHost(req) {
   return null;
 }
 
-const handler = clerkMiddleware(async (auth, req) => {
-  const canon = canonicalHost(req);
-  if (canon) return canon;
-  if (!isProtected(req)) return;
-  const { userId } = await auth();
-  if (!userId) {
-    // Explicit redirect — auth.protect() can't infer our custom sign-in URL
-    // from middleware (ClerkProvider props don't reach here) and 404s instead.
-    const url = new URL("/sign-in", req.url);
-    url.searchParams.set("redirect_url", req.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
+const authEnabled = !!(
+  process.env.AUTH_GOOGLE_ID &&
+  process.env.AUTH_GOOGLE_SECRET &&
+  process.env.AUTH_SECRET
+);
+
+const { auth } = NextAuth({
+  ...authConfig,
+  secret: process.env.AUTH_SECRET || "dev-placeholder-not-for-production",
+  providers: [],
 });
 
-// Until Clerk keys are set, run the canonical-host redirect standalone so the
-// www consolidation still works with the open app.
-export default process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-  ? handler
-  : function middleware(req) { return canonicalHost(req) || NextResponse.next(); };
+function openMiddleware(req) {
+  return canonicalHost(req) || NextResponse.next();
+}
+
+const gatedMiddleware = auth((req) => {
+  const canon = canonicalHost(req);
+  if (canon) return canon;
+
+  if (isProtected(req.nextUrl.pathname) && !req.auth) {
+    const url = new URL("/sign-in", req.url);
+    url.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+});
+
+// Until Google OAuth keys are set, only run the canonical-host redirect.
+export default authEnabled ? gatedMiddleware : openMiddleware;
 
 export const config = {
   matcher: [

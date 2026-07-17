@@ -5,13 +5,14 @@ import { uploadDataUrl } from "@/lib/genstore";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-// Resolve the current user id (Clerk). Falls back to a shared "public" bucket
-// when Clerk isn't configured, so the store still works without auth.
+// Resolve the current user id (Google OAuth / Auth.js). Falls back to a shared
+// "public" bucket when auth isn't configured, so the store still works without auth.
 async function uid() {
   try {
-    const { auth } = await import("@clerk/nextjs/server");
-    const a = await auth();
-    return a?.userId || "public";
+    const { auth, authEnabled } = await import("@/auth");
+    if (!authEnabled) return "public";
+    const session = await auth();
+    return session?.user?.id || "public";
   } catch {
     return "public";
   }

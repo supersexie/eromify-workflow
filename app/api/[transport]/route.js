@@ -60,7 +60,7 @@ async function pollVideo(handle, budgetMs, prompt) {
 
 // ---- Influencer (@handle) support ----
 // Influencers are stored per user; the open MCP endpoint has no signed-in user,
-// so it reads the shared "public" bucket (matches the web app when Clerk is off).
+// so it reads the shared "public" bucket (matches the web app when auth is off).
 const IDENTITY_CLAUSE =
   "Use the person shown in the reference image as the exact subject — keep their exact face, facial features, and hair identical to the reference; do not invent a different person.";
 

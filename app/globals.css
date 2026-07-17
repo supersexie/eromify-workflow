@@ -1190,13 +1190,54 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
   outline: none; font-family: inherit;
 }
 
-/* ---- Auth pages (Clerk sign-in / sign-up) ---- */
+/* ---- Auth pages (Google OAuth) ---- */
 .auth-wrap {
   min-height: 100vh; width: 100%;
   display: grid; place-items: center; padding: 40px 20px;
   background:
-    radial-gradient(1000px 400px at 50% -100px, #cfe0ff 0%, rgba(207,224,255,0) 70%),
+    radial-gradient(1000px 400px at 50% -100px, rgba(236, 72, 153, 0.18) 0%, rgba(236, 72, 153, 0) 70%),
     var(--bg);
+}
+.auth-card {
+  width: 100%; max-width: 400px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+  padding: 36px 28px; text-align: center;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.auth-brand {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--grad); color: #fff;
+  display: grid; place-items: center;
+  font-size: 22px; font-weight: 700; margin-bottom: 4px;
+}
+.auth-title {
+  margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink);
+}
+.auth-sub {
+  margin: 0 0 12px; font-size: 14px; color: var(--muted); line-height: 1.5;
+}
+.auth-google-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; height: 44px; border-radius: 9999px;
+  background: #fff; color: #1f1f1f; border: 1px solid var(--line);
+  font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.auth-google-btn:hover { background: #f7f7f7; border-color: var(--line-2); }
+
+.user-menu { display: flex; align-items: center; }
+.user-menu-btn {
+  padding: 0; border: none; background: transparent; cursor: pointer; border-radius: 9999px;
+}
+.user-menu-avatar {
+  width: 32px; height: 32px; border-radius: 9999px; object-fit: cover;
+  display: block; border: 1px solid var(--line);
+}
+.user-menu-fallback {
+  width: 32px; height: 32px; border-radius: 9999px;
+  display: grid; place-items: center;
+  background: var(--grad); color: #fff; font-size: 13px; font-weight: 700;
 }
 
 /* ---- New-workflow name modal ---- */

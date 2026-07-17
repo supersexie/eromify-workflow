@@ -1,7 +1,7 @@
 import "@xyflow/react/dist/style.css";
 import "./globals.css";
 import "./site.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import Providers from "@/components/Providers";
 import TosGate from "@/components/TosGate";
 
 export const metadata = {
@@ -18,7 +18,7 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  const page = (
+  return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Force the bare apex onto www before anything renders, so the page and
@@ -31,21 +31,12 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>{children}<TosGate /></body>
+      <body>
+        <Providers>
+          {children}
+          <TosGate />
+        </Providers>
+      </body>
     </html>
   );
-  // Only wrap with Clerk once keys exist, so the site stays up until then.
-  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    return (
-      <ClerkProvider
-        signInUrl="/sign-in"
-        signUpUrl="/sign-up"
-        signInFallbackRedirectUrl="/app"
-        signUpFallbackRedirectUrl="/app"
-      >
-        {page}
-      </ClerkProvider>
-    );
-  }
-  return page;
 }

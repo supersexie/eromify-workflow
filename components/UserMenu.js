@@ -1,16 +1,29 @@
 "use client";
-import { UserButton } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 
-const CLERK_ENABLED = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-// Clerk avatar + sign-out menu. Renders nothing until Clerk keys are set
-// (so the app works with auth disabled).
+// Google-auth avatar + sign-out. Hidden when there's no session (auth off or signed out).
 export default function UserMenu() {
-  if (!CLERK_ENABLED) return null;
+  const { data: session, status } = useSession();
+  if (status !== "authenticated" || !session?.user) return null;
+
+  const name = session.user.name || session.user.email || "Account";
+  const image = session.user.image;
+
   return (
-    <UserButton
-      afterSignOutUrl="/"
-      appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }}
-    />
+    <div className="user-menu">
+      <button
+        type="button"
+        className="user-menu-btn"
+        title={name}
+        onClick={() => signOut({ callbackUrl: "/" })}
+      >
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={image} alt="" width={32} height={32} className="user-menu-avatar" />
+        ) : (
+          <span className="user-menu-fallback">{name.slice(0, 1).toUpperCase()}</span>
+        )}
+      </button>
+    </div>
   );
 }
