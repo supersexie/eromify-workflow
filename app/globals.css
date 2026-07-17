@@ -1017,8 +1017,13 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .app-topbar-right { display: flex; align-items: center; gap: 14px; }
 .nav-pill {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: 12px; padding: 4px 6px; box-shadow: var(--shadow-sm); z-index: 5;
+  background: rgba(255,255,255,0.06);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9999px; padding: 4px 6px;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+  z-index: 5;
 }
 .nav-pill .mc-tab { font-size: 13px; padding: 6px 12px; }
 .primary-btn {
@@ -1219,15 +1224,15 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 .mc-tabs { display: flex; align-items: center; gap: 8px; }
 .mc-tab {
   background: transparent; border: 1px solid transparent;
-  color: var(--muted); padding: 8px 14px; border-radius: 10px;
+  color: var(--muted); padding: 8px 14px; border-radius: 9999px;
   font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
   transition: color .15s ease, background .15s ease, border-color .15s ease;
 }
 .mc-tab:hover:not(:disabled) { color: var(--ink); background: var(--surface-2); }
 .mc-tab.is-active {
   color: var(--ink);
-  background: var(--surface-2);
-  border-color: var(--line);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.1);
   cursor: default;
 }
 
