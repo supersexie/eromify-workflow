@@ -145,7 +145,7 @@ export default function Home() {
         <section className="relative max-w-[1440px] mx-auto w-full px-6 md:px-16 pt-24 pb-24 flex flex-col items-center text-center">
           <div className="relative max-w-[720px] w-full flex flex-col items-center">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Generative media platform</p>
-            <h1 className="font-heading text-[44px] md:text-[72px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
+            <h1 className="font-heading text-[52px] md:text-[88px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
               Generate{" "}
               <CanvasText
                 text="AI influencers"
