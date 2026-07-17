@@ -200,11 +200,7 @@ export default function Home() {
                   Generate 8 IG-ready photos of Lily for this week — vary the outfits, moods, and lighting. Mix indoor and outdoor. 4:5 portrait.
                 </div>
                 <div className="flex gap-3 items-start">
-                  <span className="flex-none mt-0.5 w-7 h-7 rounded-lg bg-[#D4A574] flex items-center justify-center">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="M12 2l1.2 6.3L19.5 7l-4.2 4.8L21 15.5l-6.5-.2L12 22l-2.5-6.7L3 15.5l5.7-3.7L4.5 7l6.3 1.3L12 2z" fill="white" />
-                    </svg>
-                  </span>
+                  <img src="/claude-mark.png" alt="Claude" className="flex-none mt-0.5 w-7 h-7 rounded-lg" />
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] md:text-[14px] leading-[1.55] text-[#E7E7EA] mb-4">
                       On it. Generating 8 portraits of Lily — mixing café, rooftop, and golden-hour outdoor scenes.
