@@ -49,10 +49,6 @@ function TabsInner({ showBrand = true }) {
         const active = t.match(pathname, search);
         const locked = !loading && tier && !canAccessTab(t.id, tier);
         const go = () => {
-          if (locked) {
-            window.open("https://whop.com/magic-mint/", "_blank");
-            return;
-          }
           if (t.id === "canvas") {
             let dest = "/app";
             try {
