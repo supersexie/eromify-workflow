@@ -3,9 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PLANS, FEATURE_ROWS, MODEL_ROWS } from "@/lib/pricing";
 
-// Client-visible switch — set NEXT_PUBLIC_AUTH_ENABLED=1 when Google OAuth is configured.
-const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED === "1";
-
 const Arrow = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14M13 6l6 6-6 6" />
@@ -64,8 +61,8 @@ export default function Pricing() {
     return () => faq.removeEventListener("click", handler);
   }, []);
 
-  const signInHref = AUTH_ENABLED ? "/sign-in" : "/app";
-  const signUpHref = AUTH_ENABLED ? "/sign-in" : "/app";
+  const signInHref = "/sign-in";
+  const signUpHref = "/sign-in";
 
   return (
     <div className="lp-root">

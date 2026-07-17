@@ -11,9 +11,6 @@ import { PLANS, FEATURE_ROWS, MODEL_ROWS } from "@/lib/pricing";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
 
-// Client-visible switch — set NEXT_PUBLIC_AUTH_ENABLED=1 when Google OAuth is configured.
-const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED === "1";
-
 const TAG_COLOR = { Automation: "text-[#5b9dff]", Training: "text-[#e08a3c]", "4K": "text-[#EC4899]" };
 
 function MatrixRow({ label, tag, included }) {
@@ -59,8 +56,8 @@ const CHARS = [
 
 export default function Home() {
   const [annual, setAnnual] = useState(false);
-  const signInHref = AUTH_ENABLED ? "/sign-in" : "/app";
-  const signUpHref = AUTH_ENABLED ? "/sign-in" : "/app";
+  const signInHref = "/sign-in";
+  const signUpHref = "/sign-in";
 
   // globals.css locks body overflow for the canvas editor — release it here so this page scrolls.
   useEffect(() => {
