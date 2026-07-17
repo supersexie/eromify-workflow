@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { uploadDataUrl } from "@/lib/genstore";
-import { moderatePrompt, isExplicitPrompt, checkReferenceImage, queueForReview } from "@/lib/moderation";
 import { requireFeature, getUserTier } from "@/lib/apiGate";
 import { auth } from "@/auth";
 import { checkCredits, incrementUsage } from "@/lib/creditStore";
@@ -122,40 +121,7 @@ export async function POST(req) {
     incrementUsage(uid, 2).catch(() => {});
   }
 
-  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs, audio, userId } = await req.json();
-
-  // --- Moderation gate 1: prompt screening (minors, deepfakes, prohibited categories) ---
-  // Applies to every branch below (t2v/i2v, edit, motion) — the prompt is the
-  // one signal common to all of them.
-  const promptVerdict = await moderatePrompt(prompt);
-  if (promptVerdict.verdict === "block") {
-    await queueForReview({ userId, prompt, verdict: "block", reason: promptVerdict.reason, stage: "video/start" });
-    return NextResponse.json({ error: "This request violates content policy." }, { status: 403 });
-  }
-  if (promptVerdict.verdict === "review") {
-    await queueForReview({ userId, prompt, verdict: "review", reason: promptVerdict.reason, stage: "video/start" });
-    return NextResponse.json({ error: "This request has been flagged for review." }, { status: 202 });
-  }
-
-  // --- Moderation gate 2: reference-image guard (real face + explicit request) ---
-  // Covers every user-supplied visual reference this route accepts: the i2v
-  // start image, the motion-control character image, and the edit source
-  // video's first-frame stand-in (editRefs). editVideo itself (an existing
-  // video being edited) isn't frame-checked here — see MODERATION.md gap.
-  const explicit = isExplicitPrompt(prompt);
-  if (explicit) {
-    const candidates = [image, ...(Array.isArray(editRefs) ? editRefs : [])].filter(Boolean);
-    for (const candidate of candidates) {
-      const refVerdict = await checkReferenceImage(candidate, explicit);
-      if (refVerdict.verdict === "block") {
-        await queueForReview({ userId, prompt, verdict: "block", reason: refVerdict.reason, stage: "video/start" });
-        return NextResponse.json(
-          { error: "Explicit generation from a real-face reference image is not permitted." },
-          { status: 403 }
-        );
-      }
-    }
-  }
+  const { prompt, model, image, aspect, resolution, duration, motionVideo, kind, editVideo, editRefs, audio } = await req.json();
 
   // ---- Video Edit (Kling) — source video + prompt → edited video ----
   if (kind === "edit") {

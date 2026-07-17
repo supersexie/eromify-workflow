@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { classifyVideoOutput, queueForReview } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -7,26 +6,9 @@ export const maxDuration = 30;
 const GEMINI = process.env.GEMINI_API_KEY;
 const FAL = process.env.FAL_KEY || process.env.FAL_API_KEY;
 
-// classifyVideoOutput checks EVERY frame Hive samples from the video (worst
-// case), not just the first frame — so a violation that only appears partway
-// through the clip is still caught. (Pre-generation defenses — prompt screen +
-// reference-image guard in video/start — remain the primary gates.)
-async function checkVideoOutput(url, userId) {
-  const verdict = await classifyVideoOutput(url);
-  if (verdict.verdict === "block") {
-    await queueForReview({ userId, verdict: "block", reason: "output_classifier_block", scores: verdict.scores, mediaRef: url, stage: "video/status" });
-    return NextResponse.json({ error: "Generated content violates policy and was not returned." }, { status: 403 });
-  }
-  if (verdict.verdict === "review") {
-    await queueForReview({ userId, verdict: "review", reason: "output_classifier_review", scores: verdict.scores, mediaRef: url, stage: "video/status" });
-    return NextResponse.json({ error: "Generated content has been flagged for review." }, { status: 202 });
-  }
-  return null;
-}
-
 export async function POST(req) {
   const body = await req.json();
-  const { provider, userId } = body;
+  const { provider } = body;
 
   // ---- fal.ai ----
   if (provider === "fal") {
@@ -49,8 +31,6 @@ export async function POST(req) {
       const result = await r.json();
       const url = result.video?.url || result.videos?.[0]?.url;
       if (!url) throw new Error("No video URL in fal result");
-      const blocked = await checkVideoOutput(url, userId);
-      if (blocked) return blocked;
       return NextResponse.json({ done: true, output: url });
     } catch (e) {
       return NextResponse.json({ error: e.message }, { status: 500 });
@@ -77,8 +57,6 @@ export async function POST(req) {
     // path so Hive can actually retrieve the bytes.
     const proxied = `/api/video/file?uri=${encodeURIComponent(uri)}`;
     const absoluteUrl = new URL(proxied, req.url).toString();
-    const blocked = await checkVideoOutput(absoluteUrl, userId);
-    if (blocked) return blocked;
     return NextResponse.json({ done: true, output: proxied });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });

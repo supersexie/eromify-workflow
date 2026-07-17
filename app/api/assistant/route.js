@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { moderateTextOutput } from "@/lib/moderation";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -197,21 +196,7 @@ export async function POST(req) {
       || (parsed.kind
           ? `On it — creating your ${parsed.kind} node now.`
           : "Sorry, I lost my train of thought there — could you rephrase that?");
-    // Moderate everything Romy is about to emit — the message shown to the
-    // user AND the prompt/scenes/character it wants to generate. If any trips
-    // the text model, refuse and null the generation fields so nothing is
-    // built. (The generation routes moderate again downstream, but catching it
-    // here avoids surfacing prohibited text and wasting a generation call.)
     const outParsedPrompt = parsed.prompt || input;
-    const combined = [message, outParsedPrompt, parsed.character, ...(scenes || [])]
-      .filter((s) => typeof s === "string").join("\n");
-    const textCheck = await moderateTextOutput(combined);
-    if (!textCheck.ok) {
-      return NextResponse.json({
-        kind: null,
-        message: "I can't help with that request — it falls outside what this platform allows.",
-      });
-    }
 
     return NextResponse.json({
       kind: parsed.kind ?? null,
