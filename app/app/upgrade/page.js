@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TopBar from "@/components/TopBar";
 import UserMenu from "@/components/UserMenu";
 import { usePlan } from "@/components/PlanProvider";
@@ -16,6 +16,22 @@ function Check({ yes }) {
 export default function UpgradePage() {
   const [annual, setAnnual] = useState(false);
   const { tier } = usePlan();
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyHeight = body.style.height;
+    const prevHtmlHeight = html.style.height;
+    body.style.overflow = "auto";
+    body.style.height = "auto";
+    html.style.height = "auto";
+    return () => {
+      body.style.overflow = prevBodyOverflow;
+      body.style.height = prevBodyHeight;
+      html.style.height = prevHtmlHeight;
+    };
+  }, []);
 
   return (
     <>
