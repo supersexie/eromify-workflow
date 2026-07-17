@@ -47,10 +47,10 @@ const BODY_TYPES = [
   { id: "plus", label: "Plus size", desc: "plus-size, full-figured build" },
 ];
 
-const HOUSE_STYLE = "ultra-realistic, 8K, DSLR quality, soft natural lighting, shallow depth of field, skin pores visible, no AI artifacts";
-const BEAUTY_CLAUSE_F = "conventionally attractive, clear skin, photogenic face, naturally beautiful, camera-ready";
-const BEAUTY_CLAUSE_M = "conventionally attractive, strong jawline, clear skin, photogenic, camera-ready";
-const FIT_CLAUSE = "wearing a well-fitted, flattering version of the outfit that accentuates her figure";
+const HOUSE_STYLE = "ultra-realistic, 8K, DSLR quality, soft natural lighting, shallow depth of field, detailed skin texture, no AI artifacts";
+const BEAUTY_CLAUSE_F = "clear skin, photogenic, well-lit portrait quality";
+const BEAUTY_CLAUSE_M = "clear skin, photogenic, well-lit portrait quality";
+const FIT_CLAUSE = "wearing a well-fitted version of the outfit";
 
 const BLANK_PICKS = { gender: "female", vibe: "teacher", ethnicity: "any", age: "mid", hairColor: "Brown", hairStyle: "Straight", eyeColor: "Brown", body: "athletic" };
 
