@@ -95,6 +95,12 @@ export default function UpgradePage() {
                       <Check yes={!!row.cols[i]} /> {row.label}
                     </div>
                   ))}
+                  <p style={{ fontSize: 11, fontWeight: 600, color: "var(--muted)", marginTop: 10, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>Models</p>
+                  {MODEL_ROWS.map((row) => (
+                    <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: row.cols[i] ? "var(--ink)" : "var(--muted)" }}>
+                      <Check yes={!!row.cols[i]} /> {row.label} {row.tag && <span style={{ fontSize: 9, fontWeight: 700, padding: "1px 5px", borderRadius: 4, background: "rgba(236,72,153,0.12)", color: "#ec4899" }}>{row.tag}</span>}
+                    </div>
+                  ))}
                 </div>
               </div>
             );
