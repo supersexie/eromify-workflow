@@ -375,7 +375,7 @@ export default function Home() {
                 </div>
                 <p className="text-[12px] text-[#7A7A7A] mb-1">{annual ? "billed for 12 months" : "billed monthly"}</p>
                 {annual ? <p className="text-[11px] font-bold tracking-[0.06em] uppercase text-[#EC4899] mb-4">Save ${plan.save}/year</p> : <p className="mb-4 min-h-[1em]" />}
-                <a href={plan.whop} target="_blank" rel="noopener noreferrer" className={`w-full text-center text-sm font-semibold py-3 rounded-full transition-all mb-4 block ${plan.popular || plan.best ? "bg-[#EC4899] text-black hover:brightness-110" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
+                <a href={annual ? plan.whopAnnual : plan.whop} target="_blank" rel="noopener noreferrer" className={`w-full text-center text-sm font-semibold py-3 rounded-full transition-all mb-4 block ${plan.popular || plan.best ? "bg-[#EC4899] text-black hover:brightness-110" : "border border-white/10 text-white hover:border-[rgba(236,72,153,0.4)]"}`}>
                   {plan.cta}
                 </a>
                 <p className="text-[13px] font-semibold text-white mb-4 flex items-center gap-1.5">
