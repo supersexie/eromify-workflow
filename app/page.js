@@ -7,6 +7,7 @@ import DotFieldBackground from "@/components/vyxen/DotFieldBackground";
 import { CanvasText } from "@/components/vyxen/CanvasText";
 import NavDropdown from "@/components/vyxen/NavDropdown";
 import { PLANS, FEATURE_ROWS, MODEL_ROWS } from "@/lib/pricing";
+import RollingText from "@/components/RollingText";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const bricolage = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
@@ -146,13 +147,7 @@ export default function Home() {
           <div className="relative max-w-[720px] w-full flex flex-col items-center">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">Generative media platform</p>
             <h1 className="font-heading text-[52px] md:text-[88px] leading-[1.05] font-bold tracking-[-0.03em] text-white mb-6">
-              Generate{" "}
-              <CanvasText
-                text="AI influencers"
-                backgroundClassName="bg-[#EC4899]"
-                colors={["var(--color-pink-300)", "var(--color-rose-200)", "var(--color-pink-200)", "var(--color-pink-400)", "var(--color-rose-300)", "var(--color-pink-100)"]}
-                lineGap={6} lineWidth={2} animationDuration={8} curveIntensity={40}
-              />
+              Generate <RollingText />
             </h1>
             <p className="text-lg leading-[1.55] text-[#B8B8B8] max-w-[520px] mb-9">
               Magic Mint brings every leading image, video, and audio model into one fast, unified workspace — built for people who make things.

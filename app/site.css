@@ -219,3 +219,28 @@
 @media (max-width: 640px) {
   .lp-foot-top { grid-template-columns: 1fr; gap: 2rem; }
 }
+
+/* Rolling text hero animation */
+.rolling-wrap {
+  display: inline-block; overflow: hidden; vertical-align: bottom;
+  height: 1.1em; position: relative;
+}
+.rolling-text {
+  display: inline-block;
+  background: #EC4899; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rolling-in {
+  animation: rollIn 0.5s ease both;
+}
+.rolling-out {
+  animation: rollOut 0.5s ease both;
+}
+@keyframes rollIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes rollOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-100%); opacity: 0; }
+}
