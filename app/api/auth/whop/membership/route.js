@@ -11,6 +11,11 @@ async function getWhopToken() {
 }
 
 export async function GET() {
+  const devTier = process.env.WHOP_DEV_TIER;
+  if (devTier) {
+    return NextResponse.json({ tier: devTier, active: true, productName: `${devTier} (dev)` });
+  }
+
   const token = await getWhopToken();
 
   if (!token) {
