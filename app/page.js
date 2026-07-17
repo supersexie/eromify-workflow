@@ -40,10 +40,10 @@ const G = {
 
 // Bento feature tiles — model showcase
 const BENTO_TILES = [
-  { label: "Seedream 4.5", cls: "col-span-2", bg: G.pink },
-  { label: "Nano Banana Pro", cls: "", bg: G.violet },
-  { label: "Seedream 4.0", cls: "row-span-2", bg: G.blue },
-  { label: "Seedream 5 Lite", cls: "", bg: G.cyan },
+  { label: "Seedream 4.5", cls: "col-span-2", bg: G.pink, img: "/chars/bento-1.jpg" },
+  { label: "Nano Banana Pro", cls: "", bg: G.violet, img: "/chars/bento-2.jpg" },
+  { label: "Seedream 4.0", cls: "row-span-2", bg: G.blue, img: "/chars/bento-4.jpg" },
+  { label: "Seedream 5 Lite", cls: "", bg: G.cyan, img: "/chars/bento-3.jpg" },
   { label: "Nano Banana 2", cls: "", bg: G.green },
 ];
 
@@ -251,7 +251,11 @@ export default function Home() {
           <div className="grid grid-cols-2 grid-rows-[repeat(3,120px)] md:grid-rows-[repeat(3,156px)] gap-4">
             {BENTO_TILES.map((t) => (
               <div key={t.label} className={`relative rounded-[20px] border border-white/[0.06] overflow-hidden hover:border-[rgba(236,72,153,0.4)] hover:scale-[1.01] transition-all duration-[250ms] bg-[#0f0a10] ${t.cls}`}>
-                <div className="absolute inset-0 opacity-25" style={{ background: t.bg }} />
+                {t.img ? (
+                  <img src={t.img} alt={t.label} className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <div className="absolute inset-0 opacity-25" style={{ background: t.bg }} />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <span className="absolute top-3 right-3 text-[11px] text-white bg-[#0A0A0A]/60 backdrop-blur-sm px-2.5 py-1 rounded-[10px]">{t.label}</span>
               </div>
