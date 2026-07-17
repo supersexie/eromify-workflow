@@ -302,8 +302,8 @@ export default function Home() {
         </section>
 
         {/* Character gallery */}
-        <section id="characters" className="w-full flex flex-col md:flex-row items-center px-6 md:px-16 py-24 overflow-hidden">
-          <div className="flex-none w-full md:w-[300px] pr-6 md:pr-16 mb-8 md:mb-0">
+        <section id="characters" className="max-w-[1440px] mx-auto w-full flex flex-col md:flex-row items-start px-6 md:px-16 py-24 gap-8 md:gap-12">
+          <div className="flex-none w-full md:w-[300px] mb-8 md:mb-0">
             <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#EC4899] mb-4">AI Characters</p>
             <h2 className="font-heading text-[36px] md:text-[56px] leading-[1.1] font-bold tracking-[-0.02em] text-white mb-4">Build your<br />own AI<br />influencer.</h2>
             <p className="text-[15px] leading-[1.55] text-[#B8B8B8] mb-8">
@@ -313,13 +313,13 @@ export default function Home() {
               Explore characters →
             </Link>
           </div>
-          <div className="flex gap-6 overflow-x-auto md:overflow-hidden flex-1 pr-6">
+          <div className="grid grid-cols-3 gap-6 flex-1 min-w-0">
             {CHARS.map((char) => (
-              <div key={char.name} className={`flex flex-col items-center flex-none transition-opacity ${char.faded ? "opacity-40" : ""}`}>
+              <div key={char.name} className={`flex flex-col items-center transition-opacity ${char.faded ? "opacity-40" : ""}`}>
                 <p className="text-base font-medium text-white mb-4">{char.name}</p>
-                <div className="grid grid-cols-2 gap-2" style={{ width: 328 }}>
+                <div className="grid grid-cols-2 gap-2 w-full">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="w-40 h-40 rounded-[14px] overflow-hidden bg-[#111]">
+                    <div key={i} className="aspect-square rounded-[14px] overflow-hidden bg-[#111]">
                       <div className="w-full h-full opacity-25" style={{ background: char.bg }} />
                     </div>
                   ))}
