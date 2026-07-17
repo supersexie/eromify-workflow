@@ -17,62 +17,78 @@ const Check = () => (
 );
 
 // monthly = full monthly price; annual = effective monthly price when billed yearly.
-// Kept in sync with the pricing teaser on app/page.js.
+// Kept in sync with the pricing teaser on app/page.js — mirrors Eromify tiers.
 const PLANS = [
   {
-    name: "Starter",
-    desc: "For casual creators just getting started.",
+    name: "Builder",
+    desc: "Start creating AI images in minutes.",
     monthly: 29,
-    annual: 12,
+    annual: 2.99,
+    save: 312,
     features: [
-      "200 credits per month",
-      "Image, video, voiceover & script generation",
-      "Core AI models (FLUX, Seedream, LTX, Wan)",
+      "500 credits per month",
+      "Image generation",
+      "Core AI models (Flux 2 Pro, Nano Banana 2, Z-image Turbo)",
       "Node-based canvas",
-      "Up to 100 exports",
+    ],
+  },
+  {
+    name: "Launch",
+    desc: "Train your own AI persona and create on autopilot.",
+    monthly: 45,
+    annual: 7.99,
+    save: 444,
+    features: [
+      "1,000 credits per month",
+      "Everything in Builder",
+      "Influencer training",
+      "Flux LoRA training",
+    ],
+  },
+  {
+    name: "Growth",
+    desc: "Unlock video, face swap, and the full studio.",
+    monthly: 79,
+    annual: 15.99,
+    save: 756,
+    popular: true,
+    features: [
+      "4,000 credits per month",
+      "Everything in Launch",
+      "Video generation",
+      "Face swap & image upscale",
+      "Claude MCP connector",
+      "Premium models (Kling, GPT Image, Seedream)",
     ],
   },
   {
     name: "Creator",
-    desc: "Best for creators serious about growth.",
-    monthly: 49,
-    annual: 19,
-    popular: true,
-    features: [
-      "400 credits per month",
-      "Everything in Starter",
-      "Premium models (Kling v2, MiniMax, Veo)",
-      "Romy AI assistant",
-      "Claude MCP connector",
-      "Up to 200 exports",
-    ],
-  },
-  {
-    name: "Studio",
-    desc: "For pros who want the best tools, no limits.",
+    desc: "Every model unlocked. 4K, premium video, unlimited.",
     monthly: 99,
-    annual: 49,
+    annual: 23.99,
+    save: 900,
+    best: true,
     features: [
-      "1,000 credits per month",
-      "Everything in Creator",
-      "1080p & Pro video models",
-      "Priority generation queue",
-      "Up to 600 exports",
-      "Up to 2 TB media storage",
+      "6,000 credits per month",
+      "Everything in Growth",
+      "Motion control",
+      "4K & Pro video models",
+      "Video upscale",
+      "AI Agent",
     ],
   },
 ];
 
 const PRICE_FAQS = [
-  { q: "What are Magic Mint credits and how do they work?", a: "Every generation — an image, a video clip, a voiceover, or a script — uses credits from your monthly balance. Heavier jobs (longer video, premium models) cost more. Credits refresh at the start of each billing cycle." },
+  { q: "What are Magic Mint credits and how do they work?", a: "Every generation — an image, a video clip, a voiceover, or a script — uses credits from your monthly balance. Heavier jobs (longer video, premium models) cost more. Plans include 500 to 6,000 credits per month, and credits refresh at the start of each billing cycle." },
   { q: "Can I monetize content made with Magic Mint?", a: "Yes. Everything you generate on a paid plan is yours to use commercially — post it, sell it, and monetize it on any platform." },
   { q: "Can I use my own media?", a: "Absolutely. Upload your own images to seed image-to-image and image-to-video generations, or bring your own scripts for voiceovers." },
   { q: "Can I switch or cancel anytime?", a: "Yes — upgrade, downgrade, or cancel from your account at any time. There are no cancellation fees, and annual plans are prorated." },
-  { q: "Do you offer a free plan?", a: "You can sign up free and explore the canvas. Generating real AI media requires a paid plan so we can cover model costs." },
+  { q: "Do you offer a free plan?", a: "No free plan and no free trial. Plans start at $29/month on Builder, or an effective $2.99/month billed annually." },
 ];
 
 export default function Pricing() {
-  const [annual, setAnnual] = useState(true);
+  const [annual, setAnnual] = useState(false);
 
   // globals.css locks body overflow for the canvas editor — release it here so the page scrolls.
   useEffect(() => {
@@ -142,12 +158,14 @@ export default function Pricing() {
 
           <div className="lp-price-row">
             {PLANS.map((p) => (
-              <div key={p.name} className={`lp-price ${p.popular ? "is-popular" : ""}`}>
+              <div key={p.name} className={`lp-price ${p.popular || p.best ? "is-popular" : ""}`}>
                 {p.popular && <span className="lp-price-badge">Most popular</span>}
+                {p.best && <span className="lp-price-badge">Best value</span>}
                 <span className="lp-price-name">{p.name}</span>
                 <span className="lp-price-desc">{p.desc}</span>
                 <span className="lp-price-amt">${annual ? p.annual : p.monthly}<span>/mo</span></span>
-                <span className="lp-price-billed">{annual ? "billed annually" : "billed monthly"}</span>
+                <span className="lp-price-billed">{annual ? "billed for 12 months" : "billed monthly"}</span>
+                {annual && p.save ? <span className="lp-price-billed">Save ${p.save}/year</span> : null}
                 <Link href={signUpHref} className="lp-btn">Get started <Arrow /></Link>
                 <ul className="lp-price-feats">
                   {p.features.map((f) => <li key={f} className="lp-feat"><Check />{f}</li>)}
