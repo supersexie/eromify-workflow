@@ -1,12 +1,12 @@
 "use client";
 
-// Shared empty-state hero with floating gradient tiles — used by the Image,
+// Shared empty-state hero with floating tiles — used by the Image,
 // Video (create/edit), and Influencers sections so they all share one look.
 const TILES = [
-  { hue: "linear-gradient(135deg,#ec4899,#a855f7)", label: "Portrait" },
-  { hue: "linear-gradient(135deg,#a855f7,#3b82f6)", label: "Concept" },
-  { hue: "linear-gradient(135deg,#f59e0b,#ec4899)", label: "Editorial" },
-  { hue: "linear-gradient(135deg,#10b981,#a855f7)", label: "Surreal" },
+  { img: "/chars/sofia-1.jpg", label: "Portrait" },
+  { img: "/chars/aria-3.jpg", label: "Concept" },
+  { img: "/chars/luna-2.jpg", label: "Editorial" },
+  { img: "/chars/sofia-4.jpg", label: "Surreal" },
 ];
 
 export default function SectionHero({ title, brand, sub, tiles = TILES }) {
@@ -17,12 +17,12 @@ export default function SectionHero({ title, brand, sub, tiles = TILES }) {
           <div
             key={i}
             className="ip-hero-tile"
-            style={{ background: t.hue, transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}
+            style={{ background: t.hue || "#111", transform: `rotate(${(i - 1.5) * 4}deg) translateY(${i % 2 ? 10 : -10}px)` }}
           >
             {t.video ? (
               <video src={t.video} muted loop autoPlay playsInline preload="metadata" onError={(e) => { e.currentTarget.style.display = "none"; }} />
             ) : t.img ? (
-              <img src={t.img} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+              <img src={t.img} alt={t.label || ""} onError={(e) => { e.currentTarget.style.display = "none"; }} />
             ) : (
               <span>{t.label}</span>
             )}
