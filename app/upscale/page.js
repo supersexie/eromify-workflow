@@ -1,4 +1,5 @@
 import UpscalePage from "@/components/UpscalePage";
+import GatedPage from "@/components/GatedPage";
 
 export const metadata = {
   title: "Upscale — Magic Mint",
@@ -6,5 +7,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <UpscalePage />;
+  return <GatedPage feature="Image Upscale"><UpscalePage /></GatedPage>;
 }

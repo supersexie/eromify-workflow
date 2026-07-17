@@ -1,4 +1,5 @@
 import InfluencersPage from "@/components/InfluencersPage";
+import GatedPage from "@/components/GatedPage";
 
 export const metadata = {
   title: "Influencers — Magic Mint",
@@ -6,5 +7,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <InfluencersPage />;
+  return <GatedPage feature="Influencer Training"><InfluencersPage /></GatedPage>;
 }

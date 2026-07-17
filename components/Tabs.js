@@ -2,6 +2,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePlan } from "./PlanProvider";
+import { canAccessTab } from "@/lib/planGate";
 
 // Motion Control now lives as a sub-tab inside Video — the dedicated /motion
 // route is gone. The Motion Control tab routes to /video?sub=motion which the
@@ -34,6 +36,7 @@ function TabsInner({ showBrand = true }) {
   const router = useRouter();
   const pathname = usePathname() || "";
   const search = useSearchParams();
+  const { tier, loading } = usePlan();
   return (
     <div className="mc-tabs">
       {showBrand && (
@@ -44,9 +47,12 @@ function TabsInner({ showBrand = true }) {
       )}
       {TABS.map((t) => {
         const active = t.match(pathname, search);
+        const locked = !loading && tier && !canAccessTab(t.id, tier);
         const go = () => {
-          // Canvas tab returns to the last-opened canvas (if any) rather than
-          // always dumping the user on the all-canvases dashboard.
+          if (locked) {
+            window.open("https://whop.com/magic-mint/", "_blank");
+            return;
+          }
           if (t.id === "canvas") {
             let dest = "/app";
             try {
@@ -61,11 +67,13 @@ function TabsInner({ showBrand = true }) {
         return (
           <button
             key={t.id}
-            className={`mc-tab ${active ? "is-active" : ""}`}
+            className={`mc-tab ${active ? "is-active" : ""} ${locked ? "mc-tab-locked" : ""}`}
             onClick={() => !active && go()}
             disabled={active}
+            title={locked ? "Upgrade to unlock" : ""}
           >
             {t.label}
+            {locked && <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={{ marginLeft: 4, opacity: 0.5 }}><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/></svg>}
           </button>
         );
       })}

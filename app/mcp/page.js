@@ -1,4 +1,5 @@
 import MCPPage from "@/components/MCPPage";
+import GatedPage from "@/components/GatedPage";
 
 export const metadata = {
   title: "MCP & CLI — Magic Mint",
@@ -6,5 +7,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <MCPPage />;
+  return <GatedPage feature="Claude MCP"><MCPPage /></GatedPage>;
 }

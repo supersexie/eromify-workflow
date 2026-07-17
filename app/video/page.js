@@ -1,4 +1,5 @@
 import VideoPage from "@/components/VideoPage";
+import GatedPage from "@/components/GatedPage";
 
 export const metadata = {
   title: "Video — Magic Mint",
@@ -6,5 +7,5 @@ export const metadata = {
 };
 
 export default function Page() {
-  return <VideoPage />;
+  return <GatedPage feature="Video generation"><VideoPage /></GatedPage>;
 }
