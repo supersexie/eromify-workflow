@@ -54,7 +54,7 @@ export default function AuthForm({ mode = "signin", callbackUrl = "/app", google
 
   return (
     <div className="auth-card">
-      <div className="auth-brand">m</div>
+      <img src="/logo.png" alt="Magic Mint" className="auth-brand" />
       <h1 className="auth-title">{isSignUp ? "Create your account" : "Welcome back"}</h1>
       <p className="auth-sub">
         {isSignUp ? "Sign up with email or Google to start creating." : "Sign in with email or Google."}

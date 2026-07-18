@@ -1206,9 +1206,8 @@ body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
 }
 .auth-brand {
   width: 44px; height: 44px; border-radius: 12px;
-  background: var(--grad); color: #fff;
-  display: grid; place-items: center;
-  font-size: 22px; font-weight: 700; margin-bottom: 4px;
+  object-fit: cover; display: block;
+  margin-bottom: 4px;
 }
 .auth-title {
   margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink);
