@@ -1,4 +1,4 @@
-import { authEnabled, googleEnabled, whopEnabled } from "@/auth";
+import { authEnabled, googleEnabled } from "@/auth";
 import { redirect } from "next/navigation";
 import AuthForm from "@/components/AuthForm";
 
@@ -12,7 +12,7 @@ export default async function Page({ searchParams }) {
 
   return (
     <div className="auth-wrap">
-      <AuthForm mode="signup" callbackUrl={callbackUrl} googleEnabled={googleEnabled} whopEnabled={whopEnabled} />
+      <AuthForm mode="signup" callbackUrl={callbackUrl} googleEnabled={googleEnabled} />
     </div>
   );
 }
